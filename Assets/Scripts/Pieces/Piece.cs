@@ -30,6 +30,8 @@ namespace Assets.Scripts.Pieces
 
         public ChessColor Color => _color;
 
+        public Point Location => _location;
+
         public abstract PieceType Type { get; }
 
         public abstract List<Square> GetValidMoves( Board board );
@@ -40,7 +42,7 @@ namespace Assets.Scripts.Pieces
         {
             _location.Move( rankChange, fileChange );
             // file is x, rank is y
-            _gamePiece.transform.position += new Vector3( -fileChange, 0, -rankChange );
+            _gamePiece.transform.position += new Vector3( fileChange, 0, rankChange );
         }
 
         public void MoveTo( Point point )
@@ -60,6 +62,11 @@ namespace Assets.Scripts.Pieces
         public void SetLocation( CRank rank, CFile file )
         {
             SetLocation( new( rank, file ) );
+        }
+
+        public void Delete()
+        {
+            _gamePiece.SetActive( false );
         }
     }
 }

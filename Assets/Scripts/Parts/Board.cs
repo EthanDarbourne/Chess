@@ -3,6 +3,8 @@ using Assets.Scripts.Misc;
 using Assets.Scripts.Pieces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Assets.Scripts.Parts
@@ -36,9 +38,15 @@ namespace Assets.Scripts.Parts
         // get the height of the board
         public int Height => _height;
 
+        public void SetupForGameStart()
+        {
+            DeselectPiece();
+            DisableAllHighlights();
+        }
+
         public void SelectPiece( CRank rank, CFile file )
         {
-            SelectLocation( rank.Num, file.Num );
+            SelectPiece( rank.Num, file.Num );
         }
 
         public void SelectPiece( Square? sq )
@@ -59,7 +67,7 @@ namespace Assets.Scripts.Parts
 
             if ( _selectedPiece is not null )
             {
-                Debug.Log( "We have a selected piece" );
+                Debug.Log( "We have a selected piece: " + _selectedPiece.Type.ToString() );
                 TryToMoveSelectedPieceToLocation( rank, file );
             }
             else
@@ -68,16 +76,40 @@ namespace Assets.Scripts.Parts
             }
         }
 
+        public void DeselectPiece()
+        {
+            DisableAllHighlights();
+            _selectedPiece = null;
+        }
+
         // if we have already selected a piece, we try and move the selected piece to the selected location
         // otherwise, we deselect the current piece 
         private void TryToMoveSelectedPieceToLocation( int rank, int file )
         {
-            
+            List<Square> moves = _selectedPiece.GetValidMoves( this );
+
+            Square? moveSquare = moves.FirstOrDefault( x => x.Rank.Num == rank && x.File.Num == file );
+
+            if(moveSquare is null)
+            {
+                Debug.Log( "Deselecting piece" );
+
+                bool shouldSelectAnotherPiece = _selectedPiece.Location.Rank.Num != rank || _selectedPiece.Location.File.Num != file;
+                DeselectPiece();
+                // try and select the piece at this square, if we can
+                if( shouldSelectAnotherPiece )
+                {
+                    SelectPiece( rank, file );
+                }
+                return;
+            }
+            MovePiece( GetSquare( _selectedPiece.Location ), moveSquare );
         }
 
         // try to select the piece at the current location
         private void SelectPiece(int rank, int file)
         {
+            Debug.Log( $"Trying to select at {rank}, {file}" );
             Piece? piece = _board[ rank ][ file ].Piece;
             if ( piece is null )
             {
@@ -174,6 +206,12 @@ namespace Assets.Scripts.Parts
             _board[ rank ][ file ].HighlightSquare( highlight );
         }
 
+        public void DisableAllHighlights()
+        {
+            DisableAllMoveToHighlights();
+            _highlightSquare.Hide();
+        }
+
         public void DisableAllMoveToHighlights()
         {
             _board.ForEach( x => x?.ForEach( y => y?.DisableMoveToHighlight() ) );
@@ -236,8 +274,6 @@ namespace Assets.Scripts.Parts
 
         public void MovePiece( Square from, Square to )
         {
-            //(Point fromPoint, Point toPoint) = (from.Point, to.Point);
-            //MovePiece( fromPoint.Rank, fromPoint.File, toPoint.Rank, toPoint.File );
             if ( OutOfBounds( from.Rank, from.File ) || OutOfBounds( to.Rank, to.File ) )
             {
                 return;
@@ -248,24 +284,38 @@ namespace Assets.Scripts.Parts
                 return;
             }
 
-            //List<Square> moves = from.Piece.GetValidMoves( this );
+            List<Square> moves = from.Piece.GetValidMoves( this );
 
-
-            //if ( moves.Find( x => x.Point == to.Point ) is null )
-            //{
-            //    Console.WriteLine( "Cannot move to this location" );
-            //    return;
-            //}
-
-            //Console.WriteLine( $"Move piece at {rankfrom} {filefrom} to {rankto} {fileto}" );
+            if ( moves.Find( x => x.Point == to.Point ) is null )
+            {
+                Debug.Log( "Cannot move to this location" );
+                return;
+            }
 
             Piece movingPiece = from.RemovePiece();
-            to.MovePieceTo( movingPiece );
+            
+            if(to.IsCapturable(_turn))
+            {
+                // making capture
+                // todo: move to side of board
+                to.CapturePiece( movingPiece );
+            } 
+            else
+            {
+                to.MovePieceTo( movingPiece );
+            }
+            DeselectPiece();
+            SwapTurn();
         }
 
         public void MovePiece( string from, string to )
         {
             MovePiece( GetSquare( from ), GetSquare( to ) );
+        }
+
+        public void SwapTurn()
+        {
+            _turn = _turn == ChessColor.White ? ChessColor.Black : ChessColor.White;
         }
     }
 }

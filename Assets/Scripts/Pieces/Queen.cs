@@ -28,7 +28,7 @@ namespace Assets.Scripts.Pieces
             int file = _location.File.Num;
 
             List<Square> res = Utilities.GetRookMoves( board, rank, file, Color );
-            res.Concat( Utilities.GetBishopMoves( board, rank, file, Color ) );
+            res.AddRange( Utilities.GetBishopMoves( board, rank, file, Color ) );
 
             return res;
         }

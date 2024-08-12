@@ -40,38 +40,23 @@ namespace Assets.Scripts
         {
             if(Input.GetMouseButtonDown(0))
             {
-                Debug.Log( "Button pressed" );
                 Vector3 mousePos = Input.mousePosition;
                 Ray ray = _mainCamera.ScreenPointToRay( mousePos );
 
                 ray.direction = ray.direction * 100;
-                Debug.DrawRay( ray.origin, ray.direction * 100, Color.red, 5 );
 
-
-                //_mainCamera.enabled = !_mainCamera.enabled;
-                //_secondCamera.enabled = !_secondCamera.enabled;
                 if ( Physics.Raycast( ray, out RaycastHit raycastHit, 1000000f ) )
                 {
                     
                     if ( raycastHit.transform is not null )
                     {
-                        //Our custom method. 
-                        Debug.Log( "Clicked on" + raycastHit.transform.gameObject.name );
-                        Debug.Log( "Clicked point " + raycastHit.point);
-
-                        int rank = (1 + ( int ) raycastHit.point.x);
-                        int file = (1 + ( int ) raycastHit.point.z);
+                        int file = (1 + ( int ) raycastHit.point.x);
+                        int rank = (1 + ( int ) raycastHit.point.z);
 
                         Debug.Log( $"Rank: {rank}, File: {file}" );
-
                         
                         _board.SelectLocation( rank, file );
                         //_board.HighlightSquare( _highlightSquare, rank, file );
-                        Debug.Log( "Square position: " + _highlightSquare.Position );
-                    }
-                    else
-                    {
-                        Debug.Log( "No hit" );
                     }
                 }
             }
@@ -127,7 +112,7 @@ namespace Assets.Scripts
 
 
             //_board.MovePiece( "E2", "E4" );
-            _board.DisableAllMoveToHighlights();
+            _board.SetupForGameStart();
         }
 
         

@@ -27,4 +27,9 @@ namespace Assets.Scripts.Parts
 
         public static int operator -( CFile a, CFile b ) => a.Num - b.Num;
     }
+
+    public static class CFileExtensions
+    {
+        public static bool Equals( this CFile a, int b ) => a.Num == b;
+    }
 }

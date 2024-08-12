@@ -9,7 +9,6 @@ namespace Assets.Scripts.Pieces
 {
     public class Pawn : Piece
     {
-
         private bool _hasMoved = false;
 
         public Pawn( GameObject gamePiece, CRank rank, CFile file, ChessColor color ) : base( gamePiece, rank, file, color )

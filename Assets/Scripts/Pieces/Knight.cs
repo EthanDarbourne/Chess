@@ -19,11 +19,11 @@ namespace Assets.Scripts.Pieces
 
         public override List<Square> GetValidMoves( Board board )
         {
-            // check all valid moves for a pawn
+            // check all valid moves for a knight
             int rank = _location.Rank.Num;
             int file = _location.File.Num;
 
-            // check bishop moves
+            // check knight moves
             List<Square> res = Utilities.GetKnightMoves( board, rank, file, Color );
 
             return res;

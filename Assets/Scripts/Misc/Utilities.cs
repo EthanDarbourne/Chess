@@ -3,6 +3,7 @@ using Assets.Scripts.Parts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Assets.Scripts.Misc
 {
@@ -28,10 +29,10 @@ namespace Assets.Scripts.Misc
         public static List<Square> GetRookMoves( Board board, int rank, int file, ChessColor color )
         {
             List<Square> res = new();
-            res.Concat( GetMovesInDirection( board, rank, file, color, 1, 0 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, -1, 0 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, 0, 1 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, 0, -1 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, 1, 0 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, -1, 0 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, 0, 1 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, 0, -1 ) );
             return res;
         }
 
@@ -39,20 +40,44 @@ namespace Assets.Scripts.Misc
         public static List<Square> GetBishopMoves( Board board, int rank, int file, ChessColor color )
         {
             List<Square> res = new();
-            res.Concat( GetMovesInDirection( board, rank, file, color, 1, 1 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, 1, -1 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, -1, 1 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, -1, -1 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, 1, 1 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, 1, -1 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, -1, 1 ) );
+            res.AddRange( GetMovesInDirection( board, rank, file, color, -1, -1 ) );
             return res;
         }
 
         public static List<Square> GetKnightMoves( Board board, int rank, int file, ChessColor color )
         {
+            int[] moves = { 2, 1, -2, -1, 2, -1, -2, 1, 2 };
             List<Square> res = new();
-            res.Concat( GetMovesInDirection( board, rank, file, color, 1, 1 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, 1, -1 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, -1, 1 ) );
-            res.Concat( GetMovesInDirection( board, rank, file, color, -1, -1 ) );
+
+            for(int i = 0; i < moves.Length - 1; ++i)
+            {
+                (int rankTo, int fileTo) = (rank + moves[ i ], file + moves[i + 1]);
+
+                if(board.CanMoveTo( rankTo, fileTo, color))
+                {
+                    res.Add( board.GetSquare( rankTo, fileTo ) );
+                }
+            }
+            return res;
+        }
+
+        public static List<Square> GetKingMoves( Board board, int rank, int file, ChessColor color )
+        {
+            int[] moves = { 1, 0, -1, 0, 1, 0, -1, 0, 1 };
+            List<Square> res = new();
+
+            for ( int i = 0; i < moves.Length - 1; ++i )
+            {
+                (int rankTo, int fileTo) = (rank + moves[ i ], file + moves[ i + 1 ]);
+
+                if ( board.CanMoveTo( rankTo, fileTo, color ) )
+                {
+                    res.Add( board.GetSquare( rankTo, fileTo ) );
+                }
+            }
             return res;
         }
 
@@ -97,7 +122,7 @@ namespace Assets.Scripts.Misc
 
 
             // change these bounds if the board gets bigger
-            if ( rankNum < 0 || rankNum > 8 || fileNum < 0 || fileNum > 8 )
+            if ( rankNum < 1 || rankNum > 8 || fileNum < 1 || fileNum > 8 )
             {
                 throw new ArgumentException( "Invalid Position for Chess Notation" );
             }

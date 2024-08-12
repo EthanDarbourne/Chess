@@ -23,5 +23,11 @@
         }
 
         public static int operator -( CRank a, CRank b ) => a.Num - b.Num;
+
+    }
+
+    public static class CRankExtensions
+    {
+        public static bool Equals( this CRank a, int b ) => a.Num == b;
     }
 }

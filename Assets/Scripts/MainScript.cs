@@ -60,6 +60,7 @@ namespace Assets.Scripts
                     }
                 }
             }
+            CheckForKeyPresses();
         }
 
         private GameObject CreateHighlightSquare()
@@ -115,6 +116,29 @@ namespace Assets.Scripts
             _board.SetupForGameStart();
         }
 
+        private void CheckForKeyPresses()
+        {
+            if(Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                // game to end
+                _board.ExecuteAllMoves();
+            }
+            else if ( Input.GetKeyDown( KeyCode.UpArrow ) )
+            {
+                // game to start
+                _board.UndoAllMoves();
+            }
+            else if ( Input.GetKeyDown( KeyCode.LeftArrow ) )
+            {
+                // back one move
+                _board.UndoOneMove();
+            }
+            else if ( Input.GetKeyDown( KeyCode.RightArrow ) )
+            {
+                // forward one move
+                _board.ExecuteOneMove();
+            }
+        }
         
     }
 }

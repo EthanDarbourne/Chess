@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,7 +35,7 @@ namespace Assets.Scripts.Pieces
 
         public abstract PieceType Type { get; }
 
-        public abstract List<Square> GetValidMoves( Board board );
+        public abstract List<Move> GetValidMoves( Board board );
 
         // - changes moves positively along the files
         // - changes moves positively along the ranks
@@ -62,6 +63,11 @@ namespace Assets.Scripts.Pieces
         public void SetLocation( CRank rank, CFile file )
         {
             SetLocation( new( rank, file ) );
+        }
+
+        public void Uncapture()
+        {
+            _gamePiece.SetActive( true );
         }
 
         public void Delete()

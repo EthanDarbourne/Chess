@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
+using Assets.Scripts.Moves;
 using Assets.Scripts.Pieces;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,9 @@ namespace Assets.Scripts.Parts
         // find a way to make the enum bigger to allow for bigger boards (use more letters)
 
         private List<List<Square>> _board = new();
+        private List<Move> _moves = new();
+
+        private int _currentMove = 0;
 
         private Piece? _selectedPiece = null;
 
@@ -37,6 +41,11 @@ namespace Assets.Scripts.Parts
 
         // get the height of the board
         public int Height => _height;
+
+        public Move LastMove => _moves.Count > 0 ? _moves[ ^1 ] : null;
+
+        public bool CanMoveForward => _currentMove < _moves.Count;
+        public bool CanMoveBackward => _currentMove > 0;
 
         public void SetupForGameStart()
         {
@@ -86,11 +95,11 @@ namespace Assets.Scripts.Parts
         // otherwise, we deselect the current piece 
         private void TryToMoveSelectedPieceToLocation( int rank, int file )
         {
-            List<Square> moves = _selectedPiece.GetValidMoves( this );
+            List<Move> moves = _selectedPiece.GetValidMoves( this );
 
-            Square? moveSquare = moves.FirstOrDefault( x => x.Rank.Num == rank && x.File.Num == file );
+            Move? move = moves.FirstOrDefault( x => x.To.Rank.Num == rank && x.To.File.Num == file );
 
-            if(moveSquare is null)
+            if(move is null)
             {
                 Debug.Log( "Deselecting piece" );
 
@@ -103,7 +112,8 @@ namespace Assets.Scripts.Parts
                 }
                 return;
             }
-            MovePiece( GetSquare( _selectedPiece.Location ), moveSquare );
+            MovePiece( GetSquare( _selectedPiece.Location ), move.To );
+            //MovePiece( move );
         }
 
         // try to select the piece at the current location
@@ -126,9 +136,9 @@ namespace Assets.Scripts.Parts
             HighlightSquare( _highlightSquare, rank, file );
             _selectedPiece = piece;
 
-            List<Square> moves = piece.GetValidMoves( this );
+            List<Move> moves = piece.GetValidMoves( this );
 
-            foreach ( Square move in moves )
+            foreach ( Move move in moves )
             {
                 move.EnableMoveToHighlight();
             }
@@ -284,26 +294,23 @@ namespace Assets.Scripts.Parts
                 return;
             }
 
-            List<Square> moves = from.Piece.GetValidMoves( this );
+            List<Move> moves = from.Piece.GetValidMoves( this );
 
-            if ( moves.Find( x => x.Point == to.Point ) is null )
+            Move? move = moves.FirstOrDefault( x => x.To.Point == to.Point );
+
+            if ( move is null )
             {
                 Debug.Log( "Cannot move to this location" );
                 return;
             }
+            MovePiece( move );
+        }
 
-            Piece movingPiece = from.RemovePiece();
-            
-            if(to.IsCapturable(_turn))
-            {
-                // making capture
-                // todo: move to side of board
-                to.CapturePiece( movingPiece );
-            } 
-            else
-            {
-                to.MovePieceTo( movingPiece );
-            }
+        public void MovePiece(Move move)
+        {
+            move.ExecuteMove( this );
+            _moves.Add( move );
+            ++_currentMove;
             DeselectPiece();
             SwapTurn();
         }
@@ -316,6 +323,43 @@ namespace Assets.Scripts.Parts
         public void SwapTurn()
         {
             _turn = _turn == ChessColor.White ? ChessColor.Black : ChessColor.White;
+        }
+
+        public void UseCapturedPiece(Piece capturedPiece)
+        {
+            // move to side of board
+        }
+
+
+        // for moving between current moves that have been played
+        public void ExecuteAllMoves()
+        {
+            while(CanMoveForward)
+            {
+                ExecuteOneMove();
+            }
+        }
+
+        public void UndoAllMoves()
+        {
+            while(CanMoveBackward)
+            {
+                UndoOneMove();
+            }
+        }
+
+        public void UndoOneMove()
+        {
+            if ( !CanMoveBackward ) return;
+            --_currentMove;
+            _moves[ _currentMove ].UndoMove( this );
+        }
+
+        public void ExecuteOneMove()
+        {
+            if ( !CanMoveForward ) return;
+            _moves[ _currentMove ].ExecuteMove(this);
+            ++_currentMove;
         }
     }
 }

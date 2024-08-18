@@ -44,11 +44,17 @@ namespace Assets.Scripts.Parts
             _piece.MoveTo( new( _location ) );
         }
 
-        public Piece CapturePiece( Piece piece )
+        public Piece CapturePiece()
         {
             Assert.IsNotNull( _piece );
             Piece ret = _piece;
             _piece.Delete();
+            return ret;
+        }
+
+        public Piece CapturePiece( Piece piece )
+        {
+            Piece ret = CapturePiece();
             MovePieceTo( piece );
             return ret;
         }

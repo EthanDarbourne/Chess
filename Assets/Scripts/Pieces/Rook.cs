@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
+using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using System;
 using System.Collections.Generic;
@@ -29,13 +30,13 @@ namespace Assets.Scripts.Pieces
             base.Move( rankChange, fileChange );
         }
 
-        public override List<Square> GetValidMoves( Board board )
+        public override List<Move> GetValidMoves( Board board )
         {
             int rank = _location.Rank.Num;
             int file = _location.File.Num;
 
             // check forward moves
-            List<Square> res = Utilities.GetRookMoves( board, rank, file, Color );
+            List<Move> res = Utilities.GetRookMoves( board, rank, file, Color );
 
             return res;
         }

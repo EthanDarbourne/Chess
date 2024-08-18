@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using System;
 using System.Collections.Generic;
@@ -22,10 +23,11 @@ namespace Assets.Scripts.Pieces
 
         public override PieceType Type => PieceType.Pawn;
 
-        public override List<Square> GetValidMoves( Board board )
+        public override List<Move> GetValidMoves( Board board )
         {
-            
-            List<Square> res = new();
+
+            List<Move> res = new();
+            Square from = board.GetSquare( Location );
 
             // check all valid moves for a pawn
             int file = _location.File.Num;
@@ -34,27 +36,48 @@ namespace Assets.Scripts.Pieces
             int oneStep = Color == ChessColor.White ? 1 : -1;
             int twoStep = oneStep * 2;
 
+            int leftFile = file - 1;
+            int rightFile = file + 1;
+
             // check forward moves
             if ( board.CanMoveTo( rank + oneStep, file, Color ) )
             {
-                res.Add( board.GetSquare( rank + oneStep, file ) );
+                res.Add( MoveCreator.CreateBasicMove( board, from, board.GetSquare( rank + oneStep, file ) ) );
 
                 if ( !_hasMoved && board.CanMoveTo( rank + twoStep, file, Color ) )
                 {
-                    res.Add( board.GetSquare( rank + twoStep, file ) );
+                    res.Add( MoveCreator.CreateBasicMove( board, from, board.GetSquare( rank + twoStep, file ) ) );
                 }
             }
 
             // check diagonal capture
-            if ( board.CanCapture( rank + oneStep, file - 1, Color ) )
+            if ( board.CanCapture( rank + oneStep, leftFile, Color ) )
             { // make can capture
-                res.Add( board.GetSquare( rank + oneStep, file - 1 ) );
+                res.Add( MoveCreator.CreateCaptureMove( board, from, board.GetSquare( rank + oneStep, leftFile ) ) );
             }
 
-            if ( board.CanCapture( rank + oneStep, file + 1, Color ) )
+            if ( board.CanCapture( rank + oneStep, rightFile, Color ) )
             {
-                res.Add( board.GetSquare( rank + oneStep, file + 1 ) );
+                res.Add( MoveCreator.CreateCaptureMove( board, from, board.GetSquare( rank + oneStep, rightFile ) ) );
             }
+
+            // check en-passant
+            Square leftSquare = board.GetSquare( rank, leftFile );
+            if ( leftSquare?.Piece is Pawn lPawn && lPawn.Color != Color && board.LastMove?.To == leftSquare )
+            {
+                // can en-passant left side
+                Square moveSquare = board.GetSquare( rank + oneStep, leftFile );
+                res.Add( MoveCreator.CreateEnPassantMove( board, from, moveSquare, leftSquare ) );
+            }
+
+            Square rightSquare = board.GetSquare( rank, rightFile );
+            if ( rightSquare?.Piece is Pawn rPawn && rPawn.Color != Color && board.LastMove?.To == rightSquare )
+            {
+                // can en-passant right side
+                Square moveSquare = board.GetSquare( rank + oneStep, rightFile );
+                res.Add( MoveCreator.CreateEnPassantMove( board, from, moveSquare, rightSquare ) );
+            }
+
             return res;
         }
 

@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
+using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,14 +17,14 @@ namespace Assets.Scripts.Pieces
         {
         }
 
-        public override List<Square> GetValidMoves( Board board )
+        public override List<Move> GetValidMoves( Board board )
         {
             // check all valid moves for a bishop
             int rank = _location.Rank.Num;
             int file = _location.File.Num;
 
             // check bishop moves
-            List<Square> res = Utilities.GetBishopMoves( board, rank, file, Color );
+            List<Move> res = Utilities.GetBishopMoves( board, rank, file, Color );
 
             return res;
         }

@@ -5,6 +5,7 @@ using System;
 using static UnityEditor.FilePathAttribute;
 using System.Collections.Generic;
 using UnityEngine;
+using Assets.Scripts.Moves;
 
 namespace Assets.Scripts.Pieces
 {
@@ -28,14 +29,15 @@ namespace Assets.Scripts.Pieces
             base.Move( rankChange, fileChange );
         }
 
-        public override List<Square> GetValidMoves( Board board )
+        public override List<Move> GetValidMoves( Board board )
         {
             // check all valid moves for a king
             int rank = _location.Rank.Num;
             int file = _location.File.Num;
 
             // check king moves
-            List<Square> res = Utilities.GetKingMoves( board, rank, file, Color );
+            List<Move> res = Utilities.GetKingMoves( board, rank, file, Color );
+            Square from = board.GetSquare( Location );
             Debug.Log( "Got some king moves" );
             // check castling
             if ( !_hasMoved && !IsInCheck( board ) )
@@ -57,7 +59,13 @@ namespace Assets.Scripts.Pieces
                     if ( piece is not null && piece is Rook rook && rook.HasntMoved )
                     {
                         Debug.Log( "Found rook on rook square" );
-                        res.Add( rookSquare );
+                        int startFileMovable = file + dir * 2;
+                        while(startFileMovable <= startFile )
+                        {
+                            Square to = board.GetSquare( rank, startFileMovable );
+                            res.Add( MoveCreator.CreateCastlingMove( board, from, to, rookSquare ) );
+                            ++startFileMovable;
+                        }
                     }
                 }
 
@@ -80,8 +88,8 @@ namespace Assets.Scripts.Pieces
                 for ( int k = -1; k <= 1; ++k )
                 {
                     if ( j == 0 && k == 0 ) continue;
-                    List<Square> moves = Utilities.GetMovesInDirection( board, rank, file, Color, j, k );
-                    Piece? piece = moves.Count == 0 ? null : moves[ ^1 ].Piece;
+                    List<Move> moves = Utilities.GetMovesInDirection( board, rank, file, Color, j, k );
+                    Piece? piece = moves.Count == 0 ? null : moves[ ^1 ].To.Piece;
 
                     if ( piece is null )
                     {

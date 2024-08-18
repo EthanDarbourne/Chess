@@ -1,4 +1,5 @@
 using Assets.Scripts.Enums;
+using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using System;
 using System.Collections.Generic;
@@ -12,13 +13,14 @@ namespace Assets.Scripts.Misc
     {
 
         // x and y are co-efficients for what direction the piece is trying to move into
-        public static List<Square> GetMovesInDirection( Board board, int rank, int file, ChessColor color, int x, int y )
+        public static List<Move> GetMovesInDirection( Board board, int rank, int file, ChessColor color, int x, int y )
         {
-            List<Square> res = new();
+            List<Move> res = new();
+            Square from = board.GetSquare( rank, file );
             int i = 1;
             while ( board.CanMoveTo( rank + i * x, file + i * y, color ) )
             {
-                res.Add( board.GetSquare( rank + i * x, file + i * y ) );
+                res.Add( MoveCreator.CreateMove( board, from, board.GetSquare( rank + i * x, file + i * y ) ) );
                 if ( !board.IsFree( rank + i * x, file + i * y ) ) break;
                 ++i;
             }
@@ -26,9 +28,9 @@ namespace Assets.Scripts.Misc
         }
 
         // Get all valid rook moves from a square on the board
-        public static List<Square> GetRookMoves( Board board, int rank, int file, ChessColor color )
+        public static List<Move> GetRookMoves( Board board, int rank, int file, ChessColor color )
         {
-            List<Square> res = new();
+            List<Move> res = new();
             res.AddRange( GetMovesInDirection( board, rank, file, color, 1, 0 ) );
             res.AddRange( GetMovesInDirection( board, rank, file, color, -1, 0 ) );
             res.AddRange( GetMovesInDirection( board, rank, file, color, 0, 1 ) );
@@ -37,9 +39,9 @@ namespace Assets.Scripts.Misc
         }
 
         // Get all valid bishop moves from a square on the board
-        public static List<Square> GetBishopMoves( Board board, int rank, int file, ChessColor color )
+        public static List<Move> GetBishopMoves( Board board, int rank, int file, ChessColor color )
         {
-            List<Square> res = new();
+            List<Move> res = new();
             res.AddRange( GetMovesInDirection( board, rank, file, color, 1, 1 ) );
             res.AddRange( GetMovesInDirection( board, rank, file, color, 1, -1 ) );
             res.AddRange( GetMovesInDirection( board, rank, file, color, -1, 1 ) );
@@ -47,27 +49,11 @@ namespace Assets.Scripts.Misc
             return res;
         }
 
-        public static List<Square> GetKnightMoves( Board board, int rank, int file, ChessColor color )
+        public static List<Move> GetKnightMoves( Board board, int rank, int file, ChessColor color )
         {
             int[] moves = { 2, 1, -2, -1, 2, -1, -2, 1, 2 };
-            List<Square> res = new();
-
-            for(int i = 0; i < moves.Length - 1; ++i)
-            {
-                (int rankTo, int fileTo) = (rank + moves[ i ], file + moves[i + 1]);
-
-                if(board.CanMoveTo( rankTo, fileTo, color))
-                {
-                    res.Add( board.GetSquare( rankTo, fileTo ) );
-                }
-            }
-            return res;
-        }
-
-        public static List<Square> GetKingMoves( Board board, int rank, int file, ChessColor color )
-        {
-            int[] moves = { 1, 0, -1, 0, 1, 0, -1, 0, 1 };
-            List<Square> res = new();
+            List<Move> res = new();
+            Square from = board.GetSquare( rank, file );
 
             for ( int i = 0; i < moves.Length - 1; ++i )
             {
@@ -75,7 +61,25 @@ namespace Assets.Scripts.Misc
 
                 if ( board.CanMoveTo( rankTo, fileTo, color ) )
                 {
-                    res.Add( board.GetSquare( rankTo, fileTo ) );
+                    res.Add( MoveCreator.CreateMove( board, from, board.GetSquare( rankTo, fileTo ) ) );
+                }
+            }
+            return res;
+        }
+
+        public static List<Move> GetKingMoves( Board board, int rank, int file, ChessColor color )
+        {
+            int[] moves = { 1, 0, -1, 0, 1, 0, -1, 0, 1 };
+            List<Move> res = new();
+            Square from = board.GetSquare( rank, file );
+
+            for ( int i = 0; i < moves.Length - 1; ++i )
+            {
+                (int rankTo, int fileTo) = (rank + moves[ i ], file + moves[ i + 1 ]);
+
+                if ( board.CanMoveTo( rankTo, fileTo, color ) )
+                {
+                    res.Add( MoveCreator.CreateMove( board, from, board.GetSquare( rankTo, fileTo ) ) );
                 }
             }
             return res;
@@ -111,7 +115,7 @@ namespace Assets.Scripts.Misc
         {
             if ( s.Length != 2 )
             {
-                throw new ArgumentException("Invalid String Length for Chess Notation");
+                throw new ArgumentException( "Invalid String Length for Chess Notation" );
             }
 
             int rankNum = s[ 1 ] - '0';

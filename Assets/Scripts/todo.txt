@@ -1,0 +1,16 @@
+﻿
+
+Now:
+Move pieces to captured location
+Hotkeys for reset board, load position, save position
+Arrow keys to move board position (done)
+Implement checks and checkmates on Move.cs
+(board has a copy feature that copies the basic parts of the board class)
+
+Soon:
+Create exception classes
+
+Future:
+Evaluation bar
+	- basic evaluation: based solely on board
+	- evaluation with some searching

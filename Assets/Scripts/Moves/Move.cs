@@ -25,6 +25,13 @@ namespace Assets.Scripts.Moves
 
         protected abstract void DoUndoMove( Board board );
 
+        public abstract void ExecuteShallowMove( ShallowBoard board );
+
+        public void SetChecks(bool isCheck, bool isCheckmate)
+        {
+            _isCheck = isCheck;
+            _isCheckmate = isCheckmate;
+        }
 
         public void ExecuteMove(Board board)
         {

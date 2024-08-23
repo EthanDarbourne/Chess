@@ -330,7 +330,6 @@ namespace Assets.Scripts.Parts
             // move to side of board
         }
 
-
         // for moving between current moves that have been played
         public void ExecuteAllMoves()
         {
@@ -360,6 +359,22 @@ namespace Assets.Scripts.Parts
             if ( !CanMoveForward ) return;
             _moves[ _currentMove ].ExecuteMove(this);
             ++_currentMove;
+        }
+
+        public ShallowBoard GetShallowBoard()
+        {
+            var shallowBoard = new ShallowBoard( Width, Height );
+            for(int rank = 1; rank <= Height; ++rank )
+            {
+                for(int file = 1; file <= Width; ++file)
+                {
+                    Piece? piece = GetSquare( rank, file ).Piece;
+                    ShallowBoard.Square square = piece is null ? 
+                        ShallowBoard.Square.Default : new( rank, file, piece.Type, piece.Color );
+                    shallowBoard.SetSquare( rank, file, square );
+                }
+            }
+            return shallowBoard;
         }
     }
 }

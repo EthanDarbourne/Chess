@@ -46,6 +46,15 @@ namespace Assets.Scripts.Moves
             _rookSquare.MovePieceTo( rook );
         }
 
+        public override void ExecuteShallowMove( ShallowBoard board )
+        {
+            (int kingNewFile, int rookNewFile) = GetNewKingAndRookFiles();
+
+            int rank = To.Rank.Num;
+            board.SwapSquares( rank, From.File.Num, rank, kingNewFile );
+            board.SwapSquares( rank, _rookSquare.File.Num, rank, rookNewFile );
+        }
+
         private (int KingFile, int RookFile) GetNewKingAndRookFiles()
         {
             int kingFile = From.File.Num;

@@ -33,5 +33,12 @@ namespace Assets.Scripts.Moves
             _capturedPiece.Uncapture();
             To.MovePieceTo( _capturedPiece );
         }
+
+        public override void ExecuteShallowMove( ShallowBoard board )
+        {
+            (int rank1, int file1) = (From.Rank.Num, From.File.Num);
+            (int rank2, int file2) = (To.Rank.Num, To.File.Num);
+            board.CaptureSquare( rank1, file1, rank2, file2 );
+        }
     }
 }

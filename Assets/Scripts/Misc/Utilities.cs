@@ -12,6 +12,11 @@ namespace Assets.Scripts.Misc
     public static class Utilities
     {
 
+        public static int[] StraightMoves = { -1, 0, 1, 0, -1 };
+        public static int[] DiagonalMoves = { -1, 1, 1, -1, -1 };
+        public static int[] KnightMoves = { 2, 1, -2, -1, 2, -1, -2, 1, 2 };
+        public static int[] AdjacentMoves = { 1, 0, -1, 0, 1, 0, -1, 0, 1 };
+
         // x and y are co-efficients for what direction the piece is trying to move into
         public static List<Move> GetMovesInDirection( Board board, int rank, int file, ChessColor color, int x, int y )
         {
@@ -31,10 +36,10 @@ namespace Assets.Scripts.Misc
         public static List<Move> GetRookMoves( Board board, int rank, int file, ChessColor color )
         {
             List<Move> res = new();
-            res.AddRange( GetMovesInDirection( board, rank, file, color, 1, 0 ) );
-            res.AddRange( GetMovesInDirection( board, rank, file, color, -1, 0 ) );
-            res.AddRange( GetMovesInDirection( board, rank, file, color, 0, 1 ) );
-            res.AddRange( GetMovesInDirection( board, rank, file, color, 0, -1 ) );
+            for ( int i = 0; i < StraightMoves.Length - 1; ++i )
+            {
+                res.AddRange( GetMovesInDirection( board, rank, file, color, StraightMoves[ i ], StraightMoves[ i + 1 ] ) );
+            }
             return res;
         }
 
@@ -42,22 +47,21 @@ namespace Assets.Scripts.Misc
         public static List<Move> GetBishopMoves( Board board, int rank, int file, ChessColor color )
         {
             List<Move> res = new();
-            res.AddRange( GetMovesInDirection( board, rank, file, color, 1, 1 ) );
-            res.AddRange( GetMovesInDirection( board, rank, file, color, 1, -1 ) );
-            res.AddRange( GetMovesInDirection( board, rank, file, color, -1, 1 ) );
-            res.AddRange( GetMovesInDirection( board, rank, file, color, -1, -1 ) );
+            for ( int i = 0; i < DiagonalMoves.Length - 1; ++i )
+            {
+                res.AddRange( GetMovesInDirection( board, rank, file, color, DiagonalMoves[ i ], DiagonalMoves[ i + 1 ] ) );
+            }
             return res;
         }
 
         public static List<Move> GetKnightMoves( Board board, int rank, int file, ChessColor color )
         {
-            int[] moves = { 2, 1, -2, -1, 2, -1, -2, 1, 2 };
             List<Move> res = new();
             Square from = board.GetSquare( rank, file );
 
-            for ( int i = 0; i < moves.Length - 1; ++i )
+            for ( int i = 0; i < KnightMoves.Length - 1; ++i )
             {
-                (int rankTo, int fileTo) = (rank + moves[ i ], file + moves[ i + 1 ]);
+                (int rankTo, int fileTo) = (rank + KnightMoves[ i ], file + KnightMoves[ i + 1 ]);
 
                 if ( board.CanMoveTo( rankTo, fileTo, color ) )
                 {
@@ -69,13 +73,12 @@ namespace Assets.Scripts.Misc
 
         public static List<Move> GetKingMoves( Board board, int rank, int file, ChessColor color )
         {
-            int[] moves = { 1, 0, -1, 0, 1, 0, -1, 0, 1 };
             List<Move> res = new();
             Square from = board.GetSquare( rank, file );
 
-            for ( int i = 0; i < moves.Length - 1; ++i )
+            for ( int i = 0; i < AdjacentMoves.Length - 1; ++i )
             {
-                (int rankTo, int fileTo) = (rank + moves[ i ], file + moves[ i + 1 ]);
+                (int rankTo, int fileTo) = (rank + AdjacentMoves[ i ], file + AdjacentMoves[ i + 1 ]);
 
                 if ( board.CanMoveTo( rankTo, fileTo, color ) )
                 {
@@ -83,6 +86,22 @@ namespace Assets.Scripts.Misc
                 }
             }
             return res;
+        }
+
+        public static ShallowBoard.Square GetPieceInDirection( ShallowBoard board, int rank, int file, ChessColor color, int x, int y )
+        {
+            ShallowBoard.Square from = board.GetSquare( rank, file );
+            int i = 1;
+            while ( true )
+            {
+                (int nextRank, int nextFile) = (rank + i * x, file + i * x);
+                if ( board.OutOfBounds( nextRank, nextFile ) ) return ShallowBoard.Square.Default;
+                ShallowBoard.Square next = board.GetSquare( nextRank, nextFile );
+                if ( next.IsCapturable( from.Color ) ) return next;
+                if ( !next.IsFree ) break;
+                ++i;
+            }
+            return ShallowBoard.Square.Default;
         }
 
         //vector<string> Split( string s, char delim )

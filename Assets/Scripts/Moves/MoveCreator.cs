@@ -60,6 +60,7 @@ namespace Assets.Scripts.Moves
             ChessColor kingColor = move.From.Piece.Color == ChessColor.Black ? ChessColor.White : ChessColor.Black;
             (bool isCheck, bool isCheckmate) = shallowBoard.LookForChecks( kingColor );
 
+            move.SetChecks( isCheck, isCheckmate );
             
         }
 

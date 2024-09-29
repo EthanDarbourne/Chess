@@ -18,7 +18,7 @@ namespace Assets.Scripts.Pieces
         {
         }
 
-        public override List<Move> GetValidMoves( Board board )
+        protected override List<Move> GetPotentialMoves( Board board )
         {
             // check all valid moves for a knight
             int rank = _location.Rank.Num;

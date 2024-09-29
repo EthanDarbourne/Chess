@@ -2,6 +2,8 @@
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 
 namespace Assets.Scripts.Pieces
@@ -35,7 +37,13 @@ namespace Assets.Scripts.Pieces
 
         public abstract PieceType Type { get; }
 
-        public abstract List<Move> GetValidMoves( Board board );
+        protected abstract List<Move> GetPotentialMoves( Board board );
+
+        public List<Move> GetValidMoves( Board board )
+        {
+            List<Move> potentialMoves = GetPotentialMoves( board );
+            return potentialMoves.Where( move => board.IsValidPositionAfterMove( move ) ).ToList();
+        }
 
         // - changes moves positively along the files
         // - changes moves positively along the ranks

@@ -15,7 +15,13 @@ namespace Assets.Scripts.Misc
         public static int[] StraightMoves = { -1, 0, 1, 0, -1 };
         public static int[] DiagonalMoves = { -1, 1, 1, -1, -1 };
         public static int[] KnightMoves = { 2, 1, -2, -1, 2, -1, -2, 1, 2 };
+        public static int[] BlackPawnMoves = { 1, -1, -1 };
+        public static int[] WhitePawnMoves = { -1, 1, 1 };
         public static int[] AdjacentMoves = { 1, 0, -1, 0, 1, 0, -1, 0, 1 };
+        public static PieceType[] StraightPieceTypes = { PieceType.Queen, PieceType.Rook };
+        public static PieceType[] DiagonalPieceTypes = { PieceType.Queen, PieceType.Bishop };
+        public static PieceType[] KnightPieceTypes = { PieceType.Knight };
+        public static PieceType[] PawnTypes = { PieceType.Pawn };
 
         // x and y are co-efficients for what direction the piece is trying to move into
         public static List<Move> GetMovesInDirection( Board board, int rank, int file, ChessColor color, int x, int y )

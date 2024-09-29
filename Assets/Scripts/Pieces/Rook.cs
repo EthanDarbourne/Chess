@@ -30,7 +30,7 @@ namespace Assets.Scripts.Pieces
             base.Move( rankChange, fileChange );
         }
 
-        public override List<Move> GetValidMoves( Board board )
+        protected override List<Move> GetPotentialMoves( Board board )
         {
             int rank = _location.Rank.Num;
             int file = _location.File.Num;

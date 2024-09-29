@@ -53,6 +53,7 @@ namespace Assets.Scripts.Moves
             int rank = To.Rank.Num;
             board.SwapSquares( rank, From.File.Num, rank, kingNewFile );
             board.SwapSquares( rank, _rookSquare.File.Num, rank, rookNewFile );
+            board.OnMoveExecuted();
         }
 
         private (int KingFile, int RookFile) GetNewKingAndRookFiles()

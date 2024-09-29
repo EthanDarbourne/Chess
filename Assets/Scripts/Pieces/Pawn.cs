@@ -3,6 +3,7 @@ using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace Assets.Scripts.Pieces
 
         public override PieceType Type => PieceType.Pawn;
 
-        public override List<Move> GetValidMoves( Board board )
+        protected override List<Move> GetPotentialMoves( Board board )
         {
 
             List<Move> res = new();
@@ -77,6 +78,8 @@ namespace Assets.Scripts.Pieces
                 Square moveSquare = board.GetSquare( rank + oneStep, rightFile );
                 res.Add( MoveCreator.CreateEnPassantMove( board, from, moveSquare, rightSquare ) );
             }
+
+            
 
             return res;
         }

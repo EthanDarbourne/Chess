@@ -47,6 +47,7 @@ namespace Assets.Scripts.Moves
             (int rankCapture, int fileCapture) = (_captureOn.Rank.Num, _captureOn.File.Num);
             board.CaptureSquare( rank1, file1, rankCapture, fileCapture );
             board.SwapSquares( rankCapture, fileCapture, rank2, file2 );
+            board.OnMoveExecuted();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Assets.Scripts.Parts
         // find a way to make the enum bigger to allow for bigger boards (use more letters)
 
         private List<List<Square>> _board = new();
-        private List<Move> _moves = new();
+        private readonly List<Move> _moves = new();
 
         private int _currentMove = 0;
 
@@ -96,6 +96,7 @@ namespace Assets.Scripts.Parts
         private void TryToMoveSelectedPieceToLocation( int rank, int file )
         {
             List<Move> moves = _selectedPiece.GetValidMoves( this );
+            Debug.Log( "Move count: " + moves.Count );
 
             Move? move = moves.FirstOrDefault( x => x.To.Rank.Num == rank && x.To.File.Num == file );
 
@@ -273,8 +274,6 @@ namespace Assets.Scripts.Parts
         public void MovePiece( int rankfrom, int filefrom, int rankto, int fileto )
         {
             MovePiece( _board[ rankfrom ][ filefrom ], _board[ rankto ][ fileto ] );
-            //swap with tuple expression
-            //( _board[ rankfrom ][ filefrom ], _board[ rankto ][ fileto ]) = (_board[ rankto ][ fileto ], _board[ rankfrom ][ filefrom ]);
         }
 
         public void MovePiece( CRank rankfrom, CFile filefrom, CRank rankto, CFile fileto )
@@ -312,12 +311,24 @@ namespace Assets.Scripts.Parts
             _moves.Add( move );
             ++_currentMove;
             DeselectPiece();
+            (bool isCheck, _) = LookForChecks(_turn);
+            //if( isCheck )
+            //{
+            //    HighlightKing( isCheck );
+            //}
             SwapTurn();
         }
 
         public void MovePiece( string from, string to )
         {
             MovePiece( GetSquare( from ), GetSquare( to ) );
+        }
+
+        public bool IsValidPositionAfterMove( Move move)
+        {
+            ShallowBoard shallowBoard = GetShallowBoard();
+            move.ExecuteShallowMove( shallowBoard );
+            return shallowBoard.IsValidPosition();
         }
 
         public void SwapTurn()
@@ -329,6 +340,9 @@ namespace Assets.Scripts.Parts
         {
             // move to side of board
         }
+
+        // might happen implicitly
+        //public void ReleaseCapturedPiece(Piece capturedPiece)
 
         // for moving between current moves that have been played
         public void ExecuteAllMoves()
@@ -363,7 +377,7 @@ namespace Assets.Scripts.Parts
 
         public ShallowBoard GetShallowBoard()
         {
-            var shallowBoard = new ShallowBoard( Width, Height );
+            var shallowBoard = new ShallowBoard( Width, Height, _turn );
             for(int rank = 1; rank <= Height; ++rank )
             {
                 for(int file = 1; file <= Width; ++file)
@@ -375,6 +389,12 @@ namespace Assets.Scripts.Parts
                 }
             }
             return shallowBoard;
+        }
+
+        public (bool isCheck, bool isCheckmate) LookForChecks(ChessColor kingColor)
+        {
+            var shallowBoard = GetShallowBoard();
+            return shallowBoard.LookForChecks( kingColor );
         }
     }
 }

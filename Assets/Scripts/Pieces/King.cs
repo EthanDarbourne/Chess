@@ -29,7 +29,7 @@ namespace Assets.Scripts.Pieces
             base.Move( rankChange, fileChange );
         }
 
-        public override List<Move> GetValidMoves( Board board )
+        protected override List<Move> GetPotentialMoves( Board board )
         {
             // check all valid moves for a king
             int rank = _location.Rank.Num;

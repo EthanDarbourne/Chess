@@ -68,7 +68,6 @@ namespace Assets.Scripts.Parts
 
         public void HighlightSquare( HighlightSquare plane )
         {
-            Debug.Log( "Square position: " + Point.Vector );
             plane.Show();
             plane.TranslateTo( Point.Vector + _centerOffset );
         }

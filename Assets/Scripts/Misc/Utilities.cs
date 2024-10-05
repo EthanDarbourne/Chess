@@ -23,6 +23,8 @@ namespace Assets.Scripts.Misc
         public static PieceType[] KnightPieceTypes = { PieceType.Knight };
         public static PieceType[] PawnTypes = { PieceType.Pawn };
 
+        public static ChessColor FlipTurn( ChessColor color ) => color == ChessColor.White ? ChessColor.Black : ChessColor.White;
+
         // x and y are co-efficients for what direction the piece is trying to move into
         public static List<Move> GetMovesInDirection( Board board, int rank, int file, ChessColor color, int x, int y )
         {
@@ -94,13 +96,13 @@ namespace Assets.Scripts.Misc
             return res;
         }
 
-        public static ShallowBoard.Square GetPieceInDirection( ShallowBoard board, int rank, int file, ChessColor color, int x, int y )
+        public static ShallowBoard.Square GetPieceInDirection( ShallowBoard board, int rank, int file, int x, int y )
         {
             ShallowBoard.Square from = board.GetSquare( rank, file );
             int i = 1;
             while ( true )
             {
-                (int nextRank, int nextFile) = (rank + i * x, file + i * x);
+                (int nextRank, int nextFile) = (rank + i * x, file + i * y);
                 if ( board.OutOfBounds( nextRank, nextFile ) ) return ShallowBoard.Square.Default;
                 ShallowBoard.Square next = board.GetSquare( nextRank, nextFile );
                 if ( next.IsCapturable( from.Color ) ) return next;

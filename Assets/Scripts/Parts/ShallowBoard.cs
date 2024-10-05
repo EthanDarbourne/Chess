@@ -1,13 +1,10 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
-using Assets.Scripts.Moves;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Assertions;
-using static Assets.Scripts.Parts.ShallowBoard;
 
 namespace Assets.Scripts.Parts
 {
@@ -33,19 +30,29 @@ namespace Assets.Scripts.Parts
             public bool IsCapturable( ChessColor color ) => !IsFree && color != Color;
             public bool CanMoveTo( ChessColor color ) => IsFree || IsCapturable( color );
             public static Square Default => new( 0, 0, PieceType.Empty, ChessColor.White );
+            public void LogInfo() { 
+                if(this == Default)
+                {
+                    Debug.Log( "Default Square" );
+                }
+                else
+                {
+                    Debug.Log($"Rank: {Rank}, File: {File}, Type:{Type}, Color:{Color}");
+                }
+            }
         }
 
         private List<List<Square>> _board;
         private int _height;
         private int _width;
-        private ChessColor _nextTurn;
+        private ChessColor _currentTurn;
 
-        public ShallowBoard( int width, int height, ChessColor nextTurn = ChessColor.White )
+        public ShallowBoard( int width, int height, ChessColor currentTurn = ChessColor.White )
         {
             _board = new List<List<Square>>() { null }; // dummy so we can use 1-indexed
             _height = height;
             _width = width;
-            _nextTurn = nextTurn;
+            _currentTurn = currentTurn;
 
             for ( int i = 1; i <= _height + 1; i++ )
             {
@@ -57,15 +64,15 @@ namespace Assets.Scripts.Parts
             }
         }
 
-        public ShallowBoard( List<List<Square>> board, ChessColor nextTurn = ChessColor.White )
+        public ShallowBoard( List<List<Square>> board, ChessColor currentTurn = ChessColor.White )
         {
             _board = board;
-            _nextTurn = nextTurn;
+            _currentTurn = currentTurn;
         }
 
         public void OnMoveExecuted()
         {
-            _nextTurn = _nextTurn == ChessColor.White ? ChessColor.Black : ChessColor.White;
+            _currentTurn = Utilities.FlipTurn( _currentTurn );
         }
 
         public bool OutOfBounds( int rank, int file ) => rank < 1 || file < 1 || rank > _height || file > _width;
@@ -108,6 +115,7 @@ namespace Assets.Scripts.Parts
                 }
             }
             // will not be reached
+            Assert.IsFalse( true );
             return Square.Default;
         }
 
@@ -139,8 +147,9 @@ namespace Assets.Scripts.Parts
             for ( int i = 0; i < direction.Length - 1; ++i )
             {
                 Square square = Utilities.GetPieceInDirection( this,
-                    kingRank, kingFile, kingSquare.Color,
+                    kingRank, kingFile,
                     direction[ i ], direction[ i + 1 ] );
+                square.LogInfo();
                 if ( square == Square.Default )
                 {
                     continue;
@@ -159,7 +168,6 @@ namespace Assets.Scripts.Parts
         // optimize by checking through opponent piece positions
         private bool KingCanMoveTo( Square kingSquare )
         {
-
             bool canMoveTo = true;
             canMoveTo &= CheckInDirection( kingSquare, Utilities.StraightMoves, Utilities.StraightPieceTypes ).Any();
             canMoveTo &= CheckInDirection( kingSquare, Utilities.DiagonalMoves, Utilities.DiagonalPieceTypes ).Any();
@@ -175,8 +183,8 @@ namespace Assets.Scripts.Parts
         /// Check if the board is in a state of check or checkmate
         /// </summary>
         /// <param name="kingColor">The color of the king that may be in check</param>
-        /// <returns></returns>
-        public (bool isCheck, bool isCheckmate) LookForChecks( ChessColor kingColor )
+        /// <returns>true if there is a check/checkmate, and true if there is a checkmate</returns>
+        public (bool isCheck, bool isCheckmate) LookForChecksOnKing( ChessColor kingColor )
         {
             // analyze color opposite to the one that is moving
 
@@ -190,15 +198,19 @@ namespace Assets.Scripts.Parts
             checkSquares.AddRange(
                 CheckInDirection( kingSquare, Utilities.DiagonalMoves, Utilities.DiagonalPieceTypes ) );
 
+            Debug.Log( $"Count on diagonal = {checkSquares.Count}" );
+
             // check all straights
             checkSquares.AddRange(
                 CheckInDirection( kingSquare, Utilities.StraightMoves, Utilities.StraightPieceTypes ) );
 
+            Debug.Log( $"Count on straights = {checkSquares.Count}" );
             // check all knight moves
             checkSquares.AddRange( CheckOnSquare( kingSquare, Utilities.KnightMoves, Utilities.KnightPieceTypes ) );
 
+            Debug.Log( $"Count on knights = {checkSquares.Count}" );
             // check pawns
-            if(kingSquare.Color == ChessColor.Black)
+            if (kingSquare.Color == ChessColor.Black)
             {
                 checkSquares.AddRange(
                     CheckOnSquare( kingSquare, Utilities.WhitePawnMoves, Utilities.PawnTypes ) );
@@ -208,7 +220,7 @@ namespace Assets.Scripts.Parts
                 checkSquares.AddRange(
                     CheckOnSquare( kingSquare, Utilities.BlackPawnMoves, Utilities.PawnTypes ) );
             }
-
+            Debug.Log( $"Count on pawns = {checkSquares.Count}" );
             // we have all squares that could be giving check
             Assert.IsTrue( checkSquares.Count <= 2 );
 
@@ -243,7 +255,8 @@ namespace Assets.Scripts.Parts
         public bool IsValidPosition()
         {
             // if current turn is in check, move is invalid
-            (bool isCheck, _) = LookForChecks( _nextTurn );
+            ChessColor turn = Utilities.FlipTurn( _currentTurn );
+            (bool isCheck, _) = LookForChecksOnKing( turn );
             return !isCheck;
         }
     }

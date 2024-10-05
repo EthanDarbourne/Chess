@@ -42,7 +42,10 @@ namespace Assets.Scripts.Parts
         // get the height of the board
         public int Height => _height;
 
+        public ChessColor Turn => _turn;
+
         public Move LastMove => _moves.Count > 0 ? _moves[ ^1 ] : null;
+        public int MoveCount => _moves.Count;
 
         public bool CanMoveForward => _currentMove < _moves.Count;
         public bool CanMoveBackward => _currentMove > 0;
@@ -76,7 +79,7 @@ namespace Assets.Scripts.Parts
 
             if ( _selectedPiece is not null )
             {
-                Debug.Log( "We have a selected piece: " + _selectedPiece.Type.ToString() );
+                //Debug.Log( "We have a selected piece: " + _selectedPiece.Type.ToString() );
                 TryToMoveSelectedPieceToLocation( rank, file );
             }
             else
@@ -100,14 +103,14 @@ namespace Assets.Scripts.Parts
 
             Move? move = moves.FirstOrDefault( x => x.To.Rank.Num == rank && x.To.File.Num == file );
 
-            if(move is null)
+            if ( move is null )
             {
-                Debug.Log( "Deselecting piece" );
+                //Debug.Log( "Deselecting piece" );
 
                 bool shouldSelectAnotherPiece = _selectedPiece.Location.Rank.Num != rank || _selectedPiece.Location.File.Num != file;
                 DeselectPiece();
                 // try and select the piece at this square, if we can
-                if( shouldSelectAnotherPiece )
+                if ( shouldSelectAnotherPiece )
                 {
                     SelectPiece( rank, file );
                 }
@@ -118,19 +121,20 @@ namespace Assets.Scripts.Parts
         }
 
         // try to select the piece at the current location
-        private void SelectPiece(int rank, int file)
+        private void SelectPiece( int rank, int file )
         {
-            Debug.Log( $"Trying to select at {rank}, {file}" );
+            Debug.Log( $"ITS TURN OF {_turn}" );
+            //Debug.Log( $"Trying to select at {rank}, {file}" );
             Piece? piece = _board[ rank ][ file ].Piece;
             if ( piece is null )
             {
-                Debug.Log( "There is no piece on this square" );
+                //Debug.Log( "There is no piece on this square" );
                 return;
             }
 
             if ( piece.Color != _turn )
             {
-                Debug.Log( "This is not one of your pieces" );
+                //Debug.Log( "This is not one of your pieces" );
                 return;
             }
 
@@ -149,7 +153,7 @@ namespace Assets.Scripts.Parts
         {
             if ( OutOfBounds( rank, file ) )
             {
-                return null; // todo throw exception
+                throw new Exception( $"Out of bounds at rank: {rank}, file: {file}" );
             }
             return _board[ rank ][ file ];
         }
@@ -289,7 +293,7 @@ namespace Assets.Scripts.Parts
             }
             if ( IsFree( from.Rank, from.File ) )
             {
-                Debug.Log( "No piece on this square" );
+                //Debug.Log( "No piece on this square" );
                 return;
             }
 
@@ -299,19 +303,19 @@ namespace Assets.Scripts.Parts
 
             if ( move is null )
             {
-                Debug.Log( "Cannot move to this location" );
+                //Debug.Log( "Cannot move to this location" );
                 return;
             }
             MovePiece( move );
         }
 
-        public void MovePiece(Move move)
+        public void MovePiece( Move move )
         {
             move.ExecuteMove( this );
             _moves.Add( move );
             ++_currentMove;
             DeselectPiece();
-            (bool isCheck, _) = LookForChecks(_turn);
+            (bool isCheck, _) = LookForChecks( _turn );
             //if( isCheck )
             //{
             //    HighlightKing( isCheck );
@@ -324,19 +328,24 @@ namespace Assets.Scripts.Parts
             MovePiece( GetSquare( from ), GetSquare( to ) );
         }
 
-        public bool IsValidPositionAfterMove( Move move)
+        public bool IsValidPositionAfterMove( Move move )
         {
             ShallowBoard shallowBoard = GetShallowBoard();
+            //(bool isCheck, bool isCheckmate) = shallowBoard.LookForChecksOnKing( _turn );
+            //if ( isCheck )
+            //{/
+
+            //}
             move.ExecuteShallowMove( shallowBoard );
             return shallowBoard.IsValidPosition();
         }
 
         public void SwapTurn()
         {
-            _turn = _turn == ChessColor.White ? ChessColor.Black : ChessColor.White;
+            _turn = Utilities.FlipTurn( _turn );
         }
 
-        public void UseCapturedPiece(Piece capturedPiece)
+        public void UseCapturedPiece( Piece capturedPiece )
         {
             // move to side of board
         }
@@ -347,7 +356,7 @@ namespace Assets.Scripts.Parts
         // for moving between current moves that have been played
         public void ExecuteAllMoves()
         {
-            while(CanMoveForward)
+            while ( CanMoveForward )
             {
                 ExecuteOneMove();
             }
@@ -355,7 +364,7 @@ namespace Assets.Scripts.Parts
 
         public void UndoAllMoves()
         {
-            while(CanMoveBackward)
+            while ( CanMoveBackward )
             {
                 UndoOneMove();
             }
@@ -371,30 +380,30 @@ namespace Assets.Scripts.Parts
         public void ExecuteOneMove()
         {
             if ( !CanMoveForward ) return;
-            _moves[ _currentMove ].ExecuteMove(this);
+            _moves[ _currentMove ].ExecuteMove( this );
             ++_currentMove;
         }
 
         public ShallowBoard GetShallowBoard()
         {
             var shallowBoard = new ShallowBoard( Width, Height, _turn );
-            for(int rank = 1; rank <= Height; ++rank )
+            for ( int rank = 1; rank <= Height; ++rank )
             {
-                for(int file = 1; file <= Width; ++file)
+                for ( int file = 1; file <= Width; ++file )
                 {
                     Piece? piece = GetSquare( rank, file ).Piece;
-                    ShallowBoard.Square square = piece is null ? 
-                        ShallowBoard.Square.Default : new( rank, file, piece.Type, piece.Color );
+                    ShallowBoard.Square square =
+                        new( rank, file, piece?.Type ?? PieceType.Empty, piece?.Color ?? ChessColor.White );
                     shallowBoard.SetSquare( rank, file, square );
                 }
             }
             return shallowBoard;
         }
 
-        public (bool isCheck, bool isCheckmate) LookForChecks(ChessColor kingColor)
+        public (bool isCheck, bool isCheckmate) LookForChecks( ChessColor kingColor )
         {
             var shallowBoard = GetShallowBoard();
-            return shallowBoard.LookForChecks( kingColor );
+            return shallowBoard.LookForChecksOnKing( kingColor );
         }
     }
 }

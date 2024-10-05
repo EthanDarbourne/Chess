@@ -1,10 +1,6 @@
 ﻿using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.Scripts.Moves
 {
@@ -32,6 +28,7 @@ namespace Assets.Scripts.Moves
         {
             (int rank1, int file1) = (From.Rank.Num, From.File.Num);
             (int rank2, int file2) = (To.Rank.Num, To.File.Num);
+            Debug.Log( $"Moving to {rank2}, {file2}" );
             board.SwapSquares( rank1, file1, rank2, file2 );
             board.OnMoveExecuted();
         }

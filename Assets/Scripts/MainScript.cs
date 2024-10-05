@@ -26,6 +26,8 @@ namespace Assets.Scripts
         public Plane _plane;
         private HighlightSquare _highlightSquare;
 
+        private int LastMove = -1;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -61,6 +63,21 @@ namespace Assets.Scripts
                 }
             }
             CheckForKeyPresses();
+
+            if(LastMove != _board.MoveCount)
+            {
+                LastMove = _board.MoveCount;
+                try
+                {
+                    (bool isCheck, bool isCheckmate) = _board.LookForChecks( _board.Turn );
+                    Debug.Log( $"Success with {isCheck} and {isCheckmate}" );
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log( $"Failed with {ex.Message}" );
+                }
+            }
+
         }
 
         private GameObject CreateHighlightSquare()

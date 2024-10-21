@@ -32,8 +32,3 @@ namespace Assets.Scripts.Pieces
         public override PieceType Type => PieceType.Bishop;
     }
 }
-
-//ostream & Print(ostream & out) const {
-//	out << OutputChar(); // _location.File;
-//return out;
-//}

@@ -26,7 +26,7 @@ namespace Assets.Scripts.Misc
         public static ChessColor FlipTurn( ChessColor color ) => color == ChessColor.White ? ChessColor.Black : ChessColor.White;
 
         // x and y are co-efficients for what direction the piece is trying to move into
-        public static List<Move> GetMovesInDirection( Board board, int rank, int file, ChessColor color, int x, int y )
+        public static List<Move> GetMovesInDirection( this Board board, int rank, int file, ChessColor color, int x, int y )
         {
             List<Move> res = new();
             Square from = board.GetSquare( rank, file );
@@ -41,7 +41,7 @@ namespace Assets.Scripts.Misc
         }
 
         // Get all valid rook moves from a square on the board
-        public static List<Move> GetRookMoves( Board board, int rank, int file, ChessColor color )
+        public static List<Move> GetRookMoves( this Board board, int rank, int file, ChessColor color )
         {
             List<Move> res = new();
             for ( int i = 0; i < StraightMoves.Length - 1; ++i )
@@ -52,7 +52,7 @@ namespace Assets.Scripts.Misc
         }
 
         // Get all valid bishop moves from a square on the board
-        public static List<Move> GetBishopMoves( Board board, int rank, int file, ChessColor color )
+        public static List<Move> GetBishopMoves( this Board board, int rank, int file, ChessColor color )
         {
             List<Move> res = new();
             for ( int i = 0; i < DiagonalMoves.Length - 1; ++i )
@@ -62,7 +62,7 @@ namespace Assets.Scripts.Misc
             return res;
         }
 
-        public static List<Move> GetKnightMoves( Board board, int rank, int file, ChessColor color )
+        public static List<Move> GetKnightMoves( this Board board, int rank, int file, ChessColor color )
         {
             List<Move> res = new();
             Square from = board.GetSquare( rank, file );
@@ -79,7 +79,7 @@ namespace Assets.Scripts.Misc
             return res;
         }
 
-        public static List<Move> GetKingMoves( Board board, int rank, int file, ChessColor color )
+        public static List<Move> GetKingMoves( this Board board, int rank, int file, ChessColor color )
         {
             List<Move> res = new();
             Square from = board.GetSquare( rank, file );
@@ -96,7 +96,7 @@ namespace Assets.Scripts.Misc
             return res;
         }
 
-        public static ShallowBoard.Square GetPieceInDirection( ShallowBoard board, int rank, int file, int x, int y )
+        public static ShallowBoard.Square GetPieceInDirection( this ShallowBoard board, int rank, int file, int x, int y )
         {
             ShallowBoard.Square from = board.GetSquare( rank, file );
             int i = 1;
@@ -138,7 +138,7 @@ namespace Assets.Scripts.Misc
         //    return ret;
         //}
 
-        public static (CRank rank, CFile file) ReadChessNotation( string s )
+        public static (CRank rank, CFile file) ReadChessNotation( this string s )
         {
             if ( s.Length != 2 )
             {

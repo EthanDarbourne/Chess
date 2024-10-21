@@ -24,7 +24,7 @@ namespace Assets.Scripts.Pieces
             int file = _location.File.Num;
 
             // check bishop moves
-            List<Move> res = Utilities.GetBishopMoves( board, rank, file, Color );
+            List<Move> res = board.GetBishopMoves( rank, file, Color );
 
             return res;
         }

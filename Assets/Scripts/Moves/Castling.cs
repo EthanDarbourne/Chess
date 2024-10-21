@@ -26,8 +26,6 @@ namespace Assets.Scripts.Moves
             Piece king = From.RemovePiece();
             Piece rook = _rookSquare.RemovePiece();
 
-            Debug.Log( "Moving rook to " + rookNewFile );
-            Debug.Log( "Moving king to " + kingNewFile );
             Square rookNewSquare = board.GetSquare( To.Rank.Num, rookNewFile );
             Square kingNewSquare = board.GetSquare( To.Rank.Num, kingNewFile );
 

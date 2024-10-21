@@ -28,7 +28,6 @@ namespace Assets.Scripts.Moves
         {
             (int rank1, int file1) = (From.Rank.Num, From.File.Num);
             (int rank2, int file2) = (To.Rank.Num, To.File.Num);
-            Debug.Log( $"Moving to {rank2}, {file2}" );
             board.SwapSquares( rank1, file1, rank2, file2 );
             board.OnMoveExecuted();
         }

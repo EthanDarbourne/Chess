@@ -55,8 +55,6 @@ namespace Assets.Scripts
                         int file = (1 + ( int ) raycastHit.point.x);
                         int rank = (1 + ( int ) raycastHit.point.z);
 
-                        Debug.Log( $"Rank: {rank}, File: {file}" );
-                        
                         _board.SelectLocation( rank, file );
                         //_board.HighlightSquare( _highlightSquare, rank, file );
                     }
@@ -96,16 +94,12 @@ namespace Assets.Scripts
             _highlightSquare = new HighlightSquare( CreateHighlightSquare() );
             _board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, boardObject.gameObject, _highlightSquare );
 
-            Debug.Log( boardObject.transform.position );
-            Debug.Log( _mainCamera.transform.position );
-
             foreach ( var child in children )
             {
                 GameObject gamePiece = child.gameObject;
 
                 // split into name and starting position
                 string fullName = gamePiece.name;
-
 
                 if ( fullName == "Chess Pieces" || fullName == "Board" ) continue;
 
@@ -122,10 +116,8 @@ namespace Assets.Scripts
                     "King" => new King( gamePiece, color ),
                     _ => throw new InvalidOperationException( $"Cannot create a piece of type {type}" ),
                 };
-                (CRank rank, CFile file) = Utilities.ReadChessNotation( position );
+                (CRank rank, CFile file) = position.ReadChessNotation();
                 _board.SetPiece( rank, file, piece );
-
-                Debug.Log( fullName + gamePiece.transform.position );
             }
 
 

@@ -36,7 +36,7 @@ namespace Assets.Scripts.Pieces
             int file = _location.File.Num;
 
             // check forward moves
-            List<Move> res = Utilities.GetRookMoves( board, rank, file, Color );
+            List<Move> res = board.GetRookMoves( rank, file, Color );
 
             return res;
         }

@@ -63,7 +63,7 @@ namespace Assets.Scripts.Pieces
             }
 
             // check en-passant
-            Square leftSquare = board.GetSquare( rank, leftFile );
+            Square? leftSquare = board.GetSquareOrDefault( rank, leftFile );
             if ( leftSquare?.Piece is Pawn lPawn && lPawn.Color != Color && board.LastMove?.To == leftSquare )
             {
                 // can en-passant left side
@@ -71,7 +71,7 @@ namespace Assets.Scripts.Pieces
                 res.Add( MoveCreator.CreateEnPassantMove( board, from, moveSquare, leftSquare ) );
             }
 
-            Square rightSquare = board.GetSquare( rank, rightFile );
+            Square? rightSquare = board.GetSquareOrDefault( rank, rightFile );
             if ( rightSquare?.Piece is Pawn rPawn && rPawn.Color != Color && board.LastMove?.To == rightSquare )
             {
                 // can en-passant right side

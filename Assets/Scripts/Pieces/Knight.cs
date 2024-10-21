@@ -25,7 +25,7 @@ namespace Assets.Scripts.Pieces
             int file = _location.File.Num;
 
             // check knight moves
-            List<Move> res = Utilities.GetKnightMoves( board, rank, file, Color );
+            List<Move> res = board.GetKnightMoves( rank, file, Color );
 
             return res;
         }

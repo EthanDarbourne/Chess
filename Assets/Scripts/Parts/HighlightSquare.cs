@@ -23,20 +23,17 @@ namespace Assets.Scripts.Parts
 
         public void TranslateTo(Vector3 position)
         {
-            //Debug.Log( "Moving highlight to:" + position );
             position.y = 0.01f;
             _highlightPlane.transform.position = ( position );
         }
 
         public void Show()
         {
-            //Debug.Log( "Enabling highlight" );
             _highlightPlane.gameObject.SetActive( true );
         }
 
         public void Hide()
         {
-            //Debug.Log( "Disabling highlight" );
             _highlightPlane.gameObject.SetActive( false );
         }
     }

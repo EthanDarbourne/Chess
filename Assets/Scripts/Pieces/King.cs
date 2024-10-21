@@ -36,15 +36,15 @@ namespace Assets.Scripts.Pieces
             int file = _location.File.Num;
 
             // check king moves
-            List<Move> res = Utilities.GetKingMoves( board, rank, file, Color );
+            List<Move> res = board.GetKingMoves( rank, file, Color );
             Square from = board.GetSquare( Location );
-            Debug.Log( "Got some king moves" );
+            //Debug.Log( "Got some king moves" );
             // check castling
             if ( !_hasMoved && !IsInCheck( board ) )
             {
                 // check rooks
                 // go left
-                Debug.Log( "Checking castling" );
+                //Debug.Log( "Checking castling" );
                 void GetCastleMoves( int dir )
                 {
                     int startFile = file;
@@ -58,7 +58,7 @@ namespace Assets.Scripts.Pieces
                     Piece? piece = rookSquare.Piece;
                     if ( piece is not null && piece is Rook rook && rook.HasntMoved )
                     {
-                        Debug.Log( "Found rook on rook square" );
+                        //Debug.Log( "Found rook on rook square" );
                         int startFileMovable = file + dir * 2;
                         while(startFileMovable <= startFile )
                         {
@@ -88,14 +88,14 @@ namespace Assets.Scripts.Pieces
                 for ( int k = -1; k <= 1; ++k )
                 {
                     if ( j == 0 && k == 0 ) continue;
-                    List<Move> moves = Utilities.GetMovesInDirection( board, rank, file, Color, j, k );
+                    List<Move> moves = board.GetMovesInDirection( rank, file, Color, j, k );
                     Piece? piece = moves.Count == 0 ? null : moves[ ^1 ].To.Piece;
 
                     if ( piece is null )
                     {
                         continue;
                     }
-                    if ( j + k == 0 )
+                    if ( (j + k) % 2 == 0 )
                     {
                         // bishop or queen can give check (diagonal)
                         if ( piece.Color != Color )

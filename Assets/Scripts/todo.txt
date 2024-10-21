@@ -14,3 +14,11 @@ Future:
 Evaluation bar
 	- basic evaluation: based solely on board
 	- evaluation with some searching
+
+
+// need to allow for moves to be created and made solely on shallowboard
+// for king simuls
+
+
+
+More ideas: greenlemongamestudio on instagram

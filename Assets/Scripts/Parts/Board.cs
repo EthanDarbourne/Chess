@@ -79,7 +79,6 @@ namespace Assets.Scripts.Parts
 
             if ( _selectedPiece is not null )
             {
-                //Debug.Log( "We have a selected piece: " + _selectedPiece.Type.ToString() );
                 TryToMoveSelectedPieceToLocation( rank, file );
             }
             else
@@ -105,8 +104,6 @@ namespace Assets.Scripts.Parts
 
             if ( move is null )
             {
-                //Debug.Log( "Deselecting piece" );
-
                 bool shouldSelectAnotherPiece = _selectedPiece.Location.Rank.Num != rank || _selectedPiece.Location.File.Num != file;
                 DeselectPiece();
                 // try and select the piece at this square, if we can
@@ -123,8 +120,6 @@ namespace Assets.Scripts.Parts
         // try to select the piece at the current location
         private void SelectPiece( int rank, int file )
         {
-            Debug.Log( $"ITS TURN OF {_turn}" );
-            //Debug.Log( $"Trying to select at {rank}, {file}" );
             Piece? piece = _board[ rank ][ file ].Piece;
             if ( piece is null )
             {
@@ -149,6 +144,15 @@ namespace Assets.Scripts.Parts
             }
         }
 
+        public Square? GetSquareOrDefault( int rank, int file )
+        {
+            if ( OutOfBounds( rank, file ) )
+            {
+                return null;
+            }
+            return _board[ rank ][ file ];
+        }
+
         public Square GetSquare( int rank, int file )
         {
             if ( OutOfBounds( rank, file ) )
@@ -164,7 +168,7 @@ namespace Assets.Scripts.Parts
 
         public Square GetSquare( string s )
         {
-            (CRank rank, CFile file) = Utilities.ReadChessNotation( s );
+            (CRank rank, CFile file) = s.ReadChessNotation();
             Square ret = GetSquare( rank.Num, file.Num );
             return ret;
         }
@@ -231,33 +235,6 @@ namespace Assets.Scripts.Parts
         {
             _board.ForEach( x => x?.ForEach( y => y?.DisableMoveToHighlight() ) );
         }
-
-        //// takes in the rank 0-indexed and char representing file 
-        //public void SetPiece( int rank, char file, char Pcode, ChessColor color )
-        //{
-        //    int fileIdx = file - 'A' + 1;
-        //    switch ( Pcode )
-        //    {
-        //        case 'p':
-        //            _board[ rank ][ fileIdx ].SetPiece( new Pawn( color ) );
-        //            break;
-        //        case 'R':
-        //            _board[ rank ][ fileIdx ].SetPiece( new Rook( color ) );
-        //            break;
-        //        case 'N':
-        //            _board[ rank ][ fileIdx ].SetPiece( new Knight( color ) );
-        //            break;
-        //        case 'B':
-        //            _board[ rank ][ fileIdx ].SetPiece( new Bishop( color ) );
-        //            break;
-        //        case 'Q':
-        //            _board[ rank ][ fileIdx ].SetPiece( new Queen( color ) );
-        //            break;
-        //        case 'K':
-        //            _board[ rank ][ fileIdx ].SetPiece( new King( color ) );
-        //            break;
-        //    }
-        //}
 
         // build the default board
         public void Reset()

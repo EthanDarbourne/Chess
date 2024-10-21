@@ -28,8 +28,8 @@ namespace Assets.Scripts.Pieces
             int rank = _location.Rank.Num;
             int file = _location.File.Num;
 
-            List<Move> res = Utilities.GetRookMoves( board, rank, file, Color );
-            res.AddRange( Utilities.GetBishopMoves( board, rank, file, Color ) );
+            List<Move> res = board.GetRookMoves( rank, file, Color );
+            res.AddRange( board.GetBishopMoves( rank, file, Color ) );
 
             return res;
         }

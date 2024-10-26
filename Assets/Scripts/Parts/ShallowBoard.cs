@@ -275,7 +275,22 @@ namespace Assets.Scripts.Parts
 
             if ( checkSquares.Count == 1 )
             {
-                // see if check can be captured/blocked
+                Square checkSquare = checkSquares.First();
+                IEnumerable<Square> blockableSquares = GetSquaresBetween( checkSquare, kingSquare );
+
+                // for every piece, see if they can move to these squares, and it is a valid move
+                IEnumerable<Square> pieces = GetPieces( kingColor ).Where( x => x.Type != PieceType.King );
+
+                if ( blockableSquares.Any( x => pieces.Any( p => CanMovePieceToTarget( p, x ) ) ) )
+                {
+                    isCheckmate = false;
+                }
+
+                // for every piece, see if they can move to these squares and capture, and it is a valid move
+                if ( pieces.Any( p => CanMovePieceToSquareAndCapture( p, checkSquare ) ) )
+                {
+                    isCheckmate = false;
+                }
             }
 
             // see if king can move
@@ -291,6 +306,79 @@ namespace Assets.Scripts.Parts
             }
 
             return (isCheck, isCheckmate);
+        }
+
+        private IEnumerable<Square> GetSquaresBetween( Square square1, Square square2 )
+        {
+            int diff1 = square2.Rank - square1.Rank;
+            int diff2 = square2.File - square1.File;
+            if ( Math.Abs( diff1 ) - Math.Abs( diff2 ) != 0 )
+            {
+                return Enumerable.Empty<Square>();
+            }
+            int steps = Math.Abs( diff1 );
+            (int coeff1, int coeff2) = (diff1 / steps, diff2 / steps);
+            return Enumerable.Range( 1, steps - 2 )
+                .Select( x => GetSquare( square1.Rank + x * coeff1, square1.File + x * coeff2 ) );
+        }
+
+        private IEnumerable<Square> GetPieces( ChessColor color )
+        {
+            return _board.GetRange( 1, _height )
+                .Select( x => x.GetRange( 1, _width ) )
+                .SelectMany( x => x )
+                .Where( x => x.Color == color && x.Type != PieceType.Empty );
+        }
+
+        private bool CanMovePieceToSquare( Square piece, Square target )
+        {
+            int diff1 = Math.Abs( piece.Rank - target.Rank );
+            int diff2 = Math.Abs( piece.File - target.File );
+            if ( diff1 < diff2 )
+            {
+                (diff1, diff2) = (diff2, diff1);
+            }
+
+            bool CanPawnMoveToSquare()
+            {
+                diff1 == 0 && ( diff2 == 0 || ( diff2 == 2 && ( piece.Rank == 2 && piece.Color == ChessColor.White ) || ( piece.Rank == 7 && piece.Color == ChessColor.Black ) ) )
+                    || diff1 == 1
+            }
+
+            return piece.Type switch
+            {
+                PieceType.Knight => diff1 == 1 && diff2 == 2,
+                // pawn moves in straight line, 
+                PieceType.Pawn => diff1 == 0 && ( diff2 == 0 || ( diff2 == 2 && ( piece.Rank == 2 && piece.Color == ChessColor.White ) || ( piece.Rank == 7 && piece.Color == ChessColor.Black ) ) ),
+                PieceType.Queen =>
+            };
+            // knights need 2,1
+            // rooks need 1,0
+            // bishops need 1,1
+            // queens need 1,0 or 1,1 x == 1 && y == 0 or 1 ) or x = 0 & y = 1
+        }
+
+        // try to move piece on first square to the target square
+        private bool CanMovePieceToTarget( Square piece, Square target )
+        {
+            // target square is always empty
+            // need to try a basic move to get there
+            ShallowBasicMove move = MoveCreator.CreateShallowBasicMove( this, piece, target );
+
+            ShallowBoard copy = new( this );
+            move.ExecuteShallowMove( copy );
+            return copy.IsValidPosition();
+        }
+
+        private bool CanMovePieceToSquareAndCapture( Square piece, Square target )
+        {
+            // target square is always empty
+            // need to try a basic move to get there
+            ShallowCaptureMove move = MoveCreator.CreateShallowCaptureMove( this, piece, target );
+
+            ShallowBoard copy = new( this );
+            move.ExecuteShallowMove( copy );
+            return copy.IsValidPosition();
         }
 
         public bool IsValidPosition()

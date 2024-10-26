@@ -93,6 +93,7 @@ namespace Assets.Scripts
             _highlightSquare = new HighlightSquare( CreateHighlightSquare() );
             _board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, boardObject.gameObject, _highlightSquare );
 
+            // modify test setup if modifying this code
             foreach ( var child in children )
             {
                 GameObject gamePiece = child.gameObject;

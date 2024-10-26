@@ -136,6 +136,7 @@ namespace Assets.Scripts.Parts
             _selectedPiece = piece;
 
             List<Move> moves = piece.GetValidMoves( this );
+            Debug.Log( "Get potential moves: " + moves.Count );
 
             foreach ( Move move in moves )
             {
@@ -380,6 +381,19 @@ namespace Assets.Scripts.Parts
         {
             var shallowBoard = GetShallowBoard();
             return shallowBoard.LookForChecksOnKing( kingColor );
+        }
+
+        public void DebugLog()
+        {
+            for ( int rank = 1; rank <= Height; ++rank )
+            {
+                string output = "";
+                for ( int file = 1; file <= Width; ++file )
+                {
+                    output += _board[ rank ][ file ].Piece?.Type.GetChar() ?? ' ';
+                }
+                Debug.Log( output );
+            }
         }
     }
 }

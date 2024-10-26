@@ -41,11 +41,11 @@ namespace Assets.Scripts.Pieces
             int rightFile = file + 1;
 
             // check forward moves
-            if ( board.CanMoveTo( rank + oneStep, file, Color ) )
+            if ( board.IsFree( rank + oneStep, file ) )
             {
                 res.Add( MoveCreator.CreateBasicMove( board, from, board.GetSquare( rank + oneStep, file ) ) );
 
-                if ( !_hasMoved && board.CanMoveTo( rank + twoStep, file, Color ) )
+                if ( !_hasMoved && board.IsFree( rank + twoStep, file ) )
                 {
                     res.Add( MoveCreator.CreateBasicMove( board, from, board.GetSquare( rank + twoStep, file ) ) );
                 }
@@ -78,9 +78,6 @@ namespace Assets.Scripts.Pieces
                 Square moveSquare = board.GetSquare( rank + oneStep, rightFile );
                 res.Add( MoveCreator.CreateEnPassantMove( board, from, moveSquare, rightSquare ) );
             }
-
-            
-
             return res;
         }
 

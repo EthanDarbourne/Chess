@@ -6,6 +6,7 @@ using static UnityEditor.FilePathAttribute;
 using System.Collections.Generic;
 using UnityEngine;
 using Assets.Scripts.Moves;
+using Assets.Scripts.ShallowCopy;
 
 namespace Assets.Scripts.Pieces
 {
@@ -132,5 +133,8 @@ namespace Assets.Scripts.Pieces
 
             return false;
         }
+
+        public override ShallowPiece CreateShallowPiece() =>
+            new ShallowKing( _location.Rank.Num, _location.File.Num, Color );
     }
 }

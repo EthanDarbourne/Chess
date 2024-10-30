@@ -3,7 +3,7 @@ using System;
 
 namespace Assets.Scripts.Moves
 {
-    public abstract class Move
+    public abstract class Move : IExecuteShallowMove
     {
         protected Square _from;
         protected Square _to;
@@ -20,6 +20,11 @@ namespace Assets.Scripts.Moves
             _isCheck = isCheck;
             _isCheckmate = isCheckmate;
         }
+
+        public Square From => _from;
+        public Square To => _to;
+        public bool IsCheck => _isCheck;
+        public bool IsCheckmate => _isCheckmate;
 
         protected abstract void DoExecuteMove( Board board );
 
@@ -58,7 +63,6 @@ namespace Assets.Scripts.Moves
             To.EnableMoveToHighlight();
         }
 
-        public Square From => _from;
-        public Square To => _to;
+        
     }
 }

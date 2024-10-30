@@ -18,5 +18,9 @@ namespace Assets.Scripts.Misc
         public static int BOARD_HEIGHT = 8;
 
 
+        public static int WHITE_PAWN_DIRECTION = 1;
+        public static int BLACK_PAWN_DIRECTION = -1;
+        public static int WHITE_PAWN_STARTING_RANK = 2;
+        public static int BLACK_PAWN_STARTING_RANK = 7;
     }
 }

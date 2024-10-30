@@ -2,6 +2,7 @@
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
+using Assets.Scripts.ShallowCopy;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,5 +41,8 @@ namespace Assets.Scripts.Pieces
 
             return res;
         }
+
+        public override ShallowPiece CreateShallowPiece() =>
+            new ShallowRook( _location.Rank.Num, _location.File.Num, Color );
     }
 }

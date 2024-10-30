@@ -1,6 +1,7 @@
 using Assets.Scripts.Enums;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,6 @@ namespace Assets.Scripts.Misc
 
     public static class Utilities
     {
-
         public static int[] StraightMoves = { -1, 0, 1, 0, -1 };
         public static int[] DiagonalMoves = { -1, 1, 1, -1, -1 };
         public static int[] KnightMoves = { 2, 1, -2, -1, 2, -1, -2, 1, 2 };
@@ -96,21 +96,7 @@ namespace Assets.Scripts.Misc
             return res;
         }
 
-        public static ShallowBoard.Square GetPieceInDirection( this ShallowBoard board, int rank, int file, int x, int y )
-        {
-            ShallowBoard.Square from = board.GetSquare( rank, file );
-            int i = 1;
-            while ( true )
-            {
-                (int nextRank, int nextFile) = (rank + i * x, file + i * y);
-                if ( board.OutOfBounds( nextRank, nextFile ) ) return ShallowBoard.Square.Default;
-                ShallowBoard.Square next = board.GetSquare( nextRank, nextFile );
-                if ( next.IsCapturable( from.Color ) ) return next;
-                if ( !next.IsFree ) break;
-                ++i;
-            }
-            return ShallowBoard.Square.Default;
-        }
+        public static int GetDefaultRankForPawn( ChessColor color ) => color == ChessColor.White ? 2 : 7;
 
         //vector<string> Split( string s, char delim )
         //{
@@ -161,5 +147,37 @@ namespace Assets.Scripts.Misc
             return (rank, file);
         }
 
+        public static ShallowMove ConvertToShallowMove(Move move)
+        {
+            ShallowBoard.Square ConvertSquare( Square square ) => 
+                new( square.Rank.Num, square.File.Num, square.Piece?.CreateShallowPiece() );
+
+            ShallowBoard.Square from = ConvertSquare( move.From );
+            ShallowBoard.Square to = ConvertSquare( move.To );
+
+
+
+
+            if (move is BasicMove)
+            {
+                return new ShallowBasicMove( from, to, move.IsCheck, move.IsCheckmate );
+            }
+            else if(move is CaptureMove)
+            {
+                return new ShallowCaptureMove( from, to, move.IsCheck, move.IsCheckmate );
+            }
+            else if(move is EnPassant enPassant)
+            {
+                return new ShallowEnPassant( from, to, ConvertSquare( enPassant.CaptureOn ), move.IsCheck, move.IsCheckmate );
+            }
+
+            throw new Exception( "no equivalent move" );
+        }
+
+
+        public static int GetPawnStartRank( ChessColor color ) =>
+            color == ChessColor.Black ? Constants.BLACK_PAWN_STARTING_RANK : Constants.WHITE_PAWN_STARTING_RANK;
+        public static int GetPawnMoveDirection( ChessColor color ) =>
+               color == ChessColor.Black ? Constants.BLACK_PAWN_DIRECTION : Constants.WHITE_PAWN_DIRECTION;
     }
 }

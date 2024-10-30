@@ -363,14 +363,14 @@ namespace Assets.Scripts.Parts
 
         public ShallowBoard GetShallowBoard()
         {
-            var shallowBoard = new ShallowBoard( Width, Height, _turn );
+            var shallowBoard = new ShallowBoard( Width, Height, _turn, LastMove );
             for ( int rank = 1; rank <= Height; ++rank )
             {
                 for ( int file = 1; file <= Width; ++file )
                 {
                     Piece? piece = GetSquare( rank, file ).Piece;
                     ShallowBoard.Square square =
-                        new( rank, file, piece?.Type ?? PieceType.Empty, piece?.Color ?? ChessColor.White );
+                        new( rank, file, piece?.CreateShallowPiece() );
                     shallowBoard.SetSquare( rank, file, square );
                 }
             }

@@ -9,6 +9,8 @@ Implement checks and checkmates on Move.cs
 
 Soon:
 Create exception classes
+Combine ShallowBoard and Board to share functionalities like GetPotentialMoves using interfaces.
+Change ShallowBoard.Square to struct
 
 Future:
 Evaluation bar

@@ -12,16 +12,16 @@ namespace Assets.Scripts.Moves
     public static class MoveCreator
     {
 
-        public static Move CreateMove(this Board board, Square from, Square to)
+        public static Move CreateMove( this Board board, Square from, Square to )
         {
-            if(to.IsCapturable(from.Piece.Color))
+            if ( to.IsCapturable( from.Piece.Color ) )
             {
                 return board.CreateCaptureMove( from, to );
             }
             return board.CreateBasicMove( from, to );
         }
 
-        public static BasicMove CreateBasicMove(this Board board, Square from, Square to)
+        public static BasicMove CreateBasicMove( this Board board, Square from, Square to )
         {
             var move = new BasicMove( from, to );
             board.AddChecksToMove( move );
@@ -63,7 +63,23 @@ namespace Assets.Scripts.Moves
             return move;
         }
 
-        private static void AddChecksToMove(this Board board, Move move)
+        public static ShallowEnPassant CreateShallowEnPassant( this ShallowBoard board, ShallowBoard.Square from, ShallowBoard.Square to, ShallowBoard.Square captureOn )
+        {
+            var move = new ShallowEnPassant( from, to, captureOn );
+            //board.AddChecksToMove( move );
+            return move;
+        }
+
+        public static ShallowMove CreateShallowMove( this ShallowBoard board, ShallowBoard.Square from, ShallowBoard.Square to )
+        {
+            if ( to.IsCapturable( from.Piece.Color ) )
+            {
+                return board.CreateShallowCaptureMove( from, to );
+            }
+            return board.CreateShallowBasicMove( from, to );
+        }
+
+        private static void AddChecksToMove( this Board board, Move move )
         {
             // need to simulate move on board to look for checks, need to pass move object in
 
@@ -72,7 +88,7 @@ namespace Assets.Scripts.Moves
             shallowBoard.AddChecksToMove( move );
         }
 
-        private static void AddChecksToMove(this ShallowBoard board, Move move)
+        private static void AddChecksToMove( this ShallowBoard board, Move move )
         {
             move.ExecuteShallowMove( board );
 
@@ -82,7 +98,7 @@ namespace Assets.Scripts.Moves
             move.SetChecks( isCheck, isCheckmate );
         }
 
-        private static void CheckIfValidMove(this Board board, Move move)
+        private static void CheckIfValidMove( this Board board, Move move )
         {
             // need to simulate move on board to look for checks, need to pass move object in
 

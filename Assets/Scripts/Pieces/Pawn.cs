@@ -1,10 +1,8 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
-using System;
+using Assets.Scripts.ShallowCopy;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Assets.Scripts.Pieces
@@ -80,6 +78,9 @@ namespace Assets.Scripts.Pieces
             }
             return res;
         }
+
+        public override ShallowPiece CreateShallowPiece() =>
+            new ShallowPawn( _location.Rank.Num, _location.File.Num, Color );
 
         public override void Move( int rankChange, int fileChange )
         {

@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
+using Assets.Scripts.ShallowCopy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,34 +13,47 @@ namespace Assets.Scripts.Parts
     public class ShallowBoard
     {
 
-        public record Square
+        public struct Square
         {
             public int Rank;
             public int File;
-            public PieceType Type;
-            public ChessColor Color;
+            public ShallowPiece? Piece;
 
-            public Square( int rank, int file, PieceType type, ChessColor color )
+            public Square( int rank, int file, ShallowPiece? piece )
             {
-                Type = type;
-                Color = color;
                 Rank = rank;
                 File = file;
+                Piece = piece;
             }
 
-            public bool IsFree => Type == PieceType.Empty;
-            public bool IsCapturable( ChessColor color ) => !IsFree && color != Color;
+            public PieceType Type => Piece?.Type ?? PieceType.Empty;
+            public bool IsFree => Piece is null;
+            public bool IsCapturable( ChessColor color ) => !IsFree && color != Piece.Color;
             public bool CanMoveTo( ChessColor color ) => IsFree || IsCapturable( color );
-            public static Square Default => new( 0, 0, PieceType.Empty, ChessColor.White );
+            public static Square Default => new( 0, 0, null );
+
+            public void SetPiece(ShallowPiece? piece)
+            {
+                Piece = piece;
+            }
+
+            public static bool operator==( Square s1, Square s2 )
+            {
+                return s1.Rank == s2.Rank && s1.File == s2.File
+                    && s1.Piece.Type == s2.Piece.Type && s1.Piece.Color == s2.Piece.Color;
+            }
+
+            public static bool operator!=(Square s1, Square s2) => !(s1 == s2);
+
             public void LogInfo()
             {
-                if ( this == Default )
+                if ( Equals(Default) )
                 {
                     Debug.Log( "Default Square" );
                 }
                 else
                 {
-                    Debug.Log( $"Rank: {Rank}, File: {File}, Type:{Type}, Color:{Color}" );
+                    Debug.Log( $"Rank: {Rank}, File: {File}, Type:{Piece?.Type ?? PieceType.Empty}, Color:{Piece?.Color}" );
                 }
             }
         }
@@ -48,22 +62,29 @@ namespace Assets.Scripts.Parts
         private int _height;
         private int _width;
         private ChessColor _currentTurn;
+        private ShallowMove _lastMove;
 
-        public ShallowBoard( int width, int height, ChessColor currentTurn = ChessColor.White )
+        public ShallowBoard( int width, int height, ChessColor currentTurn = ChessColor.White, Move lastMove = null )
+            : this(width, height, currentTurn, Utilities.ConvertToShallowMove(lastMove))
         {
-            _board = new List<List<Square>>() { null }; // dummy so we can use 1-indexed
+        }
+
+        public ShallowBoard( int width, int height, ChessColor currentTurn = ChessColor.White, ShallowMove lastMove = null)
+        {
+            _board = new List<List<Square>>() { new() }; // dummy so we can use 1-indexed
             _height = height;
             _width = width;
             _currentTurn = currentTurn;
 
             for ( int i = 1; i <= _height; i++ )
             {
-                _board.Add( new() { null } ); // dummy so we can use 1-indexed
+                _board.Add( new() { Square.Default } ); // dummy so we can use 1-indexed
                 for ( int j = 1; j <= _width; j++ )
                 {
                     _board[ i ].Add( Square.Default );
                 }
             }
+            _lastMove = lastMove;
         }
 
         public ShallowBoard( List<List<Square>> board, ChessColor currentTurn = ChessColor.White )
@@ -72,7 +93,7 @@ namespace Assets.Scripts.Parts
             _currentTurn = currentTurn;
         }
 
-        public ShallowBoard( ShallowBoard board ) : this( board._width, board._height, board._currentTurn )
+        public ShallowBoard( ShallowBoard board ) : this( board._width, board._height, board._currentTurn, board._lastMove )
         {
             for ( int i = 1; i <= _height; i++ )
             {
@@ -83,18 +104,24 @@ namespace Assets.Scripts.Parts
             }
         }
 
+        public ShallowMove LastMove => _lastMove;
+
         public void OnMoveExecuted()
         {
             _currentTurn = Utilities.FlipTurn( _currentTurn );
         }
 
         public bool OutOfBounds( int rank, int file ) => rank < 1 || file < 1 || rank > _height || file > _width;
+        public bool CanMoveTo( int rank, int file, ChessColor color ) => !OutOfBounds( rank, file ) && ( _board[ rank ][ file ].IsFree || _board[ rank ][ file ].IsCapturable( color ) );
+        public bool CanCapture( int rank, int file, ChessColor color ) => !OutOfBounds( rank, file ) && _board[ rank ][ file ].IsCapturable( color );
+        public bool IsFree( int rank, int file ) => !OutOfBounds( rank, file ) && _board[ rank ][ file ].IsFree;
 
         public Square GetSquare( int rank, int file ) => _board[ rank ][ file ];
+        public Square GetSquareOrDefault( int rank, int file ) => OutOfBounds(rank, file) ? Square.Default : _board[ rank ][ file ];
 
-        public void SetSquare( int rank, int file, PieceType type, ChessColor color )
+        public void SetSquare( int rank, int file, ShallowPiece piece )
         {
-            SetSquare( rank, file, new( rank, file, type, color ) );
+            SetSquare( rank, file, new Square( rank, file, piece ) );
         }
 
         public void SetSquare( int rank, int file, Square square )
@@ -105,20 +132,17 @@ namespace Assets.Scripts.Parts
         public void SwapSquares( int rank1, int file1, int rank2, int file2 )
         {
             // todo: cleanup
-            (_board[ rank1 ][ file1 ].Type, _board[ rank2 ][ file2 ].Type) =
-                (_board[ rank2 ][ file2 ].Type, _board[ rank1 ][ file1 ].Type);
-            (_board[ rank1 ][ file1 ].Color, _board[ rank2 ][ file2 ].Color) =
-                (_board[ rank2 ][ file2 ].Color, _board[ rank1 ][ file1 ].Color);
+            var tmpPiece = _board[ rank1 ][ file1 ].Piece;
+            _board[ rank1 ][ file1 ].SetPiece( _board[ rank2 ][ file2 ].Piece );
+            _board[ rank2 ][ file2 ].SetPiece( tmpPiece );
         }
 
         // 1 captures 2
         public void CaptureSquare( int rank1, int file1, int rank2, int file2 )
         {
             // todo: cleanup
-            _board[ rank2 ][ file2 ].Type = _board[ rank1 ][ file1 ].Type;
-            _board[ rank2 ][ file2 ].Color = _board[ rank1 ][ file1 ].Color;
-            _board[ rank1 ][ file1 ].Type = PieceType.Empty;
-            _board[ rank1 ][ file1 ].Color = ChessColor.White;
+            _board[ rank2 ][ file2 ].SetPiece(_board[ rank1 ][ file1 ].Piece);
+            _board[ rank1 ][ file1 ].SetPiece(null);
         }
 
         private Square FindKing( ChessColor color )
@@ -128,7 +152,7 @@ namespace Assets.Scripts.Parts
                 for ( int file = 1; file <= _width; ++file )
                 {
                     Square square = _board[ rank ][ file ];
-                    if ( square.Type == PieceType.King && square.Color == color )
+                    if ( square.Type == PieceType.King && square.Piece.Color == color )
                     {
                         return square;
                     }
@@ -152,7 +176,7 @@ namespace Assets.Scripts.Parts
                     continue;
                 }
                 // a piece that could be giving check
-                if ( validPieces.Contains( square.Type ) && square.Color != kingSquare.Color )
+                if ( validPieces.Contains( square.Type ) && square.Piece.Color != kingSquare.Piece.Color )
                 {
                     ret.Add( square );
                 }
@@ -180,7 +204,7 @@ namespace Assets.Scripts.Parts
                 if ( validPieces.Contains( square.Type ) )
                 {
                     //Debug.Log( $"{kingRank},{kingFile} : {square.Color}. {kingSquare.Color}" );
-                    Assert.IsFalse( square.Color == kingSquare.Color );
+                    Assert.IsFalse( square.Piece.Color == kingSquare.Piece.Color );
                     ret.Add( square );
                 }
             }
@@ -191,8 +215,8 @@ namespace Assets.Scripts.Parts
         // optimize by checking through opponent piece positions
         private bool KingCanMoveTo( Square kingSquare, Square newKingSquare )
         {
-            Move move;
-            if ( newKingSquare.IsCapturable( kingSquare.Color ) )
+            ShallowMove move;
+            if ( newKingSquare.IsCapturable( kingSquare.Piece.Color ) )
             {
                 move = this.CreateShallowCaptureMove( kingSquare, newKingSquare );
             }
@@ -211,9 +235,9 @@ namespace Assets.Scripts.Parts
             canMoveTo &= kingShallowBoard.CheckInDirection( newKingSquare, Utilities.StraightMoves, Utilities.StraightPieceTypes ).Any();
             canMoveTo &= kingShallowBoard.CheckInDirection( newKingSquare, Utilities.DiagonalMoves, Utilities.DiagonalPieceTypes ).Any();
             canMoveTo &= kingShallowBoard.CheckOnSquare( newKingSquare, Utilities.KnightMoves, Utilities.KnightPieceTypes ).Any();
-            canMoveTo &= newKingSquare.Color == ChessColor.Black &&
+            canMoveTo &= kingSquare.Piece.Color == ChessColor.Black &&
                     kingShallowBoard.CheckOnSquare( newKingSquare, Utilities.BlackPawnMoves, Utilities.PawnTypes ).Any();
-            canMoveTo &= newKingSquare.Color == ChessColor.White &&
+            canMoveTo &= kingSquare.Piece.Color == ChessColor.White &&
                     kingShallowBoard.CheckOnSquare( newKingSquare, Utilities.WhitePawnMoves, Utilities.PawnTypes ).Any();
 
             return canMoveTo;
@@ -251,7 +275,7 @@ namespace Assets.Scripts.Parts
 
             //Debug.Log( $"Count on knights = {checkSquares.Count}" );
             // check pawns
-            if ( kingSquare.Color == ChessColor.Black )
+            if ( kingSquare.Piece.Color == ChessColor.Black )
             {
                 checkSquares.AddRange(
                     CheckOnSquare( kingSquare, Utilities.WhitePawnMoves, Utilities.PawnTypes ) );
@@ -312,13 +336,17 @@ namespace Assets.Scripts.Parts
         {
             int diff1 = square2.Rank - square1.Rank;
             int diff2 = square2.File - square1.File;
-            if ( Math.Abs( diff1 ) - Math.Abs( diff2 ) != 0 )
+            if ( diff1 > diff2 )
+            {
+                (diff1, diff2) = (diff2, diff1);
+            }
+            if ( diff1 != 0 && Math.Abs( diff2 ) != Math.Abs( diff1 ) ) // make sure we either travel (0,x), (x,0) or (x,x)
             {
                 return Enumerable.Empty<Square>();
             }
-            int steps = Math.Abs( diff1 );
+            int steps = Math.Abs( diff2 );
             (int coeff1, int coeff2) = (diff1 / steps, diff2 / steps);
-            return Enumerable.Range( 1, steps - 2 )
+            return Enumerable.Range( 1, steps - 1 )
                 .Select( x => GetSquare( square1.Rank + x * coeff1, square1.File + x * coeff2 ) );
         }
 
@@ -327,43 +355,76 @@ namespace Assets.Scripts.Parts
             return _board.GetRange( 1, _height )
                 .Select( x => x.GetRange( 1, _width ) )
                 .SelectMany( x => x )
-                .Where( x => x.Color == color && x.Type != PieceType.Empty );
+                .Where( x => x.Type != PieceType.Empty && x.Piece.Color == color );
         }
 
-        private bool CanMovePieceToSquare( Square piece, Square target )
+        private bool IsLegalMove( Square start, Square target )
         {
-            int diff1 = Math.Abs( piece.Rank - target.Rank );
-            int diff2 = Math.Abs( piece.File - target.File );
-            if ( diff1 < diff2 )
+            int diff1 = target.Rank - start.Rank;
+            int diff2 = target.File - start.File;
+            int absDiff1 = Math.Abs( diff1 );
+            int absDiff2 = Math.Abs( diff2 );
+            if ( diff1 > diff2 )
             {
                 (diff1, diff2) = (diff2, diff1);
             }
-
-            bool CanPawnMoveToSquare()
+            if( absDiff1 == 1 && absDiff2 == 2 )
             {
-                diff1 == 0 && ( diff2 == 0 || ( diff2 == 2 && ( piece.Rank == 2 && piece.Color == ChessColor.White ) || ( piece.Rank == 7 && piece.Color == ChessColor.Black ) ) )
-                    || diff1 == 1
+                return start.Type == PieceType.Knight;
             }
 
-            return piece.Type switch
+            if ( start.Type == PieceType.Pawn )
             {
-                PieceType.Knight => diff1 == 1 && diff2 == 2,
-                // pawn moves in straight line, 
-                PieceType.Pawn => diff1 == 0 && ( diff2 == 0 || ( diff2 == 2 && ( piece.Rank == 2 && piece.Color == ChessColor.White ) || ( piece.Rank == 7 && piece.Color == ChessColor.Black ) ) ),
-                PieceType.Queen =>
-            };
-            // knights need 2,1
-            // rooks need 1,0
-            // bishops need 1,1
-            // queens need 1,0 or 1,1 x == 1 && y == 0 or 1 ) or x = 0 & y = 1
+                int rankDiff = target.Rank - start.Rank;
+                int fileDiff = target.File - start.File;
+                int pawnDirection = Utilities.GetPawnMoveDirection( start.Piece.Color );
+                if ( fileDiff != 0 )
+                {
+                    // need to capture
+                    return Math.Abs( fileDiff ) == 1 && rankDiff == pawnDirection && target.IsCapturable( start.Piece.Color );
+                }
+                // last option (2,0) or (1,0) in direction of pawn
+                return rankDiff == pawnDirection
+                    || ( rankDiff == pawnDirection * 2 && start.Rank == Utilities.GetDefaultRankForPawn( start.Piece.Color ) );
+            }
+
+            int steps = Math.Max( absDiff1, absDiff2 );
+
+            diff1 /= steps;
+            diff2 /= steps;
+            absDiff1 /= steps;
+            absDiff2 /= steps;
+
+            if( absDiff2 == 1 && ( absDiff1 == 0 || absDiff1 == 1))
+            {
+                List<ShallowMove> inBetweenMoves = ShallowUtilities.GetMovesInDirection( this, start.Rank, start.File, start.Piece.Color, diff1, diff2 );
+                foreach (ShallowMove move in inBetweenMoves)
+                {
+                    if(move.To.Type != PieceType.Empty)
+                    {
+                        return move.To == target && move.To.Piece.Color != target.Piece.Color;
+                    }
+                    if(move.To == target)
+                    {
+                        return true;
+                    }
+                }
+                return true;
+            }
+
+            return false;
         }
 
         // try to move piece on first square to the target square
         private bool CanMovePieceToTarget( Square piece, Square target )
         {
+            if( !IsLegalMove(piece, target))
+            {
+                return false;
+            }
             // target square is always empty
             // need to try a basic move to get there
-            ShallowBasicMove move = MoveCreator.CreateShallowBasicMove( this, piece, target );
+            ShallowMove move = MoveCreator.CreateShallowMove( this, piece, target );
 
             ShallowBoard copy = new( this );
             move.ExecuteShallowMove( copy );
@@ -372,6 +433,10 @@ namespace Assets.Scripts.Parts
 
         private bool CanMovePieceToSquareAndCapture( Square piece, Square target )
         {
+            if ( !IsLegalMove( piece, target ) )
+            {
+                return false;
+            }
             // target square is always empty
             // need to try a basic move to get there
             ShallowCaptureMove move = MoveCreator.CreateShallowCaptureMove( this, piece, target );
@@ -387,6 +452,13 @@ namespace Assets.Scripts.Parts
             ChessColor turn = Utilities.FlipTurn( _currentTurn );
             (bool isCheck, _) = LookForChecksOnKing( turn );
             return !isCheck;
+        }
+
+        public bool IsValidPositionAfterMove( ShallowMove move )
+        {
+            var tmpBoard = new ShallowBoard( this );
+            move.ExecuteShallowMove( tmpBoard );
+            return tmpBoard.IsValidPosition();
         }
     }
 }

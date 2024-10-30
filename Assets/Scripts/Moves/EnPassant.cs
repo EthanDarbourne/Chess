@@ -21,6 +21,8 @@ namespace Assets.Scripts.Moves
             _captureOn = captureOn;
         }
 
+        public Square CaptureOn => _captureOn;
+
         protected override void DoExecuteMove( Board board )
         {
             // en passant moves the current pawn one square behind the adjacent pawn

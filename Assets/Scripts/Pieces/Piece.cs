@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
+using Assets.Scripts.ShallowCopy;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -38,6 +39,8 @@ namespace Assets.Scripts.Pieces
         public abstract PieceType Type { get; }
 
         protected abstract List<Move> GetPotentialMoves( Board board );
+
+        public abstract ShallowPiece CreateShallowPiece();
 
         public List<Move> GetValidMoves( Board board )
         {

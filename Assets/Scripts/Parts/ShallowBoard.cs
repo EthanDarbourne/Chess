@@ -40,7 +40,7 @@ namespace Assets.Scripts.Parts
             public static bool operator==( Square s1, Square s2 )
             {
                 return s1.Rank == s2.Rank && s1.File == s2.File
-                    && s1.Piece.Type == s2.Piece.Type && s1.Piece.Color == s2.Piece.Color;
+                    && s1.Piece?.Type == s2.Piece?.Type && s1.Piece?.Color == s2.Piece?.Color;
             }
 
             public static bool operator!=(Square s1, Square s2) => !(s1 == s2);
@@ -119,7 +119,7 @@ namespace Assets.Scripts.Parts
         public Square GetSquare( int rank, int file ) => _board[ rank ][ file ];
         public Square GetSquareOrDefault( int rank, int file ) => OutOfBounds(rank, file) ? Square.Default : _board[ rank ][ file ];
 
-        public void SetSquare( int rank, int file, ShallowPiece piece )
+        public void SetSquare( int rank, int file, ShallowPiece? piece )
         {
             SetSquare( rank, file, new Square( rank, file, piece ) );
         }
@@ -131,18 +131,16 @@ namespace Assets.Scripts.Parts
 
         public void SwapSquares( int rank1, int file1, int rank2, int file2 )
         {
-            // todo: cleanup
             var tmpPiece = _board[ rank1 ][ file1 ].Piece;
-            _board[ rank1 ][ file1 ].SetPiece( _board[ rank2 ][ file2 ].Piece );
-            _board[ rank2 ][ file2 ].SetPiece( tmpPiece );
+            SetSquare( rank1, file1, _board[ rank2 ][ file2 ].Piece );
+            SetSquare( rank2, file2, tmpPiece );
         }
 
         // 1 captures 2
         public void CaptureSquare( int rank1, int file1, int rank2, int file2 )
         {
-            // todo: cleanup
-            _board[ rank2 ][ file2 ].SetPiece(_board[ rank1 ][ file1 ].Piece);
-            _board[ rank1 ][ file1 ].SetPiece(null);
+            SetSquare( rank1, rank1, null );
+            SetSquare( rank2, file2, _board[ rank1 ][ file1 ].Piece );
         }
 
         private Square FindKing( ChessColor color )

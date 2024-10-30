@@ -59,19 +59,19 @@ namespace Assets.Scripts.ShallowCopy
 
             // check en-passant
             ShallowBoard.Square? leftSquare = board.GetSquareOrDefault( rank, leftFile );
-            if ( leftSquare?.Type == PieceType.Pawn && leftSquare.Piece.Color != Color && board.LastMove?.To == leftSquare )
+            if ( leftSquare?.Type == PieceType.Pawn && leftSquare?.Piece.Color != Color && board.LastMove?.To == leftSquare )
             {
                 // can en-passant left side
                 ShallowBoard.Square moveSquare = board.GetSquare( rank + oneStep, leftFile );
-                res.Add( MoveCreator.CreateShallowEnPassant( board, from, moveSquare, leftSquare ) );
+                res.Add( MoveCreator.CreateShallowEnPassant( board, from, moveSquare, leftSquare.Value ) );
             }
 
             ShallowBoard.Square? rightSquare = board.GetSquareOrDefault( rank, rightFile );
-            if ( rightSquare?.Type == PieceType.Pawn && rightSquare.Piece.Color != Color && board.LastMove?.To == rightSquare )
+            if ( rightSquare?.Type == PieceType.Pawn && rightSquare?.Piece.Color != Color && board.LastMove?.To == rightSquare )
             {
                 // can en-passant right side
                 ShallowBoard.Square moveSquare = board.GetSquare( rank + oneStep, rightFile );
-                res.Add( MoveCreator.CreateShallowEnPassant( board, from, moveSquare, rightSquare ) );
+                res.Add( MoveCreator.CreateShallowEnPassant( board, from, moveSquare, rightSquare.Value ) );
             }
             return res;
         }

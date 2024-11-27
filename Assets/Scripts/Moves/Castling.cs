@@ -19,6 +19,8 @@ namespace Assets.Scripts.Moves
             _rookSquare = rookSquare;
         }
 
+        public Square RookSquare => _rookSquare;
+
         protected override void DoExecuteMove( Board board )
         {
             (int kingNewFile, int rookNewFile) = GetNewKingAndRookFiles();

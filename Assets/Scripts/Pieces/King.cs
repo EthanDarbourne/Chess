@@ -53,7 +53,7 @@ namespace Assets.Scripts.Pieces
                     {
                         if ( board.OutOfBounds( rank, startFile + dir ) ) break;
                         startFile += dir;
-                        if ( board.IsFree( rank, startFile ) ) continue;
+                        if ( !board.IsFree( rank, startFile ) ) break;
                     }
                     Square rookSquare = board.GetSquare( rank, startFile );
                     Piece? piece = rookSquare.Piece;

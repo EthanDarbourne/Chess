@@ -24,7 +24,7 @@ namespace Assets.Scripts.Parts
         public void TranslateTo(Vector3 position)
         {
             position.y = 0.01f;
-            _highlightPlane.transform.position = ( position );
+            _highlightPlane.transform.position = position;
         }
 
         public void Show()

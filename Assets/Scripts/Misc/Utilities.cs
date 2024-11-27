@@ -1,11 +1,15 @@
 using Assets.Scripts.Enums;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
+using Assets.Scripts.Pieces;
+using Assets.Scripts.ShallowCopy;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Misc
 {
@@ -17,7 +21,8 @@ namespace Assets.Scripts.Misc
         public static int[] KnightMoves = { 2, 1, -2, -1, 2, -1, -2, 1, 2 };
         public static int[] BlackPawnMoves = { 1, -1, -1 };
         public static int[] WhitePawnMoves = { -1, 1, 1 };
-        public static int[] AdjacentMoves = { 1, 0, -1, 0, 1, 0, -1, 0, 1 };
+        public static int[] AdjacentMoves = { 1, -1, 0, 1, 0, -1, -1, 1, 1 };
+        public static PieceType[] PromotionPieceTypes = { PieceType.Queen, PieceType.Rook, PieceType.Bishop, PieceType.Knight };
         public static PieceType[] StraightPieceTypes = { PieceType.Queen, PieceType.Rook };
         public static PieceType[] DiagonalPieceTypes = { PieceType.Queen, PieceType.Bishop };
         public static PieceType[] KnightPieceTypes = { PieceType.Knight };
@@ -96,7 +101,12 @@ namespace Assets.Scripts.Misc
             return res;
         }
 
-        public static int GetDefaultRankForPawn( ChessColor color ) => color == ChessColor.White ? 2 : 7;
+        public static int GetDefaultRankForPawn( ChessColor color ) =>
+            color == ChessColor.White ? Constants.WHITE_PAWN_STARTING_RANK : Constants.BLACK_PAWN_STARTING_RANK;
+        public static int GetEnPassantRankForPawn( ChessColor color ) =>
+            color == ChessColor.White ? Constants.WHITE_PAWN_ENPASSANT_RANK : Constants.BLACK_PAWN_ENPASSANT_RANK;
+        public static int GetPromotionRankForPawn( ChessColor color ) =>
+            color == ChessColor.White ? Constants.WHITE_PAWN_PROMOTION_RANK : Constants.BLACK_PAWN_PROMOTION_RANK;
 
         //vector<string> Split( string s, char delim )
         //{
@@ -132,7 +142,7 @@ namespace Assets.Scripts.Misc
             }
 
             int rankNum = s[ 1 ] - '0';
-            int fileNum = s[ 0 ] - 'A' + 1;
+            int fileNum = 1 + ( char.IsUpper( s[ 0 ] ) ? s[ 0 ] - 'A' : s[ 0 ] - 'a' );
 
             CRank rank = new( rankNum );
             CFile file = new( fileNum );
@@ -147,31 +157,82 @@ namespace Assets.Scripts.Misc
             return (rank, file);
         }
 
-        public static ShallowMove ConvertToShallowMove(Move move)
+        public static PieceType GetPieceType( char c ) => c switch
         {
-            ShallowBoard.Square ConvertSquare( Square square ) => 
-                new( square.Rank.Num, square.File.Num, square.Piece?.CreateShallowPiece() );
+            'p' => PieceType.Pawn,
+            'N' => PieceType.Knight,
+            'B' => PieceType.Bishop,
+            'R' => PieceType.Rook,
+            'Q' => PieceType.Queen,
+            'K' => PieceType.King,
+            _ => throw new NotSupportedException( $"Invalid char '{c}'" )
+        };
 
-            ShallowBoard.Square from = ConvertSquare( move.From );
-            ShallowBoard.Square to = ConvertSquare( move.To );
+        public static Piece CreatePiece(PieceType type, ChessColor color, GameObject gameObject)
+        {
+            return type switch
+            {
+                PieceType.Pawn => new Pawn( gameObject, color ),
+                PieceType.Knight => new Knight( gameObject, color ),
+                PieceType.Bishop => new Bishop( gameObject, color ),
+                PieceType.Rook => new Rook( gameObject, color ),
+                PieceType.Queen => new Queen( gameObject, color ),
+                PieceType.King => new King( gameObject, color ),
+                _ => throw new InvalidOperationException( $"Cannot create a piece of type {type}" ),
+            };
+        }
+
+        public static ShallowMove ConvertToShallowMove( Move? move )
+        {
+            if ( move is null )
+            {
+                return null;
+            }
+
+            ShallowBoard.Square from = new( move.From );
+            ShallowBoard.Square to = new( move.To );
 
 
-
-
-            if (move is BasicMove)
+            if ( move is BasicMove )
             {
                 return new ShallowBasicMove( from, to, move.IsCheck, move.IsCheckmate );
             }
-            else if(move is CaptureMove)
+            else if ( move is CaptureMove )
             {
                 return new ShallowCaptureMove( from, to, move.IsCheck, move.IsCheckmate );
             }
-            else if(move is EnPassant enPassant)
+            else if ( move is EnPassant enPassant )
             {
-                return new ShallowEnPassant( from, to, ConvertSquare( enPassant.CaptureOn ), move.IsCheck, move.IsCheckmate );
+                return new ShallowEnPassant( from, to, new( enPassant.CaptureOn ), move.IsCheck, move.IsCheckmate );
+            }
+            else if(move is Castling castling)
+            {
+                return new ShallowCastling( from, to, new( castling.RookSquare ), move.IsCheck, move.IsCheckmate );
+            }
+            else if(move is PromotionBasicMove promotionBasic)
+            {
+                return new ShallowPromotionBasicMove( from, to, promotionBasic.PromoteTo, move.IsCheck, move.IsCheckmate );
+            }
+            else if ( move is PromotionCaptureMove promotionCapture )
+            {
+                return new ShallowPromotionCaptureMove( from, to, promotionCapture.PromoteTo, move.IsCheck, move.IsCheckmate );
             }
 
             throw new Exception( "no equivalent move" );
+        }
+
+        public static ShallowPiece CreateShallowPiece(int rank, int file, ChessColor color, PieceType type)
+        {
+            return type switch
+            {
+                PieceType.Pawn => new ShallowPawn( rank, file, color ),
+                PieceType.Knight => new ShallowKnight( rank, file, color ),
+                PieceType.Bishop => new ShallowBishop( rank, file, color ),
+                PieceType.Rook => new ShallowRook( rank, file, color ),
+                PieceType.Queen => new ShallowQueen( rank, file, color ),
+                PieceType.King => new ShallowKing( rank, file, color ),
+                _ => throw new NotImplementedException($"Can't make shallow piece of type {type}"),
+            };
         }
 
 
@@ -179,5 +240,7 @@ namespace Assets.Scripts.Misc
             color == ChessColor.Black ? Constants.BLACK_PAWN_STARTING_RANK : Constants.WHITE_PAWN_STARTING_RANK;
         public static int GetPawnMoveDirection( ChessColor color ) =>
                color == ChessColor.Black ? Constants.BLACK_PAWN_DIRECTION : Constants.WHITE_PAWN_DIRECTION;
+
+        public static string PrintNotation( int rank, int file ) => ( char ) ( 'A' + file - 1 ) + rank.ToString();
     }
 }

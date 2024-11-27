@@ -1,12 +1,15 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
+using Assets.Scripts.Pieces;
 using Assets.Scripts.ShallowCopy;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using BoardSquare = Assets.Scripts.Parts.Square;
 
 namespace Assets.Scripts.Parts
 {
@@ -25,6 +28,10 @@ namespace Assets.Scripts.Parts
                 File = file;
                 Piece = piece;
             }
+
+            public Square( BoardSquare square ) :
+                this( square.Rank.Num, square.File.Num, square.Piece?.CreateShallowPiece() )
+            { }
 
             public PieceType Type => Piece?.Type ?? PieceType.Empty;
             public bool IsFree => Piece is null;
@@ -230,6 +237,7 @@ namespace Assets.Scripts.Parts
             var kingShallowBoard = new ShallowBoard( this );
             move.ExecuteShallowMove( kingShallowBoard );
             bool canMoveTo = true;
+            newKingSquare = kingShallowBoard.GetSquare( newKingSquare.Rank, newKingSquare.File );
             canMoveTo &= kingShallowBoard.CheckInDirection( newKingSquare, Utilities.StraightMoves, Utilities.StraightPieceTypes ).Any();
             canMoveTo &= kingShallowBoard.CheckInDirection( newKingSquare, Utilities.DiagonalMoves, Utilities.DiagonalPieceTypes ).Any();
             canMoveTo &= kingShallowBoard.CheckOnSquare( newKingSquare, Utilities.KnightMoves, Utilities.KnightPieceTypes ).Any();
@@ -388,6 +396,11 @@ namespace Assets.Scripts.Parts
 
             int steps = Math.Max( absDiff1, absDiff2 );
 
+            if(steps == 0)
+            {
+                return false;
+            }
+
             diff1 /= steps;
             diff2 /= steps;
             absDiff1 /= steps;
@@ -457,6 +470,15 @@ namespace Assets.Scripts.Parts
             var tmpBoard = new ShallowBoard( this );
             move.ExecuteShallowMove( tmpBoard );
             return tmpBoard.IsValidPosition();
+        }
+
+        public void Promote(int rank, int file, PieceType type)
+        {
+            Square square = GetSquare( rank, file );
+            Assert.IsTrue( rank == 1 || rank == 8 );
+            Assert.AreEqual( square.Piece?.Type, PieceType.Pawn );
+
+            SetSquare( rank, file, Utilities.CreateShallowPiece( rank, file, square.Piece.Color, type ) );
         }
     }
 }

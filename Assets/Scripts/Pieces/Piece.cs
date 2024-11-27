@@ -69,6 +69,12 @@ namespace Assets.Scripts.Pieces
         {
             _location = point;
             _initialLocation = new( _location );
+            // set the location of the gameobject
+            // (3.5, 3.5) is the location of A1
+            // (3.5, -3.5) is the location of H1
+            // to move positive file, move negative x
+            // to move positive rank, move negative z
+            _gamePiece.transform.position = new Vector3( point.File.Num - 4.5f, 0, point.Rank.Num - 4.5f);
         }
 
         public void SetLocation( CRank rank, CFile file )

@@ -82,6 +82,11 @@ namespace Assets.Scripts.Parts
             _moveToHighlight.SetActive( false );
         }
 
+        public void Destroy()
+        {
+            Object.Destroy( _moveToHighlight );
+        }
+
         public Piece? Piece => _piece;
 
         public Point Point => _location;

@@ -24,3 +24,6 @@ Evaluation bar
 
 
 More ideas: greenlemongamestudio on instagram
+
+
+create pieces as prefabs so we can create new pieces for promotion

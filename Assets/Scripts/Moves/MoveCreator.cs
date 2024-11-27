@@ -49,6 +49,20 @@ namespace Assets.Scripts.Moves
             return move;
         }
 
+        public static PromotionBasicMove CreatePromotionBasicMove( this Board board, Square from, Square to, PieceType promoteTo )
+        {
+            var move = new PromotionBasicMove( from, to, promoteTo );
+            board.AddChecksToMove( move );
+            return move;
+        }
+
+        public static PromotionCaptureMove CreatePromotionCaptureMove( this Board board, Square from, Square to, PieceType promoteTo )
+        {
+            var move = new PromotionCaptureMove( from, to, promoteTo );
+            board.AddChecksToMove( move );
+            return move;
+        }
+
         public static ShallowBasicMove CreateShallowBasicMove( this ShallowBoard board, ShallowBoard.Square from, ShallowBoard.Square to )
         {
             var move = new ShallowBasicMove( from, to );

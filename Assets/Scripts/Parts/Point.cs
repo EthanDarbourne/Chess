@@ -35,7 +35,7 @@ namespace Assets.Scripts.Parts
         public CRank Rank => _rank;
         public CFile File => _file;
 
-        public Vector3 Vector => new( File.Num, 0, Rank.Num );
+        public Vector3 Vector => new( File.Num - 4, 0, Rank.Num - 4 );
 
         public void Move( int rankChange, int fileChange )
         {

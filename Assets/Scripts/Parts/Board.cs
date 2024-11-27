@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Enums;
+﻿using Assets.GameObjects;
+using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Pieces;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Assets.Scripts.Parts
 {
@@ -21,19 +23,85 @@ namespace Assets.Scripts.Parts
         private Piece? _selectedPiece = null;
 
         private readonly HighlightSquare _highlightSquare;
+        private readonly PromotionSelector _promotionSelector;
+        private readonly PieceManager _pieceManager;
 
         private readonly int _width;
         private readonly int _height;
 
         private ChessColor _turn = ChessColor.White;
 
+        #region InitialBuild
+
         public Board( int width, int height, GameObject boardObject, HighlightSquare highlightSquare )
         {
             _width = width;
             _height = height;
             _highlightSquare = highlightSquare;
-            Reset();
+            BuildBoard();
         }
+
+        public Board( int width, int height, PieceManager pieceManager, HighlightSquare highlightSquare, PromotionSelector selector )
+        {
+            _width = width;
+            _height = height;
+            _highlightSquare = highlightSquare;
+            _pieceManager = pieceManager;
+            _promotionSelector = selector;
+            //BuildBoard();
+        }
+
+        // build the default board
+        public void BuildBoard()
+        {
+            _board.Skip(1).SelectMany( x => x ).Where(x => x is not null).ToList().ForEach( x => x.Destroy() );
+            _board.Clear();
+            _board = new List<List<Square>> { null }; // dummy so we can use 1-indexed
+
+            for ( int i = 1; i < _height + 1; i++ )
+            {
+                _board.Add( new() { null } ); // dummy so we can use 1-indexed
+                for ( int j = 1; j < _width + 1; j++ )
+                {
+                    _board[ i ].Add( new Square( new Point( i, j ) ) );
+                }
+            }
+            _promotionSelector.Display( new Vector3( 0, 0, 0 ) );
+        }
+
+        public void SetupForGameStart()
+        {
+            MovePiecesToStartSquares();
+            DeselectPiece();
+            DisableAllHighlights();
+        }
+
+        private void MovePiecesToStartSquares()
+        {
+            if ( _pieceManager is null )
+            {
+                return;
+            }
+            BuildBoard();
+            foreach ( var pieceNotation in Constants.InitialPiecePositions )
+            {
+                char type = pieceNotation.Length == 2 ? 'p' : pieceNotation[ 0 ];
+                string position = pieceNotation[ ^2.. ];
+                ChessColor color = position[1] == '1' || position[1] == '2' ? ChessColor.White : ChessColor.Black;
+                PieceType pieceType = Utilities.GetPieceType( type );
+                Piece piece = GeneratePiece( pieceType, color );
+                (CRank rank, CFile file) = Utilities.ReadChessNotation( position );
+                SetPiece( rank, file, piece );
+            }
+        }
+
+        private Piece GeneratePiece(PieceType type, ChessColor color)
+        {
+            GameObject pieceObject = _pieceManager.GeneratePiece( type, color );
+            return Utilities.CreatePiece( type, color, pieceObject );
+        }
+
+        #endregion InitialBuild
 
         // get the width of the board
         public int Width => _width;
@@ -49,11 +117,7 @@ namespace Assets.Scripts.Parts
         public bool CanMoveForward => _currentMove < _moves.Count;
         public bool CanMoveBackward => _currentMove > 0;
 
-        public void SetupForGameStart()
-        {
-            DeselectPiece();
-            DisableAllHighlights();
-        }
+
 
         public void SelectPiece( CRank rank, CFile file )
         {
@@ -97,7 +161,6 @@ namespace Assets.Scripts.Parts
         private void TryToMoveSelectedPieceToLocation( int rank, int file )
         {
             List<Move> moves = _selectedPiece.GetValidMoves( this );
-            Debug.Log( "Move count: " + moves.Count );
 
             Move? move = moves.FirstOrDefault( x => x.To.Rank.Num == rank && x.To.File.Num == file );
 
@@ -136,10 +199,11 @@ namespace Assets.Scripts.Parts
             _selectedPiece = piece;
 
             List<Move> moves = piece.GetValidMoves( this );
-            Debug.Log( "Get potential moves: " + moves.Count );
 
+            Debug.Log( $"Start possible moves: {moves.Count}" );
             foreach ( Move move in moves )
             {
+                Debug.Log( $"Move: {Utilities.PrintNotation( move.From.Rank.Num, move.From.File.Num )}, {Utilities.PrintNotation( move.To.Rank.Num, move.To.File.Num )}" );
                 move.EnableMoveToHighlight();
             }
         }
@@ -236,22 +300,6 @@ namespace Assets.Scripts.Parts
             _board.ForEach( x => x?.ForEach( y => y?.DisableMoveToHighlight() ) );
         }
 
-        // build the default board
-        public void Reset()
-        {
-            _board.Clear();
-            _board = new List<List<Square>> { null }; // dummy so we can use 1-indexed
-
-            for ( int i = 1; i < _height + 1; i++ )
-            {
-                _board.Add( new() { null } ); // dummy so we can use 1-indexed
-                for ( int j = 1; j < _width + 1; j++ )
-                {
-                    _board[ i ].Add( new Square( new Point( i, j ) ) );
-                }
-            }
-        }
-
         public void MovePiece( int rankfrom, int filefrom, int rankto, int fileto )
         {
             MovePiece( _board[ rankfrom ][ filefrom ], _board[ rankto ][ fileto ] );
@@ -276,14 +324,23 @@ namespace Assets.Scripts.Parts
 
             List<Move> moves = from.Piece.GetValidMoves( this );
 
-            Move? move = moves.FirstOrDefault( x => x.To.Point == to.Point );
+            List<Move> move = moves.Where( x => x.To.Point == to.Point ).ToList();
 
-            if ( move is null )
+            if ( !move.Any() )
             {
                 //Debug.Log( "Cannot move to this location" );
                 return;
             }
-            MovePiece( move );
+            if(move.Count == 1)
+            {
+                MovePiece( move.Single() );
+            }
+            else
+            {
+                // have promotion moves
+                // find out what to promote to
+
+            }
         }
 
         public void MovePiece( Move move )
@@ -320,6 +377,27 @@ namespace Assets.Scripts.Parts
         public void SwapTurn()
         {
             _turn = Utilities.FlipTurn( _turn );
+        }
+
+        public void Promote(Square square, PieceType type)
+        {
+            Assert.IsTrue( square.Rank.Num == 1 || square.Rank.Num == 8 );
+            Assert.AreEqual( square.Piece?.Type, PieceType.Pawn );
+
+            Piece promotedPiece = GeneratePiece( type, square.Piece.Color );
+            promotedPiece.SetLocation( square.Point );
+            square.CapturePiece( promotedPiece );
+        }
+
+        public void Unpromote( Square square )
+        {
+            Assert.IsTrue( square.Rank.Num == 1 || square.Rank.Num == 8 );
+            Assert.IsNotNull( square.Piece );
+            Assert.AreNotEqual( square.Piece?.Type, PieceType.Pawn );
+
+            Piece pawn = GeneratePiece( PieceType.Pawn, square.Piece.Color );
+            pawn.SetLocation( square.Point );
+            square.CapturePiece( pawn );
         }
 
         public void UseCapturedPiece( Piece capturedPiece )

@@ -66,7 +66,7 @@ namespace Assets.Scripts.Parts
                     _board[ i ].Add( new Square( new Point( i, j ) ) );
                 }
             }
-            _promotionSelector.Display( new Vector3( 0, 0, 0 ) );
+            _promotionSelector.Display( new Vector3( 0, 1, 0 ) );
         }
 
         public void SetupForGameStart()

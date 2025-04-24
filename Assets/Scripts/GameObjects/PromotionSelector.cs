@@ -1,77 +1,90 @@
 ﻿using Assets.Scripts.Enums;
-using Assets.Scripts.Parts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 namespace Assets.GameObjects
 {
-    public class PromotionSelector : MonoBehaviour
+    public class PromotionSelector
     {
 
         public Camera _camera;
 
         private bool _isSelectorOpen = false;
 
-        public GameObject Selector;
+        private GameObject _selector;
 
-        private PieceType? _lastSelectedPiece;
+        private PieceType _lastSelectedPiece;
 
-
-        public PromotionSelector()
+        public PromotionSelector(GameObject selector)
         {
-
+            _selector = selector;
+            _lastSelectedPiece = PieceType.Empty;
+            Hide();
         }
 
-        public PieceType? LastSelectedPiece => _lastSelectedPiece;
+        public PieceType LastSelectedPiece => _lastSelectedPiece;
 
-        public void Update()
+        public bool IsSelectorOpen => _isSelectorOpen;
+
+        public IEnumerator WaitForSelection()
         {
-            if(!_isSelectorOpen)
+            while(_isSelectorOpen)
             {
-                return;
+                yield return null;
             }
+        }
 
-            if ( Input.GetMouseButtonDown( 0 ) )
+        public void Trigger(float x, float z)
+        {
+            double row = (x - _selector.transform.position.x);
+            double col = (z - _selector.transform.position.z);
+
+            double left = -0.83d;
+            double right = 1.28d;
+            double top = 0.98d;
+            double bottom = -1.16d;
+
+            if(row < left || row > right || row < bottom || row > top)
             {
-                Vector3 mousePos = Input.mousePosition;
-                Ray ray = _camera.ScreenPointToRay( mousePos );
-                Debug.Log( $"Clicked on {mousePos.x}, {mousePos.y}" );
-
-
-                ray.direction = ray.direction * 100;
-
-                if ( Physics.Raycast( ray, out RaycastHit raycastHit, 1000000f ) && raycastHit.transform is not null )
+                _lastSelectedPiece = PieceType.Empty;
+            }
+            else if(row - left < right - row)
+            {
+                if(top - col < col - bottom)
                 {
-                    Debug.Log( $"{raycastHit.point.x}, { raycastHit.point.z }" );
-                    int file = ( int ) ( 4 + Math.Ceiling( raycastHit.point.x ) );
-                    int rank = ( int ) ( 4 + Math.Ceiling( raycastHit.point.z ) );
-                    // calculate selected piece
-                    // set piece to that
-                    // and hide
+                    _lastSelectedPiece = PieceType.Queen;
                 }
                 else
                 {
-                    // clicked out of selector, cancel promotion
-                    Hide();
+                    _lastSelectedPiece = PieceType.Knight;
                 }
             }
+            else
+            {
+                if ( top - col < col - bottom )
+                {
+                    _lastSelectedPiece = PieceType.Rook;
+                }
+                else
+                {
+                    _lastSelectedPiece = PieceType.Bishop;
+                }
+            }
+            Debug.Log( $"Selected {_lastSelectedPiece}" );
+            Hide();
         }
 
         public void Display(Vector3 position)
         {
             _isSelectorOpen = true;
-            Selector.transform.position = position;
-            Selector.SetActive(true);
+            _selector.transform.position = position;
+            _selector.SetActive(true);
         }
 
         public void Hide()
         {
             _isSelectorOpen = false;
-            Selector.SetActive( false );
+            _selector.SetActive( false );
         }
     }
 }

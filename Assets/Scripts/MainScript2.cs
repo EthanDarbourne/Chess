@@ -1,13 +1,7 @@
 ﻿using Assets.GameObjects;
-using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
-using Assets.Scripts.Pieces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -22,12 +16,14 @@ namespace Assets.Scripts
 
         public PromotionSelector _promotionSelector;
 
+        private bool InPromotionSelector;
+
         // Start is called before the first frame update
         void Start()
         {
             _mainCamera.enabled = true;
 
-            
+            _promotionSelector = new PromotionSelector(_pieceManager.CreatePromotionSelector());
 
             MapPiecesToBoard();
         }
@@ -39,25 +35,34 @@ namespace Assets.Scripts
             {
                 Vector3 mousePos = Input.mousePosition;
                 Ray ray = _mainCamera.ScreenPointToRay( mousePos );
-                Debug.Log( $"Clicked on {mousePos.x}, {mousePos.y}" );
+                //Debug.Log( $"Clicked on {mousePos.x}, {mousePos.y}" );
 
 
                 ray.direction = ray.direction * 100;
 
                 if ( Physics.Raycast( ray, out RaycastHit raycastHit, 1000000f ) )
                 {
-
-                    if ( raycastHit.transform is not null )
+                    Debug.Log( $"Hit {raycastHit.transform.name} {_pieceManager.Board.name}" );
+                    if (_promotionSelector.IsSelectorOpen)
+                    {
+                        Debug.Log( $"Hit {raycastHit.point}" );
+                        _promotionSelector.Trigger( raycastHit.point.x, raycastHit.point.z );
+                    }
+                    else if ( raycastHit.transform is not null ) // .name.StartsWith(_pieceManager.Board.name )
                     {
 
                         int file = ( int ) ( 4 + Math.Ceiling( raycastHit.point.x ) );
                         int rank = ( int ) ( 4 + Math.Ceiling( raycastHit.point.z) );
 
-                        Debug.Log( $"Clicked on BOARD {file}, {rank}" );
+                        //Debug.Log( $"Clicked on BOARD {file}, {rank}" );
 
                         _board.SelectLocation( rank, file );
-                        //_board.HighlightSquare( _highlightSquare, rank, file );
                     }
+                    else
+                    {
+                        _board.DeselectPiece();
+                    }
+                    
                 }
             }
             CheckForKeyPresses();

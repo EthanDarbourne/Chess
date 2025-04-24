@@ -24,6 +24,8 @@ namespace Assets.Scripts
 
         public GameObject Board;
 
+        public GameObject PromotionSelector;
+
         // hold a reference of all gameobjects to delete them later
         public List<GameObject> _gameObjects;
 
@@ -46,12 +48,19 @@ namespace Assets.Scripts
 
         private GameObject InstantiateFromPos( GameObject gameObject, Vector3 position )
         {
-            var ret = Instantiate( gameObject, position, gameObject.transform.rotation );
+            GameObject ret = Instantiate( gameObject, position, gameObject.transform.rotation );
             _gameObjects.Add( ret );
             return ret;
         }
 
         public GameObject CreateBoard(Vector3 position) => InstantiateFromPos( Board, position );
+
+        public GameObject CreatePromotionSelector()
+        {
+            GameObject ret = Instantiate( PromotionSelector, Vector3.zero, new Quaternion( 0, -0.707106829f, -0.707106829f, 0 ) );
+            ret.transform.localScale = new Vector3( 0.5f, 0.5f, 1 );
+            return ret;
+        }
 
         public GameObject GeneratePiece(PieceType type, ChessColor color) 
             => InstantiateFromPos( GetPiece( type, color ), Vector3.zero );

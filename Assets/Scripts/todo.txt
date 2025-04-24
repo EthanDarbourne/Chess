@@ -11,7 +11,7 @@ Soon:
 Create exception classes
 Combine ShallowBoard and Board to share functionalities like GetPotentialMoves using interfaces.
 Change ShallowBoard.Square and ShallowPiece to struct
-
+Moves all have a getter for a shallow version of themselves
 Future:
 Evaluation bar
 	- basic evaluation: based solely on board

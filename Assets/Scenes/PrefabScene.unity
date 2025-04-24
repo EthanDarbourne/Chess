@@ -164,6 +164,7 @@ MonoBehaviour:
   WhiteQueen: {fileID: 919132149155446097, guid: 0ab90be0935ccf6438007c94a8dbd0f5, type: 3}
   WhiteKing: {fileID: 919132149155446097, guid: baafda2e75493da4d815e5d263834094, type: 3}
   Board: {fileID: 919132149155446097, guid: 177373114b1734c4e92c5faf86ef9a02, type: 3}
+  PromotionSelector: {fileID: 919132149155446097, guid: 8840d8cb36224144080cda612d14595a, type: 3}
   _gameObjects: []
 --- !u!4 &54173287
 Transform:
@@ -180,52 +181,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &562625689
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 562625690}
-  - component: {fileID: 562625691}
-  m_Layer: 0
-  m_Name: PromotionSelector
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &562625690
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 562625689}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: 0.46859455, z: 4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &562625691
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 562625689}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7e70cf6fbe27b34c8b8c2939c6bb1e2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _camera: {fileID: 706029191}
-  Selector: {fileID: 919132149155446097, guid: 0e3a7fbaa12e99441b174e617c7660e4, type: 3}
 --- !u!1 &706029189
 GameObject:
   m_ObjectHideFlags: 0
@@ -443,7 +398,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mainCamera: {fileID: 706029191}
   _pieceManager: {fileID: 54173286}
-  _promotionSelector: {fileID: 562625691}
 --- !u!4 &1885315205
 Transform:
   m_ObjectHideFlags: 0
@@ -467,4 +421,3 @@ SceneRoots:
   - {fileID: 1346051761}
   - {fileID: 54173287}
   - {fileID: 1885315205}
-  - {fileID: 562625690}

@@ -4,6 +4,7 @@ using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Pieces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -66,7 +67,6 @@ namespace Assets.Scripts.Parts
                     _board[ i ].Add( new Square( new Point( i, j ) ) );
                 }
             }
-            _promotionSelector.Display( new Vector3( 0, 1, 0 ) );
         }
 
         public void SetupForGameStart()
@@ -156,15 +156,20 @@ namespace Assets.Scripts.Parts
             _selectedPiece = null;
         }
 
+        public void SelectPieceCoroutine()
+        {
+
+        }
+
         // if we have already selected a piece, we try and move the selected piece to the selected location
         // otherwise, we deselect the current piece 
-        private void TryToMoveSelectedPieceToLocation( int rank, int file )
+        private IEnumerator TryToMoveSelectedPieceToLocation( int rank, int file )
         {
-            List<Move> moves = _selectedPiece.GetValidMoves( this );
+            IEnumerable<Move> moves = _selectedPiece.GetValidMoves( this );
 
-            Move? move = moves.FirstOrDefault( x => x.To.Rank.Num == rank && x.To.File.Num == file );
+            moves = moves.Where( x => x.To.Rank.Num == rank && x.To.File.Num == file );
 
-            if ( move is null )
+            if(moves.Count() == 0)
             {
                 bool shouldSelectAnotherPiece = _selectedPiece.Location.Rank.Num != rank || _selectedPiece.Location.File.Num != file;
                 DeselectPiece();
@@ -173,10 +178,24 @@ namespace Assets.Scripts.Parts
                 {
                     SelectPiece( rank, file );
                 }
-                return;
             }
-            MovePiece( GetSquare( _selectedPiece.Location ), move.To );
-            //MovePiece( move );
+            else if(moves.Count() == 1)
+            {
+                MovePiece( GetSquare( _selectedPiece.Location ), moves.First().To );
+            }
+            else
+            {
+                Debug.Log( "Promoting" );
+                Vector3 promotionPosition = _selectedPiece.Location.Vector;
+                promotionPosition.y = 3;
+                _promotionSelector.Display( promotionPosition );
+                yield return _promotionSelector.WaitForSelection();
+
+                PieceType promoteTo = _promotionSelector.LastSelectedPiece;
+                Move move = moves.First( x => ( x as IPromotionMove ).PromoteTo == promoteTo );
+                MovePiece( move );
+            }
+            yield break;
         }
 
         // try to select the piece at the current location

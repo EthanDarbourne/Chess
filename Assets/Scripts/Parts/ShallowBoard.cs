@@ -146,8 +146,8 @@ namespace Assets.Scripts.Parts
         // 1 captures 2
         public void CaptureSquare( int rank1, int file1, int rank2, int file2 )
         {
-            SetSquare( rank1, rank1, null );
             SetSquare( rank2, file2, _board[ rank1 ][ file1 ].Piece );
+            SetSquare( rank1, rank1, null );
         }
 
         private Square FindKing( ChessColor color )

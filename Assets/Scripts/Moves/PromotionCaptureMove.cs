@@ -3,7 +3,7 @@ using Assets.Scripts.Parts;
 
 namespace Assets.Scripts.Moves
 {
-    public class PromotionCaptureMove : CaptureMove
+    public class PromotionCaptureMove : CaptureMove, IPromotionMove
     {
         private PieceType _promoteTo;
 

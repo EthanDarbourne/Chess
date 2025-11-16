@@ -24,6 +24,10 @@
 
         public static int operator -( CRank a, CRank b ) => a.Num - b.Num;
 
+        public char AsChar()
+        {
+            return (char)('0' + _rank - 1);
+        }
     }
 
     public static class CRankExtensions

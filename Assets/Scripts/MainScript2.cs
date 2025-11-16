@@ -21,6 +21,8 @@ namespace Assets.Scripts
         // Start is called before the first frame update
         void Start()
         {
+            CustomLogger.CurrentLogLevel = LogLevel.Debug;
+
             _mainCamera.enabled = true;
 
             _promotionSelector = new PromotionSelector(_pieceManager.CreatePromotionSelector());
@@ -35,17 +37,17 @@ namespace Assets.Scripts
             {
                 Vector3 mousePos = Input.mousePosition;
                 Ray ray = _mainCamera.ScreenPointToRay( mousePos );
-                //Debug.Log( $"Clicked on {mousePos.x}, {mousePos.y}" );
+                //CustomLogger.LogDebug( $"Clicked on {mousePos.x}, {mousePos.y}" );
 
 
                 ray.direction = ray.direction * 100;
 
                 if ( Physics.Raycast( ray, out RaycastHit raycastHit, 1000000f ) )
                 {
-                    Debug.Log( $"Hit {raycastHit.transform.name} {_pieceManager.Board.name}" );
+                    CustomLogger.LogDebug( $"Hit {raycastHit.transform.name} {_pieceManager.Board.name}" );
                     if (_promotionSelector.IsSelectorOpen)
                     {
-                        Debug.Log( $"Hit {raycastHit.point}" );
+                        CustomLogger.LogDebug( $"Hit promotion selector at {raycastHit.point}" );
                         _promotionSelector.Trigger( raycastHit.point.x, raycastHit.point.z );
                     }
                     else if ( raycastHit.transform is not null ) // .name.StartsWith(_pieceManager.Board.name )
@@ -54,7 +56,7 @@ namespace Assets.Scripts
                         int file = ( int ) ( 4 + Math.Ceiling( raycastHit.point.x ) );
                         int rank = ( int ) ( 4 + Math.Ceiling( raycastHit.point.z) );
 
-                        //Debug.Log( $"Clicked on BOARD {file}, {rank}" );
+                        CustomLogger.LogDebug( $"Clicked on BOARD {file}, {rank}" );
 
                         _board.SelectLocation( rank, file );
                     }
@@ -73,11 +75,11 @@ namespace Assets.Scripts
             //    try
             //    {
             //        (bool isCheck, bool isCheckmate) = _board.LookForChecks( _board.Turn );
-            //        Debug.Log( $"Success with {isCheck} and {isCheckmate}" );
+            //        CustomLogger.LogDebug( $"Success with {isCheck} and {isCheckmate}" );
             //    }
             //    catch ( Exception ex )
             //    {
-            //        Debug.Log( $"Failed with {ex.Message}" );
+            //        CustomLogger.LogDebug( $"Failed with {ex.Message}" );
             //    }
             //}
 
@@ -102,7 +104,7 @@ namespace Assets.Scripts
             HighlightSquare highlightSquare = new( CreateHighlightSquare() );
 
 
-            _board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, _pieceManager, highlightSquare, _promotionSelector );
+            _board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, _pieceManager, highlightSquare, _promotionSelector, this );
 
             _board.SetupForGameStart();
 

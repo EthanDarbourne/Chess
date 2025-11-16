@@ -32,23 +32,29 @@ namespace Assets.Scripts.Parts
 
         private ChessColor _turn = ChessColor.White;
 
+        private MonoBehaviour _monoBehaviour;
+
+        private Coroutine? _movePieceCoroutine = null;
+
         #region InitialBuild
 
-        public Board( int width, int height, GameObject boardObject, HighlightSquare highlightSquare )
+        public Board( int width, int height, GameObject boardObject, HighlightSquare highlightSquare, MonoBehaviour monoBehaviour )
         {
             _width = width;
             _height = height;
             _highlightSquare = highlightSquare;
+            _monoBehaviour = monoBehaviour;
             BuildBoard();
         }
 
-        public Board( int width, int height, PieceManager pieceManager, HighlightSquare highlightSquare, PromotionSelector selector )
+        public Board( int width, int height, PieceManager pieceManager, HighlightSquare highlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
         {
             _width = width;
             _height = height;
             _highlightSquare = highlightSquare;
             _pieceManager = pieceManager;
             _promotionSelector = selector;
+            _monoBehaviour = monoBehaviour;
             //BuildBoard();
         }
 
@@ -139,13 +145,19 @@ namespace Assets.Scripts.Parts
 
         public void SelectLocation( int rank, int file )
         {
-
+            if (_movePieceCoroutine is not null) // todo: could cancel here
+            {
+                CustomLogger.LogDebug("A movement is already in progress, ignoring input");
+                return;
+            }
             if ( _selectedPiece is not null )
             {
-                TryToMoveSelectedPieceToLocation( rank, file );
+                CustomLogger.LogDebug("We have a selected piece, trying to move it");
+                _movePieceCoroutine = _monoBehaviour.StartCoroutine(TryToMoveSelectedPieceToLocation( rank, file ));
             }
             else
             {
+                CustomLogger.LogDebug("We don't have a piece selected");
                 SelectPiece( rank, file );
             }
         }
@@ -154,11 +166,6 @@ namespace Assets.Scripts.Parts
         {
             DisableAllHighlights();
             _selectedPiece = null;
-        }
-
-        public void SelectPieceCoroutine()
-        {
-
         }
 
         // if we have already selected a piece, we try and move the selected piece to the selected location
@@ -171,27 +178,34 @@ namespace Assets.Scripts.Parts
 
             if(moves.Count() == 0)
             {
+                CustomLogger.LogDebug( "No valid moves to this location" );
                 bool shouldSelectAnotherPiece = _selectedPiece.Location.Rank.Num != rank || _selectedPiece.Location.File.Num != file;
                 DeselectPiece();
                 // try and select the piece at this square, if we can
                 if ( shouldSelectAnotherPiece )
                 {
+                    CustomLogger.LogDebug("Selecting another piece");
                     SelectPiece( rank, file );
                 }
             }
             else if(moves.Count() == 1)
             {
+                CustomLogger.LogDebug( "Moving piece to location" );
                 MovePiece( GetSquare( _selectedPiece.Location ), moves.First().To );
             }
             else
             {
-                Debug.Log( "Promoting" );
-                Vector3 promotionPosition = _selectedPiece.Location.Vector;
-                promotionPosition.y = 3;
-                _promotionSelector.Display( promotionPosition );
-                yield return _promotionSelector.WaitForSelection();
+                CustomLogger.LogDebug( "Multiple promotion moves available, asking for selection" );
+                _promotionSelector.Display(_selectedPiece.Location.Vector);
+                yield return _monoBehaviour.StartCoroutine(_promotionSelector.WaitForSelection());
 
                 PieceType promoteTo = _promotionSelector.LastSelectedPiece;
+                if (promoteTo == PieceType.Empty)
+                {
+                    CustomLogger.LogDebug("No promotion piece selected, cancelling move");
+                    yield break;
+                }
+                CustomLogger.LogDebug("Received promotion piece, promoting...");
                 Move move = moves.First( x => ( x as IPromotionMove ).PromoteTo == promoteTo );
                 MovePiece( move );
             }
@@ -204,25 +218,25 @@ namespace Assets.Scripts.Parts
             Piece? piece = _board[ rank ][ file ].Piece;
             if ( piece is null )
             {
-                //Debug.Log( "There is no piece on this square" );
+                CustomLogger.LogDebug( "There is no piece on this square" );
                 return;
             }
 
             if ( piece.Color != _turn )
             {
-                //Debug.Log( "This is not one of your pieces" );
+                CustomLogger.LogDebug("This is not one of your pieces" );
                 return;
             }
-
+            CustomLogger.LogDebug( $"Selecting piece" );
             HighlightSquare( _highlightSquare, rank, file );
             _selectedPiece = piece;
 
             List<Move> moves = piece.GetValidMoves( this );
 
-            Debug.Log( $"Start possible moves: {moves.Count}" );
+            CustomLogger.LogDebug( $"Start possible moves: {moves.Count}" );
             foreach ( Move move in moves )
             {
-                Debug.Log( $"Move: {Utilities.PrintNotation( move.From.Rank.Num, move.From.File.Num )}, {Utilities.PrintNotation( move.To.Rank.Num, move.To.File.Num )}" );
+                CustomLogger.LogDebug( $"Move: {Utilities.PrintNotation( move.From.Rank.Num, move.From.File.Num )}, {Utilities.PrintNotation( move.To.Rank.Num, move.To.File.Num )}" );
                 move.EnableMoveToHighlight();
             }
         }
@@ -337,7 +351,7 @@ namespace Assets.Scripts.Parts
             }
             if ( IsFree( from.Rank, from.File ) )
             {
-                //Debug.Log( "No piece on this square" );
+                //CustomLogger.LogDebug( "No piece on this square" );
                 return;
             }
 
@@ -347,23 +361,19 @@ namespace Assets.Scripts.Parts
 
             if ( !move.Any() )
             {
-                //Debug.Log( "Cannot move to this location" );
+                //CustomLogger.LogDebug( "Cannot move to this location" );
                 return;
             }
-            if(move.Count == 1)
-            {
-                MovePiece( move.Single() );
-            }
-            else
-            {
-                // have promotion moves
-                // find out what to promote to
-
-            }
+            MovePiece( move.Single() );
+            
         }
 
         public void MovePiece( Move move )
         {
+            // first get the notation of the move from the current board position, then execute the move
+            string moveNotation = Utilities.GetMoveNotation( move, this);
+            move.SetNotation(moveNotation);
+            
             move.ExecuteMove( this );
             _moves.Add( move );
             ++_currentMove;
@@ -384,11 +394,6 @@ namespace Assets.Scripts.Parts
         public bool IsValidPositionAfterMove( Move move )
         {
             ShallowBoard shallowBoard = GetShallowBoard();
-            //(bool isCheck, bool isCheckmate) = shallowBoard.LookForChecksOnKing( _turn );
-            //if ( isCheck )
-            //{/
-
-            //}
             move.ExecuteShallowMove( shallowBoard );
             return shallowBoard.IsValidPosition();
         }
@@ -489,8 +494,29 @@ namespace Assets.Scripts.Parts
                 {
                     output += _board[ rank ][ file ].Piece?.Type.GetChar() ?? ' ';
                 }
-                Debug.Log( output );
+                CustomLogger.LogDebug( output );
             }
+        }
+
+        public string GetBoardHash()
+        {
+            string output = "";
+            for (int rank = 1; rank <= Height; ++rank)
+            {
+                for (int file = 1; file <= Width; ++file)
+                {
+                    Piece piece = _board[rank][file].Piece;
+                    if (piece is null)
+                    {
+                        output += ' ';
+                        continue;
+                    }
+                    ChessColor color = piece.Color;
+                    char type = piece.Type.GetChar();
+                    output += color == ChessColor.Black ? char.ToLower(type) : char.ToUpper(type);
+                }
+            }
+            return output;
         }
     }
 }

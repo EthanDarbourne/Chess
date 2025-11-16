@@ -25,6 +25,11 @@ namespace Assets.Scripts.Parts
         }
 
         public static int operator -( CFile a, CFile b ) => a.Num - b.Num;
+
+        public char AsChar()
+        {
+            return (char)('a' + _file - 1);
+        }
     }
 
     public static class CFileExtensions

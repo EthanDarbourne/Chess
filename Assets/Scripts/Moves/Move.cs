@@ -13,6 +13,8 @@ namespace Assets.Scripts.Moves
 
         private bool _isExecuted = false;
 
+        private string _moveNotation = string.Empty;
+
         protected Move( Square from, Square to, bool isCheck = false, bool isCheckmate = false )
         {
             _from = from;
@@ -25,6 +27,26 @@ namespace Assets.Scripts.Moves
         public Square To => _to;
         public bool IsCheck => _isCheck;
         public bool IsCheckmate => _isCheckmate;
+
+        public int GetLength()
+        {
+            return GetFileLength() + GetRankLength();
+        }
+
+        public int GetFileLength()
+        {
+            return Math.Abs( To.File.Num - From.File.Num );
+        }
+
+        public int GetRankLength()
+        {
+            return Math.Abs( To.Rank.Num - From.Rank.Num );
+        }
+
+        public void SetNotation(string notation)
+        {
+            _moveNotation = notation;
+        }
 
         protected abstract void DoExecuteMove( Board board );
 

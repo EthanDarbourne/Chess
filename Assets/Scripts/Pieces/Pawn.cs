@@ -33,7 +33,7 @@ namespace Assets.Scripts.Pieces
             // check all valid moves for a pawn
             int file = _location.File.Num;
             int rank = _location.Rank.Num;
-            Debug.Log( $"At {file}, {rank}" );
+            CustomLogger.LogDebug( $"At {file}, {rank}" );
 
             int oneStep = Color == ChessColor.White ? 1 : -1;
             int twoStep = oneStep * 2;
@@ -95,7 +95,7 @@ namespace Assets.Scripts.Pieces
             {
                 // check en-passant
                 Square? leftSquare = board.GetSquareOrDefault( rank, leftFile );
-                if ( leftSquare?.Piece is Pawn lPawn && lPawn.Color != Color && board.LastMove?.To == leftSquare )
+                if ( leftSquare?.Piece is Pawn lPawn && lPawn.Color != Color && board.LastMove?.To == leftSquare && board.LastMove?.GetRankLength() == 2 )
                 {
                     // can en-passant left side
                     Square moveSquare = board.GetSquare( rank + oneStep, leftFile );
@@ -103,7 +103,7 @@ namespace Assets.Scripts.Pieces
                 }
 
                 Square? rightSquare = board.GetSquareOrDefault( rank, rightFile );
-                if ( rightSquare?.Piece is Pawn rPawn && rPawn.Color != Color && board.LastMove?.To == rightSquare )
+                if ( rightSquare?.Piece is Pawn rPawn && rPawn.Color != Color && board.LastMove?.To == rightSquare && board.LastMove?.GetRankLength() == 2 )
                 {
                     // can en-passant right side
                     Square moveSquare = board.GetSquare( rank + oneStep, rightFile );

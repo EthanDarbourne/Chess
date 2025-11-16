@@ -12,6 +12,7 @@ namespace Assets.Scripts.Moves
     public class Castling : Move
     {
         private Square _rookSquare;
+
         // from is king square, to is rook square (todo: from is king, to is clickable square)
         public Castling( Square from, Square to, Square rookSquare, bool isCheck = false, bool isCheckmate = false )
             : base( from, to, isCheck, isCheckmate )
@@ -20,6 +21,8 @@ namespace Assets.Scripts.Moves
         }
 
         public Square RookSquare => _rookSquare;
+
+        public bool IsKingsideCastling => _rookSquare.File.Num > From.File.Num;
 
         protected override void DoExecuteMove( Board board )
         {

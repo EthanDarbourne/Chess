@@ -48,7 +48,7 @@ namespace Assets.Scripts
 
                 if ( Physics.Raycast( ray, out RaycastHit raycastHit, 1000000f ) )
                 {
-                    
+                    // check if hit promo selector or board/piece and transmit click to correct transform
                     if ( raycastHit.transform is not null )
                     {
                         int file = (1 + ( int ) raycastHit.point.x);
@@ -67,11 +67,11 @@ namespace Assets.Scripts
                 try
                 {
                     (bool isCheck, bool isCheckmate) = _board.LookForChecks( _board.Turn );
-                    Debug.Log( $"Success with {isCheck} and {isCheckmate}" );
+                    CustomLogger.LogDebug( $"Success with {isCheck} and {isCheckmate}" );
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log( $"Failed with {ex.Message}" );
+                    CustomLogger.LogDebug( $"Failed with {ex.Message}" );
                 }
             }
 
@@ -91,7 +91,7 @@ namespace Assets.Scripts
             Transform boardObject = children.Where( x => x.gameObject.name == "Board" ).Single();
 
             _highlightSquare = new HighlightSquare( CreateHighlightSquare() );
-            _board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, boardObject.gameObject, _highlightSquare );
+            _board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, boardObject.gameObject, _highlightSquare, this);
 
             // modify test setup if modifying this code
             foreach ( var child in children )

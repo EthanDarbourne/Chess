@@ -56,11 +56,11 @@ namespace Assets.Scripts.Parts
             {
                 if ( Equals(Default) )
                 {
-                    Debug.Log( "Default Square" );
+                    CustomLogger.LogDebug( "Default Square" );
                 }
                 else
                 {
-                    Debug.Log( $"Rank: {Rank}, File: {File}, Type:{Piece?.Type ?? PieceType.Empty}, Color:{Piece?.Color}" );
+                    CustomLogger.LogDebug( $"Rank: {Rank}, File: {File}, Type:{Piece?.Type ?? PieceType.Empty}, Color:{Piece?.Color}" );
                 }
             }
         }
@@ -193,7 +193,7 @@ namespace Assets.Scripts.Parts
         {
             List<Square> ret = new();
             (int kingRank, int kingFile) = (kingSquare.Rank, kingSquare.File);
-            //Debug.Log( $"Trying {kingRank}, {kingFile}" );
+            //CustomLogger.LogDebug( $"Trying {kingRank}, {kingFile}" );
             Debug.Assert( GetSquare( kingRank, kingFile ).Type == PieceType.King );
             for ( int i = 0; i < direction.Length - 1; ++i )
             {
@@ -208,7 +208,7 @@ namespace Assets.Scripts.Parts
                 // a piece that could be giving check
                 if ( validPieces.Contains( square.Type ) )
                 {
-                    //Debug.Log( $"{kingRank},{kingFile} : {square.Color}. {kingSquare.Color}" );
+                    //CustomLogger.LogDebug( $"{kingRank},{kingFile} : {square.Color}. {kingSquare.Color}" );
                     Assert.IsFalse( square.Piece.Color == kingSquare.Piece.Color );
                     ret.Add( square );
                 }
@@ -261,7 +261,7 @@ namespace Assets.Scripts.Parts
             // find opposing king
 
             Square kingSquare = FindKing( kingColor );
-            //Debug.Log( $"Found king at {kingSquare.Rank}, {kingSquare.File}" );
+            //CustomLogger.LogDebug( $"Found king at {kingSquare.Rank}, {kingSquare.File}" );
             (int kingRank, int kingFile) = (kingSquare.Rank, kingSquare.File);
             List<Square> checkSquares = new();
 
@@ -269,17 +269,17 @@ namespace Assets.Scripts.Parts
             checkSquares.AddRange(
                 CheckInDirection( kingSquare, Utilities.DiagonalMoves, Utilities.DiagonalPieceTypes ) );
 
-            //Debug.Log( $"Count on diagonal = {checkSquares.Count}" );
+            //CustomLogger.LogDebug( $"Count on diagonal = {checkSquares.Count}" );
 
             // check all straights
             checkSquares.AddRange(
                 CheckInDirection( kingSquare, Utilities.StraightMoves, Utilities.StraightPieceTypes ) );
 
-            //Debug.Log( $"Count on straights = {checkSquares.Count}" );
+            //CustomLogger.LogDebug( $"Count on straights = {checkSquares.Count}" );
             // check all knight moves
             checkSquares.AddRange( CheckOnSquare( kingSquare, Utilities.KnightMoves, Utilities.KnightPieceTypes ) );
 
-            //Debug.Log( $"Count on knights = {checkSquares.Count}" );
+            //CustomLogger.LogDebug( $"Count on knights = {checkSquares.Count}" );
             // check pawns
             if ( kingSquare.Piece.Color == ChessColor.Black )
             {
@@ -291,7 +291,7 @@ namespace Assets.Scripts.Parts
                 checkSquares.AddRange(
                     CheckOnSquare( kingSquare, Utilities.BlackPawnMoves, Utilities.PawnTypes ) );
             }
-            //Debug.Log( $"Count on pawns = {checkSquares.Count}" );
+            //CustomLogger.LogDebug( $"Count on pawns = {checkSquares.Count}" );
             // we have all squares that could be giving check
             Assert.IsTrue( checkSquares.Count <= 2 );
 
@@ -459,10 +459,10 @@ namespace Assets.Scripts.Parts
 
         public bool IsValidPosition()
         {
-            // if current turn is in check, move is invalid
+            // if person that is out of turn is in check, move is invalid
             ChessColor turn = Utilities.FlipTurn( _currentTurn );
-            (bool isCheck, _) = LookForChecksOnKing( turn );
-            return !isCheck;
+            (bool isCheck, bool isCheckmate) = LookForChecksOnKing( turn );
+            return !isCheck && !isCheckmate;
         }
 
         public bool IsValidPositionAfterMove( ShallowMove move )

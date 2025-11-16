@@ -39,13 +39,13 @@ namespace Assets.Scripts.Pieces
             // check king moves
             List<Move> res = board.GetKingMoves( rank, file, Color );
             Square from = board.GetSquare( Location );
-            //Debug.Log( "Got some king moves" );
+            //CustomLogger.LogDebug( "Got some king moves" );
             // check castling
             if ( !_hasMoved && !IsInCheck( board ) )
             {
                 // check rooks
                 // go left
-                //Debug.Log( "Checking castling" );
+                //CustomLogger.LogDebug( "Checking castling" );
                 void GetCastleMoves( int dir )
                 {
                     int startFile = file;
@@ -59,7 +59,7 @@ namespace Assets.Scripts.Pieces
                     Piece? piece = rookSquare.Piece;
                     if ( piece is not null && piece is Rook rook && rook.HasntMoved )
                     {
-                        //Debug.Log( "Found rook on rook square" );
+                        //CustomLogger.LogDebug( "Found rook on rook square" );
                         int startFileMovable = file + dir * 2;
                         while(startFileMovable <= startFile )
                         {

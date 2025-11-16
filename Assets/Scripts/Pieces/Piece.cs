@@ -14,6 +14,7 @@ namespace Assets.Scripts.Pieces
         protected Point _initialLocation;
         protected readonly ChessColor _color;
         protected GameObject _gamePiece;
+        protected int _moveCount = 0;
 
         protected Piece( GameObject gamePiece, CRank rank, CFile file, ChessColor color )
         {

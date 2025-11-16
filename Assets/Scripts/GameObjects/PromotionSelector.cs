@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Misc;
 using System.Collections;
 using UnityEngine;
 
@@ -32,6 +33,8 @@ namespace Assets.GameObjects
             {
                 yield return null;
             }
+            Hide();
+            yield return LastSelectedPiece;
         }
 
         public void Trigger(float x, float z)
@@ -70,12 +73,13 @@ namespace Assets.GameObjects
                     _lastSelectedPiece = PieceType.Bishop;
                 }
             }
-            Debug.Log( $"Selected {_lastSelectedPiece}" );
+            CustomLogger.LogInfo( $"Selected {_lastSelectedPiece}" );
             Hide();
         }
 
         public void Display(Vector3 position)
         {
+            position.y = 3;
             _isSelectorOpen = true;
             _selector.transform.position = position;
             _selector.SetActive(true);

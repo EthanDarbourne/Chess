@@ -108,32 +108,6 @@ namespace Assets.Scripts.Misc
         public static int GetPromotionRankForPawn( ChessColor color ) =>
             color == ChessColor.White ? Constants.WHITE_PAWN_PROMOTION_RANK : Constants.BLACK_PAWN_PROMOTION_RANK;
 
-        //vector<string> Split( string s, char delim )
-        //{
-        //    vector<string> ret;
-        //    int prev = 0;
-        //    size_t n = s.size();
-        //    for ( int i = 0; i < n; ++i )
-        //    {
-        //        if ( s[ i ] == delim )
-        //        {
-        //            if ( prev == i )
-        //            {
-        //                prev = i + 1;
-        //                continue;
-        //            };
-        //            ret.push_back( s.substr( prev, i - prev ) );
-        //            prev = i + 1;
-
-        //        }
-        //    }
-        //    if ( prev != n )
-        //    {
-        //        ret.push_back( s.substr( prev, n - prev ) );
-        //    }
-        //    return ret;
-        //}
-
         public static (CRank rank, CFile file) ReadChessNotation( this string s )
         {
             if ( s.Length != 2 )
@@ -242,5 +216,56 @@ namespace Assets.Scripts.Misc
                color == ChessColor.Black ? Constants.BLACK_PAWN_DIRECTION : Constants.WHITE_PAWN_DIRECTION;
 
         public static string PrintNotation( int rank, int file ) => ( char ) ( 'A' + file - 1 ) + rank.ToString();
+
+        // todo: convert to function
+        //private static Dictionary<PieceType, char> pieceTypeToChar = new()
+        //{
+        //    { PieceType.Pawn, ' ' },
+        //    { PieceType.Knight, 'N' },
+        //    { PieceType.Bishop, 'B' },
+        //    { PieceType.Rook, 'R' },
+        //    { PieceType.Queen, 'Q' },
+        //    { PieceType.King, 'K' },
+        //};
+
+        public static char GetPieceChar( PieceType type ) => type switch
+        {
+            PieceType.Pawn => 'p',
+            PieceType.Knight => 'N',
+            PieceType.Bishop => 'B',
+            PieceType.Rook => 'R',
+            PieceType.Queen => 'Q',
+            PieceType.King => 'K',
+            _ => throw new NotSupportedException($"Invalid type '{type}'")
+        };
+
+        public static string GetMoveNotation( Move move, Board board )
+        {
+            if (move is Castling castleMove)
+            {
+                return castleMove.IsKingsideCastling ? "O-O" : "O-O-O";
+            }
+            // otherwise, we build the notation normally
+            bool isCapture = move is CaptureMove or PromotionCaptureMove or EnPassant;
+            char movingPiece = GetPieceChar(move.From.Piece.Type);
+            if (move.From.Piece.Type == PieceType.Pawn)
+            {
+                movingPiece = move.From.File.AsChar();
+            }
+
+            // todo: check for conflicts of major pieces, need to specify file or rank or both
+            
+            // if it 's a capture, we need to include an 'x's
+            // if it's a pawn move, we need to include the file of the pawn
+            // need the board to check for conflicts
+
+            string notation = movingPiece.ToString();
+            if (isCapture)
+            {
+                notation += "x";
+            }
+            notation += PrintNotation(move.To.Rank.Num, move.To.File.Num);
+            return notation;
+        }
     }
 }

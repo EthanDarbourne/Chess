@@ -7,11 +7,15 @@ Arrow keys to move board position (done)
 Implement checks and checkmates on Move.cs
 (board has a copy feature that copies the basic parts of the board class)
 
+Little Changes:
+HasMoved on Rook should be on base class Piece
+
 Soon:
 Create exception classes
 Combine ShallowBoard and Board to share functionalities like GetPotentialMoves using interfaces.
 Change ShallowBoard.Square and ShallowPiece to struct
 Moves all have a getter for a shallow version of themselves
+Make sure moves can only be executed for a certain board position
 Future:
 Evaluation bar
 	- basic evaluation: based solely on board

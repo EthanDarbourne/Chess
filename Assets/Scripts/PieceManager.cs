@@ -26,6 +26,8 @@ namespace Assets.Scripts
 
         public GameObject PromotionSelector;
 
+        public GameObject PieceGraveyard;
+
         // hold a reference of all gameobjects to delete them later
         public List<GameObject> _gameObjects;
 
@@ -54,6 +56,8 @@ namespace Assets.Scripts
         }
 
         public GameObject CreateBoard(Vector3 position) => InstantiateFromPos( Board, position );
+
+        public GameObject CreatePieceGraveyard(Vector3 position) => InstantiateFromPos(PieceGraveyard, position);
 
         public GameObject CreatePromotionSelector()
         {

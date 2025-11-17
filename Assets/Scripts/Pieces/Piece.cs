@@ -77,6 +77,11 @@ namespace Assets.Scripts.Pieces
             _gamePiece.transform.position = new Vector3( point.File.Num - 4.5f, 0, point.Rank.Num - 4.5f);
         }
 
+        public void SetGraveyardLocation( Vector3 position)
+        {
+            _gamePiece.transform.position = position;
+        }
+
         public void SetLocation( CRank rank, CFile file )
         {
             SetLocation( new( rank, file ) );

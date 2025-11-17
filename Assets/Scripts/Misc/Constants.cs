@@ -9,6 +9,7 @@ namespace Assets.Scripts.Misc
     public static class Constants
     {
 
+        public static int NUM_PIECES = 16;
 
         public static int MIN_BOARD_HEIGHT = 1;
         public static int MAX_BOARD_HEIGHT = 8;

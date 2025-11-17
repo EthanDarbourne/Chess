@@ -1,4 +1,5 @@
-﻿using Assets.GameObjects;
+﻿#nullable enable
+using Assets.GameObjects;
 using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;

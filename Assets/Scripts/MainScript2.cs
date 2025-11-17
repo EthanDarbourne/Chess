@@ -1,6 +1,8 @@
 ﻿using Assets.GameObjects;
+using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
+using Assets.Scripts.Pieces;
 using System;
 using UnityEngine;
 
@@ -8,13 +10,15 @@ namespace Assets.Scripts
 {
     public class MainScript2 : MonoBehaviour
     {
-        public Camera _mainCamera;
+        public Camera MainCamera;
 
-        private Board _board;
+        private Board Board;
 
-        public PieceManager _pieceManager;
+        public PieceManager PieceManager;
 
-        public PromotionSelector _promotionSelector;
+        public PromotionSelector PromotionSelector;
+
+        public PieceGraveyard PieceGraveyard;
 
         private bool InPromotionSelector;
 
@@ -23,9 +27,9 @@ namespace Assets.Scripts
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
 
-            _mainCamera.enabled = true;
+            MainCamera.enabled = true;
 
-            _promotionSelector = new PromotionSelector(_pieceManager.CreatePromotionSelector());
+            PromotionSelector = new PromotionSelector(PieceManager.CreatePromotionSelector());
 
             MapPiecesToBoard();
         }
@@ -36,7 +40,7 @@ namespace Assets.Scripts
             if ( Input.GetMouseButtonDown( 0 ) )
             {
                 Vector3 mousePos = Input.mousePosition;
-                Ray ray = _mainCamera.ScreenPointToRay( mousePos );
+                Ray ray = MainCamera.ScreenPointToRay( mousePos );
                 //CustomLogger.LogDebug( $"Clicked on {mousePos.x}, {mousePos.y}" );
 
 
@@ -44,11 +48,11 @@ namespace Assets.Scripts
 
                 if ( Physics.Raycast( ray, out RaycastHit raycastHit, 1000000f ) )
                 {
-                    CustomLogger.LogDebug( $"Hit {raycastHit.transform.name} {_pieceManager.Board.name}" );
-                    if (_promotionSelector.IsSelectorOpen)
+                    CustomLogger.LogDebug( $"Hit {raycastHit.transform.name} {PieceManager.Board.name}" );
+                    if (PromotionSelector.IsSelectorOpen)
                     {
                         CustomLogger.LogDebug( $"Hit promotion selector at {raycastHit.point}" );
-                        _promotionSelector.Trigger( raycastHit.point.x, raycastHit.point.z );
+                        PromotionSelector.Trigger( raycastHit.point.x, raycastHit.point.z );
                     }
                     else if ( raycastHit.transform is not null ) // .name.StartsWith(_pieceManager.Board.name )
                     {
@@ -58,11 +62,11 @@ namespace Assets.Scripts
 
                         CustomLogger.LogDebug( $"Clicked on BOARD {file}, {rank}" );
 
-                        _board.SelectLocation( rank, file );
+                        Board.SelectLocation( rank, file );
                     }
                     else
                     {
-                        _board.DeselectPiece();
+                        Board.DeselectPiece();
                     }
                     
                 }
@@ -94,51 +98,24 @@ namespace Assets.Scripts
 
         private void MapPiecesToBoard()
         {
-            GameObject board = _pieceManager.CreateBoard(new Vector3(0, -0.5f, 0));
+            GameObject boardObj = PieceManager.CreateBoard(new Vector3(0, 0, 0));
 
-            board.AddComponent<BoxCollider>();
-            //Transform[] children = _chessPieces.GetComponentsInChildren<Transform>();
+            GameObject pieceGraveyardObj = PieceManager.CreatePieceGraveyard(new Vector3(6, 0, 4));
 
-            //Transform boardObject = children.Where( x => x.gameObject.name == "Board" ).Single();
+            PieceGraveyard = new PieceGraveyard(pieceGraveyardObj);
+
+            GameObject pawn = PieceManager.GeneratePiece(PieceType.Pawn, ChessColor.White);
+            Piece pawnPiece = new Pawn(pawn, ChessColor.White);
+
+            PieceGraveyard.SendPieceToGraveyard(pawnPiece);
+
+            boardObj.AddComponent<BoxCollider>();
 
             HighlightSquare highlightSquare = new( CreateHighlightSquare() );
 
+            Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, highlightSquare, PromotionSelector, this );
 
-            _board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, _pieceManager, highlightSquare, _promotionSelector, this );
-
-            _board.SetupForGameStart();
-
-
-            //// modify test setup if modifying this code
-            //foreach ( var child in children )
-            //{
-            //    GameObject gamePiece = child.gameObject;
-
-            //    // split into name and starting position
-            //    string fullName = gamePiece.name;
-
-            //    if ( fullName == "Chess Pieces" || fullName == "Board" ) continue;
-
-            //    string type = fullName[ ..^2 ];
-            //    string position = fullName[ ^2.. ];
-            //    ChessColor color = position[ 1 ] == '1' || position[ 1 ] == '2' ? ChessColor.White : ChessColor.Black;
-            //    Piece piece = type switch
-            //    {
-            //        "Pawn" => new Pawn( gamePiece, color ),
-            //        "Knight" => new Knight( gamePiece, color ),
-            //        "Bishop" => new Bishop( gamePiece, color ),
-            //        "Rook" => new Rook( gamePiece, color ),
-            //        "Queen" => new Queen( gamePiece, color ),
-            //        "King" => new King( gamePiece, color ),
-            //        _ => throw new InvalidOperationException( $"Cannot create a piece of type {type}" ),
-            //    };
-            //    (CRank rank, CFile file) = position.ReadChessNotation();
-            //    _board.SetPiece( rank, file, piece );
-            //}
-
-
-            ////_board.MovePiece( "E2", "E4" );
-            //_board.SetupForGameStart();
+            Board.SetupForGameStart();
         }
 
         private void CheckForKeyPresses()
@@ -146,22 +123,22 @@ namespace Assets.Scripts
             if ( Input.GetKeyDown( KeyCode.DownArrow ) )
             {
                 // game to end
-                _board.ExecuteAllMoves();
+                Board.ExecuteAllMoves();
             }
             else if ( Input.GetKeyDown( KeyCode.UpArrow ) )
             {
                 // game to start
-                _board.UndoAllMoves();
+                Board.UndoAllMoves();
             }
             else if ( Input.GetKeyDown( KeyCode.LeftArrow ) )
             {
                 // back one move
-                _board.UndoOneMove();
+                Board.UndoOneMove();
             }
             else if ( Input.GetKeyDown( KeyCode.RightArrow ) )
             {
                 // forward one move
-                _board.ExecuteOneMove();
+                Board.ExecuteOneMove();
             }
         }
     }

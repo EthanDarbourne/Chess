@@ -162,6 +162,7 @@ MonoBehaviour:
   WhiteKing: {fileID: 919132149155446097, guid: baafda2e75493da4d815e5d263834094, type: 3}
   Board: {fileID: 919132149155446097, guid: 177373114b1734c4e92c5faf86ef9a02, type: 3}
   PromotionSelector: {fileID: 919132149155446097, guid: 8840d8cb36224144080cda612d14595a, type: 3}
+  PieceGraveyard: {fileID: 5010188462545332819, guid: 3de780dfd9cafb74b9e383a895f75f06, type: 3}
   _gameObjects: []
 --- !u!4 &54173287
 Transform:
@@ -396,8 +397,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8661c2e73790984196714bf994da5bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainCamera: {fileID: 706029191}
-  _pieceManager: {fileID: 54173286}
+  MainCamera: {fileID: 706029191}
+  PieceManager: {fileID: 54173286}
 --- !u!4 &1885315205
 Transform:
   m_ObjectHideFlags: 0

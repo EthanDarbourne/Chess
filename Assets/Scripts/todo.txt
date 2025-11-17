@@ -1,5 +1,10 @@
 ﻿
 
+RIGHT NOW:
+Move origins on all prefabs to correct locations
+Fix positionings of pieces on board at start
+Pieces should have origins so that setting them at 0,0 centers them in a square.
+
 Now:
 Move pieces to captured location
 Hotkeys for reset board, load position, save position
@@ -10,12 +15,16 @@ Implement checks and checkmates on Move.cs
 Little Changes:
 HasMoved on Rook should be on base class Piece
 
+Pieces in Unity are not prefabs
+
 Soon:
 Create exception classes
 Combine ShallowBoard and Board to share functionalities like GetPotentialMoves using interfaces.
 Change ShallowBoard.Square and ShallowPiece to struct
 Moves all have a getter for a shallow version of themselves
 Make sure moves can only be executed for a certain board position
+
+Better handle board positions relative to the world. Place game objects inside a parent object???
 Future:
 Evaluation bar
 	- basic evaluation: based solely on board

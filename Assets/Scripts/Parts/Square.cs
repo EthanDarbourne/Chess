@@ -11,15 +11,12 @@ namespace Assets.Scripts.Parts
         private Point _location;
         private Piece? _piece = null;
         private GameObject _moveToHighlight;
-        private static Vector3 _centerOffset = new( -0.5f, 0, -0.5f );
-        private static Vector3 _heightOffset = new( 0, 0.01f, 0 );
 
-        public Square( Point point )
+        public Square( Point point, GameObject moveToHighlight )
         {
             _location = point;
-            _moveToHighlight = Creator.CreatePlane();
-            _moveToHighlight.transform.position = _location.Vector + _centerOffset + _heightOffset;
-            _moveToHighlight.transform.localScale *= 0.2f;
+            _moveToHighlight = moveToHighlight;
+            _moveToHighlight.transform.localPosition = _location.Vector + CommonVectors.HeightOffset + CommonVectors.CentreOffset;
         }
 
         public bool IsCapturable( ChessColor color ) => _piece is not null && _piece.Color != color;
@@ -69,7 +66,7 @@ namespace Assets.Scripts.Parts
         public void HighlightSquare( HighlightSquare plane )
         {
             plane.Show();
-            plane.TranslateTo( Point.Vector + _centerOffset );
+            plane.TranslateTo( Point.Vector );
         }
 
         public void EnableMoveToHighlight()

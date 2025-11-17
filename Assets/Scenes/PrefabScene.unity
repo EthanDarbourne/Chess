@@ -148,19 +148,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b17b81f02a1d844dbef9126d7afad67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BlackPawn: {fileID: 919132149155446097, guid: 1be1a0c2372049b44a94b1ce2663f73b, type: 3}
-  BlackKnight: {fileID: 919132149155446097, guid: 8ced805359060404aa66a0870625d855, type: 3}
-  BlackBishop: {fileID: 919132149155446097, guid: 89f2040b28b8a1042a90fea608617621, type: 3}
-  BlackRook: {fileID: 919132149155446097, guid: 2184fd2cb853fd74588595f97dc0d1db, type: 3}
-  BlackQueen: {fileID: 919132149155446097, guid: b3ad5f9295e428944ad1a97298f8367c, type: 3}
-  BlackKing: {fileID: 919132149155446097, guid: e57fb3ecabe3b2044b4d60f5fce7468d, type: 3}
-  WhitePawn: {fileID: 919132149155446097, guid: e1578a67e25053542a6a64b08ca49460, type: 3}
-  WhiteKnight: {fileID: 919132149155446097, guid: f54e47d81f9a5ce43be864efef566ca6, type: 3}
-  WhiteBishop: {fileID: 919132149155446097, guid: 0c3d2471862d77e4a9368683c47b338e, type: 3}
-  WhiteRook: {fileID: 919132149155446097, guid: c2245770744b36649bdd2653b3fb5c5b, type: 3}
-  WhiteQueen: {fileID: 919132149155446097, guid: 0ab90be0935ccf6438007c94a8dbd0f5, type: 3}
-  WhiteKing: {fileID: 919132149155446097, guid: baafda2e75493da4d815e5d263834094, type: 3}
-  Board: {fileID: 919132149155446097, guid: 177373114b1734c4e92c5faf86ef9a02, type: 3}
+  BlackPawn: {fileID: 3749474534403277783, guid: 6f1ae512efe4ad04f848a0299ced794f, type: 3}
+  BlackKnight: {fileID: 4921521518018383521, guid: 41b695ef4622d274da364061a8f8f286, type: 3}
+  BlackBishop: {fileID: 1905684275531345941, guid: 78f2a448c7d7c4c4b874981a4c6f6beb, type: 3}
+  BlackRook: {fileID: 4605924232797493011, guid: 36b403498c53b874cab1dd5356d477bd, type: 3}
+  BlackQueen: {fileID: 3522445019323166863, guid: 13d87603e90fd5d4caaec665d5b28eca, type: 3}
+  BlackKing: {fileID: 2709690425732156122, guid: b1b99a6de5a29024a9718658e4c434be, type: 3}
+  WhitePawn: {fileID: 2401154591065626740, guid: c1a2b7a0f9e6d4b40a16a5833ff21068, type: 3}
+  WhiteKnight: {fileID: 1104757713866810830, guid: 12e4bd0a0868a7a4899d04e0b96daa57, type: 3}
+  WhiteBishop: {fileID: 7890395650519452448, guid: 1ff4456725f48ed41a183140128eac6d, type: 3}
+  WhiteRook: {fileID: 8138185835999530082, guid: be4e9f90c7aa7a24daf9995062904ece, type: 3}
+  WhiteQueen: {fileID: 4393503781064887197, guid: 9f0ea445ff52e6849a86c1871be9f695, type: 3}
+  WhiteKing: {fileID: 6613318837803095812, guid: dbd2483c6c8097b4882a6c66b8d45876, type: 3}
+  Board: {fileID: 9008231940005114669, guid: 5f9531e59b56c7f4f8314efd87b08c12, type: 3}
   PromotionSelector: {fileID: 919132149155446097, guid: 8840d8cb36224144080cda612d14595a, type: 3}
   PieceGraveyard: {fileID: 5010188462545332819, guid: 3de780dfd9cafb74b9e383a895f75f06, type: 3}
   _gameObjects: []

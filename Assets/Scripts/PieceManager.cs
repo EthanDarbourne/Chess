@@ -1,4 +1,5 @@
 using Assets.Scripts.Enums;
+using Assets.Scripts.Misc;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,10 +49,17 @@ namespace Assets.Scripts
             Board = board;
         }
 
-        private GameObject InstantiateFromPos( GameObject gameObject, Vector3 position )
+        private GameObject InstantiateFromPos( GameObject gameObject, Vector3 position, GameObject? parent = null )
         {
-            GameObject ret = Instantiate( gameObject, position, gameObject.transform.rotation );
-            _gameObjects.Add( ret );
+            GameObject ret;
+            ret = Instantiate(gameObject, position, gameObject.transform.rotation);
+            if ( parent is not null )
+            {
+                ret.transform.SetParent( parent.transform, false );
+                ret.transform.localRotation = Quaternion.identity;
+                CustomLogger.LogDebug( $"Setting parent of {ret.name} to {parent.name} with rotation {ret.transform.rotation}" );
+            }
+            _gameObjects.Add(ret);
             return ret;
         }
 
@@ -66,8 +74,8 @@ namespace Assets.Scripts
             return ret;
         }
 
-        public GameObject GeneratePiece(PieceType type, ChessColor color) 
-            => InstantiateFromPos( GetPiece( type, color ), Vector3.zero );
+        public GameObject GeneratePiece(PieceType type, ChessColor color, GameObject board) 
+            => InstantiateFromPos( GetPiece( type, color ), Vector3.zero, board);
 
         private GameObject GetPiece(PieceType type, ChessColor color)
         {

@@ -4,6 +4,7 @@ using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
 using System;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -19,8 +20,6 @@ namespace Assets.Scripts
         public PromotionSelector PromotionSelector;
 
         public PieceGraveyard PieceGraveyard;
-
-        private bool InPromotionSelector;
 
         // Start is called before the first frame update
         void Start()
@@ -89,31 +88,31 @@ namespace Assets.Scripts
 
         }
 
-        private GameObject CreateHighlightSquare()
+        private GameObject CreateHighlightSquare( GameObject parent )
         {
             GameObject plane = Creator.CreatePlane();
-            plane.transform.position = new Vector3( 0f, 0.01f, 0f );
+            plane.transform.SetParent(parent.transform, false);
             return plane;
         }
 
         private void MapPiecesToBoard()
         {
-            GameObject boardObj = PieceManager.CreateBoard(new Vector3(0, 0, 0));
+            GameObject boardObj = PieceManager.CreateBoard(new Vector3(-4f, 0, 4f));
 
             GameObject pieceGraveyardObj = PieceManager.CreatePieceGraveyard(new Vector3(6, 0, 4));
 
             PieceGraveyard = new PieceGraveyard(pieceGraveyardObj);
 
-            GameObject pawn = PieceManager.GeneratePiece(PieceType.Pawn, ChessColor.White);
-            Piece pawnPiece = new Pawn(pawn, ChessColor.White);
+            //GameObject pawn = PieceManager.GeneratePiece(PieceType.Pawn, ChessColor.White, boardObj);
+            //Piece pawnPiece = new Pawn(pawn, ChessColor.White);
 
-            PieceGraveyard.SendPieceToGraveyard(pawnPiece);
+            //PieceGraveyard.SendPieceToGraveyard(pawnPiece);
 
             boardObj.AddComponent<BoxCollider>();
 
-            HighlightSquare highlightSquare = new( CreateHighlightSquare() );
+            HighlightSquare highlightSquare = new( CreateHighlightSquare( boardObj ) );
 
-            Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, highlightSquare, PromotionSelector, this );
+            Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, boardObj, highlightSquare, PromotionSelector, this );
 
             Board.SetupForGameStart();
         }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using static UnityEditor.FilePathAttribute;
 
 namespace Assets.Scripts.Parts
 {
@@ -23,6 +24,8 @@ namespace Assets.Scripts.Parts
         private int _currentMove = 0;
 
         private Piece? _selectedPiece = null;
+
+        private GameObject _boardObj;
 
         private readonly HighlightSquare _highlightSquare;
         private readonly PromotionSelector _promotionSelector;
@@ -45,15 +48,17 @@ namespace Assets.Scripts.Parts
             _height = height;
             _highlightSquare = highlightSquare;
             _monoBehaviour = monoBehaviour;
+            _boardObj = boardObject;
             BuildBoard();
         }
 
-        public Board( int width, int height, PieceManager pieceManager, HighlightSquare highlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
+        public Board( int width, int height, PieceManager pieceManager, GameObject boardObject, HighlightSquare highlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
         {
             _width = width;
             _height = height;
             _highlightSquare = highlightSquare;
             _pieceManager = pieceManager;
+            _boardObj = boardObject;
             _promotionSelector = selector;
             _monoBehaviour = monoBehaviour;
             //BuildBoard();
@@ -71,7 +76,10 @@ namespace Assets.Scripts.Parts
                 _board.Add( new() { null } ); // dummy so we can use 1-indexed
                 for ( int j = 1; j < _width + 1; j++ )
                 {
-                    _board[ i ].Add( new Square( new Point( i, j ) ) );
+                    GameObject moveToHighlight = Creator.CreatePlane();
+                    moveToHighlight.transform.localScale *= 0.2f;
+                    moveToHighlight.transform.SetParent(_boardObj.transform, false);
+                    _board[ i ].Add( new Square( new Point( i, j ), moveToHighlight) );
                 }
             }
         }
@@ -104,7 +112,7 @@ namespace Assets.Scripts.Parts
 
         private Piece GeneratePiece(PieceType type, ChessColor color)
         {
-            GameObject pieceObject = _pieceManager.GeneratePiece( type, color );
+            GameObject pieceObject = _pieceManager.GeneratePiece( type, color, _boardObj );
             return Utilities.CreatePiece( type, color, pieceObject );
         }
 

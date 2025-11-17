@@ -35,7 +35,10 @@ namespace Assets.Scripts.Parts
         public CRank Rank => _rank;
         public CFile File => _file;
 
-        public Vector3 Vector => new( File.Num - 4, 0, Rank.Num - 4 );
+        // file is x, rank is y
+        // (0, 0) is the location of A8 (A1, (1,1) (0,6)) (A2, (1,2), (1,6)
+        // (7, 7) is the location of H1
+        public Vector3 Vector => new( File.Num - 1, 8 - Rank.Num, 0);
 
         public void Move( int rankChange, int fileChange )
         {

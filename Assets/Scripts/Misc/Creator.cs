@@ -13,6 +13,8 @@ namespace Assets.Scripts.Misc
         {
             var plane = GameObject.CreatePrimitive( PrimitiveType.Plane );
             plane.transform.localScale = new Vector3( 0.1f, 0.1f, 0.1f );
+            plane.transform.position = Vector3.zero;
+            plane.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             return plane;
         }
     }

@@ -4,6 +4,7 @@ RIGHT NOW:
 Move origins on all prefabs to correct locations
 Fix positionings of pieces on board at start
 Pieces should have origins so that setting them at 0,0 centers them in a square.
+Rotate Knights????
 
 Now:
 Move pieces to captured location

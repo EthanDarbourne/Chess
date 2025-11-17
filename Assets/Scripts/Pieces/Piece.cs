@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using Assets.Scripts.ShallowCopy;
@@ -69,15 +70,13 @@ namespace Assets.Scripts.Pieces
         {
             _location = point;
             _initialLocation = new( _location );
+            CustomLogger.LogDebug($"Setting location of {_color} {Type} to {point.Rank.Num}, {point.File.Num}");
+            CustomLogger.LogDebug($"Translates to {point.Vector} with rotation {_gamePiece.transform.rotation}");
             // set the location of the gameobject
-            // (3.5, 3.5) is the location of A1
-            // (3.5, -3.5) is the location of H1
-            // to move positive file, move negative x
-            // to move positive rank, move negative z
-            _gamePiece.transform.position = new Vector3( point.File.Num - 4.5f, 0, point.Rank.Num - 4.5f);
+            _gamePiece.transform.localPosition = point.Vector;
         }
 
-        public void SetGraveyardLocation( Vector3 position)
+        public void SetGraveyardLocation( Vector3 position )
         {
             _gamePiece.transform.position = position;
         }

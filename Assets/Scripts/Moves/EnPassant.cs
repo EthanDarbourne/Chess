@@ -1,9 +1,12 @@
-﻿using Assets.Scripts.Parts;
+﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Misc;
+using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -12,8 +15,6 @@ namespace Assets.Scripts.Moves
     public class EnPassant : Move
     {
         private Square _captureOn;
-
-        private Piece _capturedPiece;
 
         public EnPassant( Square from, Square to, Square captureOn, bool isCheck = false, bool isCheckmate = false )
             : base( from, to, isCheck, isCheckmate )
@@ -27,7 +28,7 @@ namespace Assets.Scripts.Moves
         {
             // en passant moves the current pawn one square behind the adjacent pawn
             PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( _captureOn.Piece.Color );
-            _capturedPiece = _captureOn.CapturePiece(pieceGraveyard);
+            _captureOn.CapturePiece(pieceGraveyard);
 
             Piece movingPiece = From.RemovePiece();
             To.MovePieceTo( movingPiece );
@@ -38,8 +39,11 @@ namespace Assets.Scripts.Moves
             Piece movingPiece = To.RemovePiece();
             From.MovePieceTo( movingPiece );
 
-            _capturedPiece.Uncapture();
-            To.MovePieceTo( _capturedPiece );
+            PieceGraveyard pieceGraveyard = board.GetPieceGraveyard(Utilities.FlipTurn(movingPiece.Color));
+            Piece revivedPiece = pieceGraveyard.RevivePiece(PieceType.Pawn);
+            board.ClaimPiece(revivedPiece);
+
+            _captureOn.MovePieceTo(revivedPiece);
         }
 
         public override void ExecuteShallowMove( ShallowBoard board)

@@ -87,6 +87,12 @@ namespace Assets.Scripts.Parts
             DisableAllHighlights();
         }
 
+        public void ClaimPiece(Piece piece)
+        {
+            piece.SetParent(_boardObj);
+            piece.MoveToInitialLocation();
+        }
+
         private void MovePiecesToStartSquares()
         {
             if ( _pieceManager is null )
@@ -101,7 +107,7 @@ namespace Assets.Scripts.Parts
                 ChessColor color = position[1] == '1' || position[1] == '2' ? ChessColor.White : ChessColor.Black;
                 PieceType pieceType = Utilities.GetPieceType( type );
                 Piece piece = GeneratePiece( pieceType, color );
-                piece.SetParent(_boardObj);
+                ClaimPiece(piece);
                 (CRank rank, CFile file) = Utilities.ReadChessNotation( position );
                 SetPiece( rank, file, piece );
             }
@@ -236,16 +242,13 @@ namespace Assets.Scripts.Parts
                 CustomLogger.LogDebug("This is not one of your pieces" );
                 return;
             }
-            CustomLogger.LogDebug( $"Selecting piece" );
             HighlightSquare( _defaultHighlightSquare, rank, file );
             _selectedPiece = piece;
 
             List<Move> moves = piece.GetValidMoves( this );
 
-            CustomLogger.LogDebug( $"Start possible moves: {moves.Count}" );
             foreach ( Move move in moves )
             {
-                CustomLogger.LogDebug( $"Move: {Utilities.PrintNotation( move.From.Rank.Num, move.From.File.Num )}, {Utilities.PrintNotation( move.To.Rank.Num, move.To.File.Num )}" );
                 move.EnableMoveToHighlight();
             }
         }
@@ -333,6 +336,11 @@ namespace Assets.Scripts.Parts
 
         public void HighlightKing( bool isInCheck )
         {
+            if(!isInCheck)
+            {
+                _inCheckHighlightSquare.Hide();
+                return;
+            }
             ChessColor kingColor = _turn;
             for ( int rank = 1; rank <= Height; ++rank )
             {
@@ -341,15 +349,7 @@ namespace Assets.Scripts.Parts
                     Square square = GetSquare( rank, file );
                     if ( square.Piece is not null && square.Piece.Type == PieceType.King && square.Piece.Color == kingColor )
                     {
-                        CustomLogger.LogDebug($"Highlighting king at {rank}, {file}");
-                        if ( isInCheck )
-                        {
-                            HighlightSquare(_inCheckHighlightSquare, rank, file);
-                        }
-                        else
-                        {
-                            _inCheckHighlightSquare.Hide();
-                        }
+                        HighlightSquare(_inCheckHighlightSquare, rank, file);
                         return;
                     }
                 }
@@ -421,7 +421,6 @@ namespace Assets.Scripts.Parts
             SwapTurn();
             // after the turn, see if opponent king is in check
             (bool isCheck, _) = LookForChecks( _turn );
-            CustomLogger.LogDebug($"King {_turn} has check state: {isCheck}");
             HighlightKing(isCheck);
         }
 

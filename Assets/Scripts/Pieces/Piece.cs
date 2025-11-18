@@ -65,6 +65,11 @@ namespace Assets.Scripts.Pieces
             Move( rankChange, fileChange );
         }
 
+        public void MoveToInitialLocation()
+        {
+            _gamePiece.transform.localPosition = _location.Vector;
+        }
+
         // sets the initial and current location of the piece
         public void SetLocation( Point point )
         {
@@ -82,16 +87,6 @@ namespace Assets.Scripts.Pieces
         public void SetLocation( CRank rank, CFile file )
         {
             SetLocation( new( rank, file ) );
-        }
-
-        public void Uncapture()
-        {
-            _gamePiece.SetActive( true );
-        }
-
-        public void Delete()
-        {
-            _gamePiece.SetActive( false );
         }
 
         public void SetParent(GameObject parent)

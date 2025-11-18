@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Misc;
+﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
 
@@ -6,8 +7,7 @@ namespace Assets.Scripts.Moves
 {
     public class CaptureMove : Move
     {
-        private Piece _capturedPiece;
-
+        private PieceType _capturedPieceType = PieceType.Empty;
         public CaptureMove( Square from, Square to, bool isCheck = false, bool isCheckmate = false )
             : base(from, to, isCheck, isCheckmate)
         {
@@ -19,6 +19,7 @@ namespace Assets.Scripts.Moves
             // todo: move to side of board
             Piece movingPiece = From.RemovePiece();
             PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( Utilities.FlipTurn( movingPiece.Color ));
+            _capturedPieceType = To.Piece.Type;
             To.CapturePiece( movingPiece, pieceGraveyard);
         }
 
@@ -27,8 +28,11 @@ namespace Assets.Scripts.Moves
             Piece movingPiece = To.RemovePiece();
             From.MovePieceTo( movingPiece );
 
-            _capturedPiece.Uncapture();
-            To.MovePieceTo( _capturedPiece );
+            PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( Utilities.FlipTurn( movingPiece.Color ));
+            Piece revivedPiece = pieceGraveyard.RevivePiece(_capturedPieceType);
+            board.ClaimPiece(revivedPiece);
+
+            To.MovePieceTo(revivedPiece);
         }
 
         public override void ExecuteShallowMove( ShallowBoard board )

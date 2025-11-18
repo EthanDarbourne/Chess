@@ -53,6 +53,30 @@ namespace Assets.Scripts.Parts
             }
         }
 
+        public Piece? RevivePiece(Piece piece)
+        {
+            int index = Constants.NUM_PIECES - 1;
+            while (index >= 0)
+            {
+                if (_capturedPieces[index] is not null &&
+                    _capturedPieces[index] == piece)
+                {
+                    break;
+                }
+                --index;
+            }
+
+            if (index == -1)
+            {
+                return null;
+            }
+
+            Piece? revivedPiece = _capturedPieces[index];
+            _capturedPieces[index] = null;
+
+            return revivedPiece;
+        }
+
         public Piece? RevivePiece(PieceType type)
         {
             int index = Constants.NUM_PIECES - 1;

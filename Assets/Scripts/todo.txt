@@ -1,22 +1,25 @@
 ﻿
 
 RIGHT NOW:
-Move origins on all prefabs to correct locations
-Fix positionings of pieces on board at start
-Pieces should have origins so that setting them at 0,0 centers them in a square.
-Rotate Knights????
+Move origins on all prefabs to correct locations (done)
+Fix positionings of pieces on board at start (done)
+Pieces should have origins so that setting them at 0,0 centers them in a square. (done)
+Rotate Knights???? (done)
+
+Add more cameras
+add game saving
+add game loading
+add menu for loading different game modes (chess960)
 
 Now:
-Move pieces to captured location
+Move pieces to captured location (done)
 Hotkeys for reset board, load position, save position
 Arrow keys to move board position (done)
-Implement checks and checkmates on Move.cs
+Implement checks and checkmates on Move.cs (done)
 (board has a copy feature that copies the basic parts of the board class)
 
 Little Changes:
 HasMoved on Rook should be on base class Piece
-
-Pieces in Unity are not prefabs
 
 Soon:
 Create exception classes and add exceptions to work flow
@@ -25,7 +28,7 @@ Change ShallowBoard.Square and ShallowPiece to struct
 Moves all have a getter for a shallow version of themselves
 Make sure moves can only be executed for a certain board position
 
-Better handle board positions relative to the world. Place game objects inside a parent object???
+Better handle board positions relative to the world. Place game objects inside a parent object??? (done)
 Future:
 Evaluation bar
 	- basic evaluation: based solely on board
@@ -40,4 +43,4 @@ Evaluation bar
 More ideas: greenlemongamestudio on instagram
 
 
-create pieces as prefabs so we can create new pieces for promotion
+create pieces as prefabs so we can create new pieces for promotion (done)

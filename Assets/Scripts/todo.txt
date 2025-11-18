@@ -19,7 +19,7 @@ HasMoved on Rook should be on base class Piece
 Pieces in Unity are not prefabs
 
 Soon:
-Create exception classes
+Create exception classes and add exceptions to work flow
 Combine ShallowBoard and Board to share functionalities like GetPotentialMoves using interfaces.
 Change ShallowBoard.Square and ShallowPiece to struct
 Moves all have a getter for a shallow version of themselves

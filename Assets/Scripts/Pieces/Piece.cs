@@ -70,15 +70,13 @@ namespace Assets.Scripts.Pieces
         {
             _location = point;
             _initialLocation = new( _location );
-            CustomLogger.LogDebug($"Setting location of {_color} {Type} to {point.Rank.Num}, {point.File.Num}");
-            CustomLogger.LogDebug($"Translates to {point.Vector} with rotation {_gamePiece.transform.rotation}");
             // set the location of the gameobject
             _gamePiece.transform.localPosition = point.Vector;
         }
 
         public void SetGraveyardLocation( Vector3 position )
         {
-            _gamePiece.transform.position = position;
+            _gamePiece.transform.localPosition = position;
         }
 
         public void SetLocation( CRank rank, CFile file )
@@ -94,6 +92,11 @@ namespace Assets.Scripts.Pieces
         public void Delete()
         {
             _gamePiece.SetActive( false );
+        }
+
+        public void SetParent(GameObject parent)
+        {
+            _gamePiece.transform.SetParent(parent.transform);
         }
     }
 }

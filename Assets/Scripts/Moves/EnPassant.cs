@@ -26,7 +26,8 @@ namespace Assets.Scripts.Moves
         protected override void DoExecuteMove( Board board )
         {
             // en passant moves the current pawn one square behind the adjacent pawn
-            _capturedPiece = _captureOn.CapturePiece();
+            PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( _captureOn.Piece.Color );
+            _capturedPiece = _captureOn.CapturePiece(pieceGraveyard);
 
             Piece movingPiece = From.RemovePiece();
             To.MovePieceTo( movingPiece );

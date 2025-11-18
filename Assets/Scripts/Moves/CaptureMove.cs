@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Parts;
+﻿using Assets.Scripts.Misc;
+using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
 
 namespace Assets.Scripts.Moves
@@ -17,7 +18,8 @@ namespace Assets.Scripts.Moves
         {
             // todo: move to side of board
             Piece movingPiece = From.RemovePiece();
-            To.CapturePiece( movingPiece );
+            PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( Utilities.FlipTurn( movingPiece.Color ));
+            To.CapturePiece( movingPiece, pieceGraveyard);
         }
 
         protected override void DoUndoMove( Board board )

@@ -3,8 +3,6 @@
 using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Pieces;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Parts
@@ -17,19 +15,22 @@ namespace Assets.Scripts.Parts
 
         private GameObject _pieceGraveyardObj;
 
-        public PieceGraveyard( GameObject pieceGraveyardObj )
+        private ChessColor _graveyardColor;
+
+        public PieceGraveyard( GameObject pieceGraveyardObj, ChessColor color )
         {
             _pieceGraveyardObj = pieceGraveyardObj;
-            Vector3 startPos = new Vector3(0.5f, 0f, 0.5f);
+            _graveyardColor = color;
+            Vector3 startPos = Vector3.zero;
             for (int i = 0; i < 16; ++i)
             {
                 if (i == Constants.NUM_PIECES / 2) // two lines of 8
                 {
                     startPos.x += 1;
-                    startPos.z = 0;
+                    startPos.y = 0;
                 }
-                startPos.z += 1;
                 _capturedPiecePositions[i] = startPos;
+                startPos.y += 1;
             }
             CustomLogger.LogDebug(_capturedPiecePositions[0].ToString());
             CustomLogger.LogDebug(_capturedPiecePositions[1].ToString());
@@ -37,26 +38,31 @@ namespace Assets.Scripts.Parts
 
         public void SendPieceToGraveyard(Piece piece)
         {
+            if(piece.Color != _graveyardColor)
+            {
+                CustomLogger.LogError($"Tried to send piece to graveyard {_graveyardColor} with wrong color: {piece.Color}");
+                throw new System.Exception();
+            }
+            CustomLogger.LogDebug("Sending piece to graveyard");
+            piece.SetParent( _pieceGraveyardObj );
             for (int i = 0; i < Constants.NUM_PIECES; ++i)
             {
                 if (_capturedPieces[i] is null)
                 {
                     _capturedPieces[i] = piece;
-                    _pieceGraveyardObj.transform.parent = _pieceGraveyardObj.transform;
                     piece.SetGraveyardLocation(_capturedPiecePositions[i]);
                     return;
                 }
             }
         }
 
-        public Piece? RevivePiece(PieceType type, ChessColor color)
+        public Piece? RevivePiece(PieceType type)
         {
             int index = Constants.NUM_PIECES - 1;
             while (index >= 0)
             {
                 if (_capturedPieces[index] is not null &&
-                    _capturedPieces[index]!.Type == type &&
-                    _capturedPieces[index]!.Color == color)
+                    _capturedPieces[index]!.Type == type)
                 {
                     break;
                 }

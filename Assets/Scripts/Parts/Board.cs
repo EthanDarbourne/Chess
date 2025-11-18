@@ -31,6 +31,9 @@ namespace Assets.Scripts.Parts
         private readonly PromotionSelector _promotionSelector;
         private readonly PieceManager _pieceManager;
 
+        private readonly PieceGraveyard _whitePieceGraveyard;
+        private readonly PieceGraveyard _blackPieceGraveyard;
+
         private readonly int _width;
         private readonly int _height;
 
@@ -42,17 +45,7 @@ namespace Assets.Scripts.Parts
 
         #region InitialBuild
 
-        public Board( int width, int height, GameObject boardObject, HighlightSquare highlightSquare, MonoBehaviour monoBehaviour )
-        {
-            _width = width;
-            _height = height;
-            _highlightSquare = highlightSquare;
-            _monoBehaviour = monoBehaviour;
-            _boardObj = boardObject;
-            BuildBoard();
-        }
-
-        public Board( int width, int height, PieceManager pieceManager, GameObject boardObject, HighlightSquare highlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
+        public Board( int width, int height, PieceManager pieceManager, PieceGraveyard[] pieceGraveyards, GameObject boardObject, HighlightSquare highlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
         {
             _width = width;
             _height = height;
@@ -61,7 +54,8 @@ namespace Assets.Scripts.Parts
             _boardObj = boardObject;
             _promotionSelector = selector;
             _monoBehaviour = monoBehaviour;
-            //BuildBoard();
+            _whitePieceGraveyard = pieceGraveyards[0];
+            _blackPieceGraveyard = pieceGraveyards[1];
         }
 
         // build the default board
@@ -105,6 +99,7 @@ namespace Assets.Scripts.Parts
                 ChessColor color = position[1] == '1' || position[1] == '2' ? ChessColor.White : ChessColor.Black;
                 PieceType pieceType = Utilities.GetPieceType( type );
                 Piece piece = GeneratePiece( pieceType, color );
+                piece.SetParent(_boardObj);
                 (CRank rank, CFile file) = Utilities.ReadChessNotation( position );
                 SetPiece( rank, file, piece );
             }
@@ -112,7 +107,7 @@ namespace Assets.Scripts.Parts
 
         private Piece GeneratePiece(PieceType type, ChessColor color)
         {
-            GameObject pieceObject = _pieceManager.GeneratePiece( type, color, _boardObj );
+            GameObject pieceObject = _pieceManager.GeneratePiece( type, color );
             return Utilities.CreatePiece( type, color, pieceObject );
         }
 
@@ -132,7 +127,10 @@ namespace Assets.Scripts.Parts
         public bool CanMoveForward => _currentMove < _moves.Count;
         public bool CanMoveBackward => _currentMove > 0;
 
-
+        public PieceGraveyard GetPieceGraveyard( ChessColor color )
+        {
+            return color == ChessColor.White ? _whitePieceGraveyard : _blackPieceGraveyard;
+        }
 
         public void SelectPiece( CRank rank, CFile file )
         {
@@ -181,7 +179,7 @@ namespace Assets.Scripts.Parts
         // otherwise, we deselect the current piece 
         private IEnumerator TryToMoveSelectedPieceToLocation( int rank, int file )
         {
-            IEnumerable<Move> moves = _selectedPiece.GetValidMoves( this );
+            IEnumerable<Move> moves = _selectedPiece!.GetValidMoves( this );
 
             moves = moves.Where( x => x.To.Rank.Num == rank && x.To.File.Num == file );
 
@@ -419,9 +417,11 @@ namespace Assets.Scripts.Parts
 
             Piece promotedPiece = GeneratePiece( type, square.Piece.Color );
             promotedPiece.SetLocation( square.Point );
-            square.CapturePiece( promotedPiece );
+            PieceGraveyard pieceGraveyard = GetPieceGraveyard( Utilities.FlipTurn(square.Piece.Color) );
+            square.CapturePiece( promotedPiece, pieceGraveyard);
         }
 
+        // put a pawn on the square that it promoted at
         public void Unpromote( Square square )
         {
             Assert.IsTrue( square.Rank.Num == 1 || square.Rank.Num == 8 );
@@ -429,17 +429,8 @@ namespace Assets.Scripts.Parts
             Assert.AreNotEqual( square.Piece?.Type, PieceType.Pawn );
 
             Piece pawn = GeneratePiece( PieceType.Pawn, square.Piece.Color );
-            pawn.SetLocation( square.Point );
-            square.CapturePiece( pawn );
+            square.SetPiece( pawn );
         }
-
-        public void UseCapturedPiece( Piece capturedPiece )
-        {
-            // move to side of board
-        }
-
-        // might happen implicitly
-        //public void ReleaseCapturedPiece(Piece capturedPiece)
 
         // for moving between current moves that have been played
         public void ExecuteAllMoves()
@@ -514,7 +505,7 @@ namespace Assets.Scripts.Parts
             {
                 for (int file = 1; file <= Width; ++file)
                 {
-                    Piece piece = _board[rank][file].Piece;
+                    Piece? piece = _board[rank][file].Piece;
                     if (piece is null)
                     {
                         output += ' ';

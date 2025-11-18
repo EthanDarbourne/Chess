@@ -41,18 +41,19 @@ namespace Assets.Scripts.Parts
             _piece.MoveTo( new( _location ) );
         }
 
-        public Piece CapturePiece()
+        public Piece CapturePiece(PieceGraveyard graveyard)
         {
             Assert.IsNotNull( _piece );
             Piece ret = _piece;
-            _piece.Delete();
+            graveyard.SendPieceToGraveyard( ret );
             return ret;
         }
 
-        public Piece CapturePiece( Piece piece )
+        // capture the piece at this square and replace it with incoming piece
+        public Piece CapturePiece( Piece captor, PieceGraveyard graveyard )
         {
-            Piece ret = CapturePiece();
-            MovePieceTo( piece );
+            Piece ret = CapturePiece(graveyard);
+            MovePieceTo( captor );
             return ret;
         }
 

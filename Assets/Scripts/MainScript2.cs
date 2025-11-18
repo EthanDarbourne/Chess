@@ -19,7 +19,8 @@ namespace Assets.Scripts
 
         public PromotionSelector PromotionSelector;
 
-        public PieceGraveyard PieceGraveyard;
+        public PieceGraveyard WhitePieceGraveyard;
+        public PieceGraveyard BlackPieceGraveyard;
 
         // Start is called before the first frame update
         void Start()
@@ -99,20 +100,23 @@ namespace Assets.Scripts
         {
             GameObject boardObj = PieceManager.CreateBoard(new Vector3(-4f, 0, 4f));
 
-            GameObject pieceGraveyardObj = PieceManager.CreatePieceGraveyard(new Vector3(6, 0, 4));
+            GameObject whiteGraveyardObj = PieceManager.CreatePieceGraveyard(new Vector3(-8, 0, 4));
+            GameObject blackGraveyardObj = PieceManager.CreatePieceGraveyard(new Vector3(6, 0, 4));
 
-            PieceGraveyard = new PieceGraveyard(pieceGraveyardObj);
+            WhitePieceGraveyard = new PieceGraveyard(whiteGraveyardObj, ChessColor.White);
+            BlackPieceGraveyard = new PieceGraveyard(blackGraveyardObj, ChessColor.Black);
 
-            //GameObject pawn = PieceManager.GeneratePiece(PieceType.Pawn, ChessColor.White, boardObj);
-            //Piece pawnPiece = new Pawn(pawn, ChessColor.White);
-
-            //PieceGraveyard.SendPieceToGraveyard(pawnPiece);
+            PieceGraveyard[] pieceGraveyards = new PieceGraveyard[]
+            {
+                WhitePieceGraveyard,
+                BlackPieceGraveyard
+            };
 
             boardObj.AddComponent<BoxCollider>();
 
             HighlightSquare highlightSquare = new( CreateHighlightSquare( boardObj ) );
 
-            Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, boardObj, highlightSquare, PromotionSelector, this );
+            Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, pieceGraveyards, boardObj, highlightSquare, PromotionSelector, this );
 
             Board.SetupForGameStart();
         }

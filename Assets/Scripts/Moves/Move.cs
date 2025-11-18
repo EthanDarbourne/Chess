@@ -60,7 +60,7 @@ namespace Assets.Scripts.Moves
             _isCheckmate = isCheckmate;
         }
 
-        public void ExecuteMove(Board board)
+        public void ExecuteMove( Board board )
         {
             if( _isExecuted )
             {

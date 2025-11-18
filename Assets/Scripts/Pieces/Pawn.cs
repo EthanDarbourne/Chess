@@ -26,14 +26,12 @@ namespace Assets.Scripts.Pieces
 
         protected override List<Move> GetPotentialMoves( Board board )
         {
-
             List<Move> res = new();
             Square from = board.GetSquare( Location );
 
             // check all valid moves for a pawn
             int file = _location.File.Num;
             int rank = _location.Rank.Num;
-            CustomLogger.LogDebug( $"At {file}, {rank}" );
 
             int oneStep = Color == ChessColor.White ? 1 : -1;
             int twoStep = oneStep * 2;

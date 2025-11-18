@@ -60,8 +60,6 @@ namespace Assets.Scripts
                         int file = ( int ) ( 4 + Math.Ceiling( raycastHit.point.x ) );
                         int rank = ( int ) ( 4 + Math.Ceiling( raycastHit.point.z) );
 
-                        CustomLogger.LogDebug( $"Clicked on BOARD {file}, {rank}" );
-
                         Board.SelectLocation( rank, file );
                     }
                     else
@@ -92,6 +90,14 @@ namespace Assets.Scripts
         private GameObject CreateHighlightSquare( GameObject parent )
         {
             GameObject plane = Creator.CreatePlane();
+            plane.transform.localScale *= .8f;
+            plane.transform.SetParent(parent.transform, false);
+            return plane;
+        }
+
+        private GameObject CreateInCheckHighlightSquare(GameObject parent)
+        {
+            GameObject plane = Creator.CreateColoredPlane( Color.red );
             plane.transform.SetParent(parent.transform, false);
             return plane;
         }
@@ -114,9 +120,10 @@ namespace Assets.Scripts
 
             boardObj.AddComponent<BoxCollider>();
 
-            HighlightSquare highlightSquare = new( CreateHighlightSquare( boardObj ) );
+            HighlightSquare defaultHighlightSquare = new( CreateHighlightSquare( boardObj ), CommonVectors.FirstLayerHeightOffset );
+            HighlightSquare inCheckHighlightSquare = new( CreateInCheckHighlightSquare( boardObj ), CommonVectors.SecondLayerHeightOffset );
 
-            Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, pieceGraveyards, boardObj, highlightSquare, PromotionSelector, this );
+            Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, pieceGraveyards, boardObj, defaultHighlightSquare, inCheckHighlightSquare, PromotionSelector, this );
 
             Board.SetupForGameStart();
         }

@@ -27,7 +27,8 @@ namespace Assets.Scripts.Parts
 
         private GameObject _boardObj;
 
-        private readonly HighlightSquare _highlightSquare;
+        private readonly HighlightSquare _defaultHighlightSquare;
+        private readonly HighlightSquare _inCheckHighlightSquare;
         private readonly PromotionSelector _promotionSelector;
         private readonly PieceManager _pieceManager;
 
@@ -45,11 +46,12 @@ namespace Assets.Scripts.Parts
 
         #region InitialBuild
 
-        public Board( int width, int height, PieceManager pieceManager, PieceGraveyard[] pieceGraveyards, GameObject boardObject, HighlightSquare highlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
+        public Board( int width, int height, PieceManager pieceManager, PieceGraveyard[] pieceGraveyards, GameObject boardObject, HighlightSquare defaultHighlightSquare, HighlightSquare inCheckHighlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
         {
             _width = width;
             _height = height;
-            _highlightSquare = highlightSquare;
+            _defaultHighlightSquare = defaultHighlightSquare;
+            _inCheckHighlightSquare = inCheckHighlightSquare;
             _pieceManager = pieceManager;
             _boardObj = boardObject;
             _promotionSelector = selector;
@@ -171,7 +173,7 @@ namespace Assets.Scripts.Parts
 
         public void DeselectPiece()
         {
-            DisableAllHighlights();
+            DisableSelectionHighlights();
             _selectedPiece = null;
         }
 
@@ -235,7 +237,7 @@ namespace Assets.Scripts.Parts
                 return;
             }
             CustomLogger.LogDebug( $"Selecting piece" );
-            HighlightSquare( _highlightSquare, rank, file );
+            HighlightSquare( _defaultHighlightSquare, rank, file );
             _selectedPiece = piece;
 
             List<Move> moves = piece.GetValidMoves( this );
@@ -329,10 +331,41 @@ namespace Assets.Scripts.Parts
             _board[ rank ][ file ].HighlightSquare( highlight );
         }
 
-        public void DisableAllHighlights()
+        public void HighlightKing( bool isInCheck )
+        {
+            ChessColor kingColor = _turn;
+            for ( int rank = 1; rank <= Height; ++rank )
+            {
+                for ( int file = 1; file <= Width; ++file )
+                {
+                    Square square = GetSquare( rank, file );
+                    if ( square.Piece is not null && square.Piece.Type == PieceType.King && square.Piece.Color == kingColor )
+                    {
+                        CustomLogger.LogDebug($"Highlighting king at {rank}, {file}");
+                        if ( isInCheck )
+                        {
+                            HighlightSquare(_inCheckHighlightSquare, rank, file);
+                        }
+                        else
+                        {
+                            _inCheckHighlightSquare.Hide();
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
+        public void DisableSelectionHighlights()
         {
             DisableAllMoveToHighlights();
-            _highlightSquare.Hide();
+            _defaultHighlightSquare.Hide();
+        }
+
+        public void DisableAllHighlights()
+        {
+            DisableSelectionHighlights();
+            _inCheckHighlightSquare.Hide();
         }
 
         public void DisableAllMoveToHighlights()
@@ -385,12 +418,11 @@ namespace Assets.Scripts.Parts
             _moves.Add( move );
             ++_currentMove;
             DeselectPiece();
-            (bool isCheck, _) = LookForChecks( _turn );
-            //if( isCheck )
-            //{
-            //    HighlightKing( isCheck );
-            //}
             SwapTurn();
+            // after the turn, see if opponent king is in check
+            (bool isCheck, _) = LookForChecks( _turn );
+            CustomLogger.LogDebug($"King {_turn} has check state: {isCheck}");
+            HighlightKing(isCheck);
         }
 
         public void MovePiece( string from, string to )

@@ -32,8 +32,6 @@ namespace Assets.Scripts.Parts
                 _capturedPiecePositions[i] = startPos;
                 startPos.y += 1;
             }
-            CustomLogger.LogDebug(_capturedPiecePositions[0].ToString());
-            CustomLogger.LogDebug(_capturedPiecePositions[1].ToString());
         }
 
         public void SendPieceToGraveyard(Piece piece)
@@ -43,7 +41,6 @@ namespace Assets.Scripts.Parts
                 CustomLogger.LogError($"Tried to send piece to graveyard {_graveyardColor} with wrong color: {piece.Color}");
                 throw new System.Exception();
             }
-            CustomLogger.LogDebug("Sending piece to graveyard");
             piece.SetParent( _pieceGraveyardObj );
             for (int i = 0; i < Constants.NUM_PIECES; ++i)
             {

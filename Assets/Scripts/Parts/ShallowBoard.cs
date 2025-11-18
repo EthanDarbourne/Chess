@@ -342,15 +342,11 @@ namespace Assets.Scripts.Parts
         {
             int diff1 = square2.Rank - square1.Rank;
             int diff2 = square2.File - square1.File;
-            if ( diff1 > diff2 )
-            {
-                (diff1, diff2) = (diff2, diff1);
-            }
-            if ( diff1 != 0 && Math.Abs( diff2 ) != Math.Abs( diff1 ) ) // make sure we either travel (0,x), (x,0) or (x,x)
+            if ( diff1 != 0 && diff2 != 0 && Math.Abs( diff2 ) != Math.Abs( diff1 ) ) // make sure we either travel (0,x), (x,0) or (x,x)
             {
                 return Enumerable.Empty<Square>();
             }
-            int steps = Math.Abs( diff2 );
+            int steps = Math.Abs( diff1 == 0 ? diff2 : diff1);
             (int coeff1, int coeff2) = (diff1 / steps, diff2 / steps);
             return Enumerable.Range( 1, steps - 1 )
                 .Select( x => GetSquare( square1.Rank + x * coeff1, square1.File + x * coeff2 ) );

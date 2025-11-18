@@ -16,7 +16,7 @@ namespace Assets.Scripts.Parts
         {
             _location = point;
             _moveToHighlight = moveToHighlight;
-            _moveToHighlight.transform.localPosition = _location.Vector + CommonVectors.HeightOffset + CommonVectors.CentreOffset;
+            _moveToHighlight.transform.localPosition = _location.Vector + CommonVectors.FirstLayerHeightOffset + CommonVectors.CentreOffset;
         }
 
         public bool IsCapturable( ChessColor color ) => _piece is not null && _piece.Color != color;

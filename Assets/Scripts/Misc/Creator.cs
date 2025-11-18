@@ -17,5 +17,18 @@ namespace Assets.Scripts.Misc
             plane.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             return plane;
         }
+
+        public static GameObject CreateColoredPlane( Color color)
+        {
+            var plane = CreatePlane();
+            var renderer = plane.GetComponent<Renderer>();
+            renderer.material = new(Shader.Find("Standard"))
+            {
+                color = color
+            };
+            return plane;
+        }
+
     }
+
 }

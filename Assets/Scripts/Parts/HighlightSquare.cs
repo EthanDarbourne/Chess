@@ -12,9 +12,11 @@ namespace Assets.Scripts.Parts
     public class HighlightSquare
     {
         private readonly GameObject _highlightPlane;
+        private Vector3 _heightOffset;
 
-        public HighlightSquare( GameObject highlightPlane )
+        public HighlightSquare( GameObject highlightPlane, Vector3 heightOffset )
         {
+            _heightOffset = heightOffset;
             _highlightPlane = highlightPlane;
         }
 
@@ -22,7 +24,7 @@ namespace Assets.Scripts.Parts
 
         public void TranslateTo(Vector3 position)
         {
-            position += CommonVectors.HeightOffset;
+            position += _heightOffset;
             _highlightPlane.transform.localPosition = position + CommonVectors.CentreOffset;
         }
 

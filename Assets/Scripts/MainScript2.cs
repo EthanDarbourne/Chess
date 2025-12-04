@@ -3,7 +3,9 @@ using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
+using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -21,6 +23,10 @@ namespace Assets.Scripts
 
         public PieceGraveyard WhitePieceGraveyard;
         public PieceGraveyard BlackPieceGraveyard;
+
+
+        public bool DoMovesAtStartOfGame = false;
+        public List<string> MovesAtStartOfGame = new();
 
         // Start is called before the first frame update
         void Start()
@@ -126,6 +132,18 @@ namespace Assets.Scripts
             Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, pieceGraveyards, boardObj, defaultHighlightSquare, inCheckHighlightSquare, PromotionSelector, this );
 
             Board.SetupForGameStart();
+
+
+            if (DoMovesAtStartOfGame)
+            {
+                // todo: change to use chess notation
+                foreach (string move in MovesAtStartOfGame)
+                {
+                    string[] parts = move.Split(":");
+                    Board.MovePiece(parts[0], parts[1]);
+                }
+            }
+
         }
 
         private void CheckForKeyPresses()

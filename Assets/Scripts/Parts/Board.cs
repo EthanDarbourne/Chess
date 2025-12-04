@@ -218,12 +218,15 @@ namespace Assets.Scripts.Parts
                 if (promoteTo == PieceType.Empty)
                 {
                     CustomLogger.LogDebug("No promotion piece selected, cancelling move");
-                    yield break;
                 }
-                CustomLogger.LogDebug("Received promotion piece, promoting...");
-                Move move = moves.First( x => ( x as IPromotionMove ).PromoteTo == promoteTo );
-                MovePiece( move );
+                else
+                {
+                    CustomLogger.LogDebug("Received promotion piece, promoting...");
+                    Move move = moves.First( x => ( x as IPromotionMove ).PromoteTo == promoteTo );
+                    MovePiece( move );
+                }
             }
+            _movePieceCoroutine = null;
             yield break;
         }
 
@@ -447,8 +450,9 @@ namespace Assets.Scripts.Parts
             Assert.AreEqual( square.Piece?.Type, PieceType.Pawn );
 
             Piece promotedPiece = GeneratePiece( type, square.Piece.Color );
+            ClaimPiece(promotedPiece);
             promotedPiece.SetLocation( square.Point );
-            PieceGraveyard pieceGraveyard = GetPieceGraveyard( Utilities.FlipTurn(square.Piece.Color) );
+            PieceGraveyard pieceGraveyard = GetPieceGraveyard( square.Piece.Color );
             square.CapturePiece( promotedPiece, pieceGraveyard);
         }
 
@@ -460,6 +464,7 @@ namespace Assets.Scripts.Parts
             Assert.AreNotEqual( square.Piece?.Type, PieceType.Pawn );
 
             Piece pawn = GeneratePiece( PieceType.Pawn, square.Piece.Color );
+            ClaimPiece(pawn);
             square.SetPiece( pawn );
         }
 

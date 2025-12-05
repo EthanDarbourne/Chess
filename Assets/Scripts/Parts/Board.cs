@@ -25,6 +25,9 @@ namespace Assets.Scripts.Parts
 
         private Piece? _selectedPiece = null;
 
+        private List<Piece> _whitePieces = new();
+        private List<Piece> _blackPieces = new();
+
         private GameObject _boardObj;
 
         private readonly HighlightSquare _defaultHighlightSquare;
@@ -100,6 +103,8 @@ namespace Assets.Scripts.Parts
                 return;
             }
             BuildBoard();
+            _whitePieces.Clear();
+            _blackPieces.Clear();
             foreach ( var pieceNotation in Constants.InitialPiecePositions )
             {
                 char type = pieceNotation.Length == 2 ? 'p' : pieceNotation[ 0 ];
@@ -110,6 +115,15 @@ namespace Assets.Scripts.Parts
                 ClaimPiece(piece);
                 (CRank rank, CFile file) = Utilities.ReadChessNotation( position );
                 SetPiece( rank, file, piece );
+                if (color == ChessColor.White)
+                {
+                    _whitePieces.Add(piece);
+
+                }
+                else
+                {
+                    _blackPieces.Add(piece);
+                }
             }
         }
 
@@ -398,7 +412,7 @@ namespace Assets.Scripts.Parts
                 return;
             }
 
-            List<Move> moves = from.Piece.GetValidMoves( this );
+            List<Move> moves = from.Piece!.GetValidMoves( this );
 
             List<Move> move = moves.Where( x => x.To.Point == to.Point ).ToList();
 
@@ -414,7 +428,7 @@ namespace Assets.Scripts.Parts
         public void MovePiece( Move move )
         {
             // first get the notation of the move from the current board position, then execute the move
-            string moveNotation = Utilities.GetMoveNotation( move, this);
+            string moveNotation = Utilities.GetMoveNotation( move, this );
             move.SetNotation(moveNotation);
             
             move.ExecuteMove( this );
@@ -430,6 +444,22 @@ namespace Assets.Scripts.Parts
         public void MovePiece( string from, string to )
         {
             MovePiece( GetSquare( from ), GetSquare( to ) );
+        }
+
+        public void MovePiece( string moveNotation )
+        {
+            List<Piece> pieces = _turn == ChessColor.White ? _whitePieces : _blackPieces;
+            foreach (Move m in pieces.SelectMany( x => x.GetValidMoves( this ) ))
+            {
+                string curMoveNotation = Utilities.GetMoveNotation(m, this);
+                CustomLogger.LogDebug(moveNotation + " vs " + curMoveNotation);
+                if (curMoveNotation.ToLower() == moveNotation.ToLower())
+                {
+                    MovePiece( m );
+                    return;
+                }
+            }
+            throw new Exception("Invalid move: " + moveNotation);
         }
 
         public bool IsValidPositionAfterMove( Move move )

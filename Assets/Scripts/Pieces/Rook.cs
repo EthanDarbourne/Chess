@@ -11,7 +11,6 @@ namespace Assets.Scripts.Pieces
 {
     public class Rook : Piece
     {
-        private bool _hasntMoved = true;
 
         public Rook( GameObject gamePiece, CRank rank, CFile file, ChessColor color ) : base( gamePiece, rank, file, color )
         {
@@ -23,11 +22,8 @@ namespace Assets.Scripts.Pieces
 
         public override PieceType Type => PieceType.Rook;
 
-        public bool HasntMoved => _hasntMoved;
-
         public override void Move( int rankChange, int fileChange )
         {
-            _hasntMoved = false;
             base.Move( rankChange, fileChange );
         }
 

@@ -16,6 +16,7 @@ namespace Assets.Scripts.Pieces
         protected readonly ChessColor _color;
         protected GameObject _gamePiece;
         protected int _moveCount = 0;
+        private bool _hasntMoved = true;
 
         protected Piece( GameObject gamePiece, CRank rank, CFile file, ChessColor color )
         {
@@ -37,6 +38,8 @@ namespace Assets.Scripts.Pieces
 
         public Point Location => _location;
 
+        public bool HasntMoved => _hasntMoved;
+
         public abstract PieceType Type { get; }
 
         protected abstract List<Move> GetPotentialMoves( Board board );
@@ -53,6 +56,7 @@ namespace Assets.Scripts.Pieces
         // - changes moves positively along the ranks
         public virtual void Move( int rankChange, int fileChange )
         {
+            _hasntMoved = false;
             _location.Move( rankChange, fileChange );
             // file is x, rank is y
             _gamePiece.transform.position += new Vector3( fileChange, 0, rankChange );

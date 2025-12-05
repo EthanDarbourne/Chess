@@ -264,6 +264,10 @@ namespace Assets.Scripts.Misc
             {
                 notation += "x";
             }
+            else if (move.From.Piece.Type == PieceType.Pawn)
+            {
+                notation = "";
+            }
             notation += PrintNotation(move.To.Rank.Num, move.To.File.Num);
             return notation;
         }

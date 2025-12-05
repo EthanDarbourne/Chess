@@ -2,11 +2,8 @@
 using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
-using Assets.Scripts.Pieces;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -136,12 +133,7 @@ namespace Assets.Scripts
 
             if (DoMovesAtStartOfGame)
             {
-                // todo: change to use chess notation
-                foreach (string move in MovesAtStartOfGame)
-                {
-                    string[] parts = move.Split(":");
-                    Board.MovePiece(parts[0], parts[1]);
-                }
+                MovesAtStartOfGame.ForEach(Board.MovePiece);
             }
 
         }

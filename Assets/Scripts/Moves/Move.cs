@@ -27,6 +27,7 @@ namespace Assets.Scripts.Moves
         public Square To => _to;
         public bool IsCheck => _isCheck;
         public bool IsCheckmate => _isCheckmate;
+        public string MoveNotation => _moveNotation;
 
         public int GetLength()
         {

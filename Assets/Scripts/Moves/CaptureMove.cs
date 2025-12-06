@@ -8,8 +8,8 @@ namespace Assets.Scripts.Moves
     public class CaptureMove : Move
     {
         private PieceType _capturedPieceType = PieceType.Empty;
-        public CaptureMove( Square from, Square to, bool isCheck = false, bool isCheckmate = false )
-            : base(from, to, isCheck, isCheckmate)
+        public CaptureMove( Square from, Square to, string boardHash, bool isCheck = false, bool isCheckmate = false )
+            : base(from, to, boardHash, isCheck, isCheckmate)
         {
 
         }

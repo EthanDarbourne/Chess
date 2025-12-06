@@ -14,8 +14,8 @@ namespace Assets.Scripts.Moves
         private Square _rookSquare;
 
         // from is king square, to is rook square (todo: from is king, to is clickable square)
-        public Castling( Square from, Square to, Square rookSquare, bool isCheck = false, bool isCheckmate = false )
-            : base( from, to, isCheck, isCheckmate )
+        public Castling( Square from, Square to, Square rookSquare, string boardHash, bool isCheck = false, bool isCheckmate = false )
+            : base( from, to, boardHash, isCheck, isCheckmate )
         {
             _rookSquare = rookSquare;
         }

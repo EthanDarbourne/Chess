@@ -7,8 +7,8 @@ namespace Assets.Scripts.Moves
     {
         private PieceType _promoteTo;
 
-        public PromotionCaptureMove( Square from, Square to, PieceType promoteTo, bool isCheck = false, bool isCheckmate = false )
-            : base( from, to, isCheck, isCheckmate )
+        public PromotionCaptureMove( Square from, Square to, PieceType promoteTo, string boardHash, bool isCheck = false, bool isCheckmate = false )
+            : base( from, to, boardHash, isCheck, isCheckmate )
         {
             _promoteTo = promoteTo;
         }

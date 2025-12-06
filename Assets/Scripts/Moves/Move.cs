@@ -15,10 +15,13 @@ namespace Assets.Scripts.Moves
 
         private string _moveNotation = string.Empty;
 
-        protected Move( Square from, Square to, bool isCheck = false, bool isCheckmate = false )
+        private string _boardHash;
+
+        protected Move( Square from, Square to, string boardHash, bool isCheck = false, bool isCheckmate = false )
         {
             _from = from;
             _to = to;
+            _boardHash = boardHash;
             _isCheck = isCheck;
             _isCheckmate = isCheckmate;
         }
@@ -67,6 +70,10 @@ namespace Assets.Scripts.Moves
             {
                 throw new Exception( "Already executed" );
             }
+            if(_boardHash != board.GetBoardHash())
+            {
+                throw new Exception("Incorrect board state for this move");
+            }
             DoExecuteMove( board );
             _isExecuted = true;
         }
@@ -85,7 +92,5 @@ namespace Assets.Scripts.Moves
         {
             To.EnableMoveToHighlight();
         }
-
-        
     }
 }

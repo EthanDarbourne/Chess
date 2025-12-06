@@ -1,9 +1,7 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
-using Assets.Scripts.Pieces;
 using Assets.Scripts.ShallowCopy;
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

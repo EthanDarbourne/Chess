@@ -1,11 +1,7 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets.Scripts.ShallowCopy
 {

@@ -6,8 +6,8 @@ namespace Assets.Scripts.Moves
 {
     public class BasicMove : Move
     {
-        public BasicMove(Square from, Square to, bool isCheck = false, bool isCheckmate = false )
-            : base(from, to, isCheck, isCheckmate)
+        public BasicMove(Square from, Square to, string boardHash, bool isCheck = false, bool isCheckmate = false )
+            : base(from, to, boardHash, isCheck, isCheckmate)
         {
 
         }

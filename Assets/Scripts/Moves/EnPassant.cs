@@ -2,13 +2,6 @@
 using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Assets.Scripts.Moves
 {
@@ -16,8 +9,8 @@ namespace Assets.Scripts.Moves
     {
         private Square _captureOn;
 
-        public EnPassant( Square from, Square to, Square captureOn, bool isCheck = false, bool isCheckmate = false )
-            : base( from, to, isCheck, isCheckmate )
+        public EnPassant( Square from, Square to, Square captureOn, string boardHash, bool isCheck = false, bool isCheckmate = false )
+            : base( from, to, boardHash, isCheck, isCheckmate )
         {
             _captureOn = captureOn;
         }

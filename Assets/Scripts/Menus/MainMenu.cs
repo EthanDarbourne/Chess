@@ -19,6 +19,7 @@ namespace Assets.Scripts.Menus
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
             OpenMainMenu();
+            Chess960Button.GetComponent<Image>().color = Colors.Red;
         }
 
         public void PlayGame()
@@ -55,12 +56,7 @@ namespace Assets.Scripts.Menus
         public void ToggleChess960()
         {
             IsChess960Enabled = !IsChess960Enabled; 
-            Color32 newColor = IsChess960Enabled
-            ? Colors.Green   // green
-            : Colors.Red;  // red
-
-            CustomLogger.LogDebug("Changing color");
-            Chess960Button.GetComponent<Image>().color = newColor;
+            Chess960Button.GetComponent<Image>().color = IsChess960Enabled ? Colors.Green : Colors.Red;
         }
 
         private void CloseAllMenus()

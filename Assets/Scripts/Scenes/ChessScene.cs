@@ -3,6 +3,7 @@ using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
 using System.Collections.Generic;
 using UnityEngine;
+using Assets.Scripts.Enums;
 
 namespace Assets.Scripts.Scenes
 {
@@ -19,6 +20,8 @@ namespace Assets.Scripts.Scenes
         public bool DoMovesAtStartOfGame = false;
         public List<string> MovesAtStartOfGame = new();
 
+        private bool _playingGame = false;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -34,21 +37,31 @@ namespace Assets.Scripts.Scenes
         // Update is called once per frame
         void Update()
         {
-            BoardInteractions.CheckForPlayerInput( Board, MainCamera, _promotionSelector);
+            if (Board.IsGameInProgress)
+            {
+                BoardInteractions.CheckForPlayerInput( Board, MainCamera, _promotionSelector);
+            }
 
-            //if ( LastMove != _board.MoveCount )
-            //{
-            //    LastMove = _board.MoveCount;
-            //    try
-            //    {
-            //        (bool isCheck, bool isCheckmate) = _board.LookForChecks( _board.Turn );
-            //        CustomLogger.LogDebug( $"Success with {isCheck} and {isCheckmate}" );
-            //    }
-            //    catch ( Exception ex )
-            //    {
-            //        CustomLogger.LogDebug( $"Failed with {ex.Message}" );
-            //    }
-            //}
+            if(!Board.IsGameInProgress && _playingGame)
+            {
+                _playingGame = false;
+                CustomLogger.LogInfo("Chess Game Over");
+
+                GameState gameState = Board.GetGameState();
+
+                if (gameState == GameState.CheckmateWhite)
+                {
+                    CustomLogger.LogInfo("Checkmate! White wins!");
+                }
+                else if (gameState == GameState.CheckmateBlack)
+                {
+                    CustomLogger.LogInfo("Checkmate! Black wins!");
+                }
+                else
+                {
+                    CustomLogger.LogInfo("Stalemate!");
+                }
+            }
 
         }
 
@@ -58,11 +71,15 @@ namespace Assets.Scripts.Scenes
 
             Board.SetupForGameStart();
 
+            Board.StartGame();
+
             if (DoMovesAtStartOfGame)
             {
                 MovesAtStartOfGame.ForEach(Board.MovePiece);
             }
 
+            _playingGame = true;
+            CustomLogger.LogInfo("Starting basic Chess game");
         }
     }
 }

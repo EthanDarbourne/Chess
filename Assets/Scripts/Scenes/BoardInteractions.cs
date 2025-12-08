@@ -92,7 +92,5 @@ namespace Assets.Scripts.Scenes
                 board.ExecuteOneMove();
             }
         }
-
-
     }
 }

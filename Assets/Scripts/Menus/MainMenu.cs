@@ -36,7 +36,6 @@ namespace Assets.Scripts.Menus
 
         public void Quit()
         {
-
             CustomLogger.LogDebug("Quitting");
             Application.Quit();
         }

@@ -15,8 +15,12 @@ Menus:
 	- choose game mode (chess960, standard, king simul)
 	- choose sides (white, black, random)
 	- settings (sound, graphics, etc)
-Consolidate scene scripts
+Consolidate scene scripts (done)
 Create file system for saving/loading positions and settings
+Handle stalemates, threefold repetitions, fifty-move rule etc
+Look for insufficient material
+Add square highlights for location last piece moved from
+
 
 Menu todo:
 Add all options

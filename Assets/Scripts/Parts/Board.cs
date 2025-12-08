@@ -37,12 +37,14 @@ namespace Assets.Scripts.Parts
         private readonly PieceGraveyard _whitePieceGraveyard;
         private readonly PieceGraveyard _blackPieceGraveyard;
 
+        private MonoBehaviour _monoBehaviour;
+
         private readonly int _width;
         private readonly int _height;
 
         private ChessColor _turn = ChessColor.White;
-
-        private MonoBehaviour _monoBehaviour;
+        private bool _isGameInProgress = false;
+        private bool _isSetupComplete = false;
 
         private Coroutine? _movePieceCoroutine = null;
 
@@ -97,6 +99,15 @@ namespace Assets.Scripts.Parts
             DisableAllHighlights();
         }
 
+        public void StartGame()
+        {
+            _isGameInProgress = true;
+            _turn = ChessColor.White;
+            _moves.Clear();
+            _currentMove = 0;
+            _movePieceCoroutine = null;
+        }
+
         public void ClaimPiece(Piece piece)
         {
             piece.SetParent(_boardObj);
@@ -144,6 +155,8 @@ namespace Assets.Scripts.Parts
                 SetPiece( Constants.BLACK_PAWN_STARTING_RANK, file, blackPawn );
                 _blackPieces.Add( blackPawn );
             }
+
+            _isSetupComplete = true;
         }
 
         private Piece GeneratePiece(PieceType type, ChessColor color)
@@ -167,6 +180,9 @@ namespace Assets.Scripts.Parts
 
         public bool CanMoveForward => _currentMove < _moves.Count;
         public bool CanMoveBackward => _currentMove > 0;
+
+        public bool IsGameInProgress => _isGameInProgress;
+        public bool IsSetupComplete => _isSetupComplete;
 
         public PieceGraveyard GetPieceGraveyard( ChessColor color )
         {
@@ -255,7 +271,7 @@ namespace Assets.Scripts.Parts
                 else
                 {
                     CustomLogger.LogDebug("Received promotion piece, promoting...");
-                    Move move = moves.First( x => ( x as IPromotionMove ).PromoteTo == promoteTo );
+                    Move move = moves.First( x => ( x as IPromotionMove )!.PromoteTo == promoteTo );
                     MovePiece( move );
                 }
             }
@@ -267,6 +283,13 @@ namespace Assets.Scripts.Parts
         private void SelectPiece( int rank, int file )
         {
             Piece? piece = _board[ rank ][ file ].Piece;
+
+            if (CanMoveForward)
+            {
+                ExecuteAllMoves();
+                return;
+            }
+
             if ( piece is null )
             {
                 CustomLogger.LogDebug( "There is no piece on this square" );
@@ -278,6 +301,7 @@ namespace Assets.Scripts.Parts
                 CustomLogger.LogDebug("This is not one of your pieces" );
                 return;
             }
+
             HighlightSquare( _defaultHighlightSquare, rank, file );
             _selectedPiece = piece;
 
@@ -314,8 +338,7 @@ namespace Assets.Scripts.Parts
         public Square GetSquare( string s )
         {
             (CRank rank, CFile file) = s.ReadChessNotation();
-            Square ret = GetSquare( rank.Num, file.Num );
-            return ret;
+            return GetSquare( rank.Num, file.Num );
         }
 
         public bool OutOfBounds( CRank rank, CFile file ) => OutOfBounds( rank.Num, file.Num );
@@ -456,8 +479,21 @@ namespace Assets.Scripts.Parts
             DeselectPiece();
             SwapTurn();
             // after the turn, see if opponent king is in check
-            (bool isCheck, _) = LookForChecks( _turn );
+            (bool isCheck, bool isCheckmate) = LookForChecks( _turn );
             HighlightKing(isCheck);
+
+            if(isCheckmate)
+            {
+                _isGameInProgress = false;
+                if (_turn == ChessColor.Black)
+                {
+                    CustomLogger.LogInfo("Checkmate! White wins!");
+                }
+                else if (_turn == ChessColor.White)
+                {
+                    CustomLogger.LogInfo("Checkmate! Black wins!");
+                }
+            }
         }
 
         public void MovePiece( string from, string to )
@@ -536,6 +572,7 @@ namespace Assets.Scripts.Parts
         public void UndoOneMove()
         {
             if ( !CanMoveBackward ) return;
+            DisableAllHighlights();
             --_currentMove;
             _moves[ _currentMove ].UndoMove( this );
         }
@@ -543,6 +580,7 @@ namespace Assets.Scripts.Parts
         public void ExecuteOneMove()
         {
             if ( !CanMoveForward ) return;
+            DisableAllHighlights();
             _moves[ _currentMove ].ExecuteMove( this );
             ++_currentMove;
         }
@@ -567,6 +605,29 @@ namespace Assets.Scripts.Parts
         {
             var shallowBoard = GetShallowBoard();
             return shallowBoard.LookForChecksOnKing( kingColor );
+        }
+
+        public GameState GetGameState()
+        {
+            if(IsGameInProgress)
+            {
+                return GameState.InProgress;
+            }
+            (_, bool isCheckmateWhite) = LookForChecks(ChessColor.White);
+            (_, bool isCheckmateBlack) = LookForChecks(ChessColor.Black);
+
+            if (isCheckmateWhite)
+            {
+                return GameState.CheckmateBlack;
+            }
+            else if (isCheckmateBlack)
+            {
+                return GameState.CheckmateWhite;
+            }
+            else
+            {
+                return GameState.Stalemate;
+            }
         }
 
         public void DebugLog()

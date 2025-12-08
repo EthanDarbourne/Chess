@@ -1,6 +1,5 @@
 ﻿using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
-using UnityEngine;
 
 namespace Assets.Scripts.Moves
 {

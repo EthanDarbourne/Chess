@@ -29,6 +29,21 @@ namespace Assets.Scripts.Misc
             return plane;
         }
 
+        public static GameObject CreateHighlightSquare(GameObject parent)
+        {
+            GameObject plane = CreatePlane();
+            plane.transform.localScale *= .8f;
+            plane.transform.SetParent(parent.transform, false);
+            return plane;
+        }
+
+        public static GameObject CreateInCheckHighlightSquare(GameObject parent)
+        {
+            GameObject plane = CreateColoredPlane(Color.red);
+            plane.transform.SetParent(parent.transform, false);
+            return plane;
+        }
+
     }
 
 }

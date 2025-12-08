@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
-using static UnityEditor.FilePathAttribute;
 
 namespace Assets.Scripts.Parts
 {
@@ -85,7 +84,15 @@ namespace Assets.Scripts.Parts
 
         public void SetupForGameStart()
         {
-            MovePiecesToStartSquares();
+            MovePiecesToStartSquares(Constants.DEFAULT_BACKLINE);
+            DeselectPiece();
+            DisableAllHighlights();
+        }
+
+        public void SetupForChess960Start()
+        {
+            List<PieceType> backline = Chess960Randomizer.GetRandomBackLine();
+            MovePiecesToStartSquares(backline);
             DeselectPiece();
             DisableAllHighlights();
         }
@@ -96,7 +103,7 @@ namespace Assets.Scripts.Parts
             piece.MoveToInitialLocation();
         }
 
-        private void MovePiecesToStartSquares()
+        private void MovePiecesToStartSquares(List<PieceType> backline)
         {
             if ( _pieceManager is null )
             {
@@ -105,25 +112,37 @@ namespace Assets.Scripts.Parts
             BuildBoard();
             _whitePieces.Clear();
             _blackPieces.Clear();
-            foreach ( var pieceNotation in Constants.InitialPiecePositions )
-            {
-                char type = pieceNotation.Length == 2 ? 'p' : pieceNotation[ 0 ];
-                string position = pieceNotation[ ^2.. ];
-                ChessColor color = position[1] == '1' || position[1] == '2' ? ChessColor.White : ChessColor.Black;
-                PieceType pieceType = Utilities.GetPieceType( type );
-                Piece piece = GeneratePiece( pieceType, color );
-                ClaimPiece(piece);
-                (CRank rank, CFile file) = Utilities.ReadChessNotation( position );
-                SetPiece( rank, file, piece );
-                if (color == ChessColor.White)
-                {
-                    _whitePieces.Add(piece);
 
-                }
-                else
-                {
-                    _blackPieces.Add(piece);
-                }
+            // generate backline pieces
+            for(int file = 1; file <= _width; ++file)
+            {
+                // white piece
+                PieceType whitePieceType = backline[file - 1];
+                Piece whitePiece = GeneratePiece( whitePieceType, ChessColor.White );
+                ClaimPiece( whitePiece );
+                SetPiece( Constants.WHITE_BACKLINE_RANK, file, whitePiece );
+                _whitePieces.Add( whitePiece );
+                // black piece
+                PieceType blackPieceType = backline[file - 1];
+                Piece blackPiece = GeneratePiece( blackPieceType, ChessColor.Black );
+                ClaimPiece( blackPiece );
+                SetPiece( Constants.BLACK_BACKLINE_RANK, file, blackPiece );
+                _blackPieces.Add( blackPiece );
+            }
+
+            // generate pawns
+            for(int file = 1; file <= _width; ++file)
+            {
+                // white pawn
+                Piece whitePawn = GeneratePiece( PieceType.Pawn, ChessColor.White );
+                ClaimPiece( whitePawn );
+                SetPiece( Constants.WHITE_PAWN_STARTING_RANK, file, whitePawn );
+                _whitePieces.Add( whitePawn );
+                // black pawn
+                Piece blackPawn = GeneratePiece( PieceType.Pawn, ChessColor.Black );
+                ClaimPiece( blackPawn );
+                SetPiece( Constants.BLACK_PAWN_STARTING_RANK, file, blackPawn );
+                _blackPieces.Add( blackPawn );
             }
         }
 
@@ -452,7 +471,6 @@ namespace Assets.Scripts.Parts
             foreach (Move m in pieces.SelectMany( x => x.GetValidMoves( this ) ))
             {
                 string curMoveNotation = Utilities.GetMoveNotation(m, this);
-                CustomLogger.LogDebug(moveNotation + " vs " + curMoveNotation);
                 if (curMoveNotation.ToLower() == moveNotation.ToLower())
                 {
                     MovePiece( m );

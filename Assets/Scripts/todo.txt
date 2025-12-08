@@ -4,7 +4,6 @@ Create exception classes and add exceptions to work flow
 Combine ShallowBoard and Board to share functionalities like GetPotentialMoves using interfaces.
 
 Changes to Make:
-Moves all have a getter for a shallow version of themselves
 Make sure moves that can be made by multiple pieces have that recognized in notation
 Pawns should not be sent to graveyards on promotion
 Piece movement animations
@@ -16,6 +15,16 @@ Menus:
 	- choose game mode (chess960, standard, king simul)
 	- choose sides (white, black, random)
 	- settings (sound, graphics, etc)
+Consolidate scene scripts
+Create file system for saving/loading positions and settings
+
+Menu todo:
+Add all options
+Buttons can be clicked on to be selected
+Buttons load correct game scenes
+Scenes take you back to menu upon completion
+
+Each scene should have an object that loads settings like debugging level etc.
 
 Future:
 Evaluation bar

@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Scenes
 {
-    public class MainScript2 : MonoBehaviour
+    public class ChessScene : MonoBehaviour
     {
         public Camera MainCamera;
 
@@ -90,21 +90,6 @@ namespace Assets.Scripts
 
         }
 
-        private GameObject CreateHighlightSquare( GameObject parent )
-        {
-            GameObject plane = Creator.CreatePlane();
-            plane.transform.localScale *= .8f;
-            plane.transform.SetParent(parent.transform, false);
-            return plane;
-        }
-
-        private GameObject CreateInCheckHighlightSquare(GameObject parent)
-        {
-            GameObject plane = Creator.CreateColoredPlane( Color.red );
-            plane.transform.SetParent(parent.transform, false);
-            return plane;
-        }
-
         private void MapPiecesToBoard()
         {
             GameObject boardObj = PieceManager.CreateBoard(new Vector3(-4f, 0, 4f));
@@ -123,8 +108,8 @@ namespace Assets.Scripts
 
             boardObj.AddComponent<BoxCollider>();
 
-            HighlightSquare defaultHighlightSquare = new( CreateHighlightSquare( boardObj ), CommonVectors.FirstLayerHeightOffset );
-            HighlightSquare inCheckHighlightSquare = new( CreateInCheckHighlightSquare( boardObj ), CommonVectors.SecondLayerHeightOffset );
+            HighlightSquare defaultHighlightSquare = new(Creator.CreateHighlightSquare( boardObj ), CommonVectors.FirstLayerHeightOffset );
+            HighlightSquare inCheckHighlightSquare = new(Creator.CreateInCheckHighlightSquare( boardObj ), CommonVectors.SecondLayerHeightOffset );
 
             Board = new( Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, PieceManager, pieceGraveyards, boardObj, defaultHighlightSquare, inCheckHighlightSquare, PromotionSelector, this );
 

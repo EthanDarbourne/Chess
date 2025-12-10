@@ -450,7 +450,6 @@ namespace Assets.Scripts.Parts
             }
             if ( IsFree( from.Rank, from.File ) )
             {
-                //CustomLogger.LogDebug( "No piece on this square" );
                 return;
             }
 
@@ -460,7 +459,6 @@ namespace Assets.Scripts.Parts
 
             if ( !move.Any() )
             {
-                //CustomLogger.LogDebug( "Cannot move to this location" );
                 return;
             }
             MovePiece( move.Single() );

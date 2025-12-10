@@ -1,5 +1,6 @@
 ﻿using Assets.GameObjects;
 using Assets.Scripts.Enums;
+using Assets.Scripts.GameObjects;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace Assets.Scripts.Scenes
     public class Chess960Scene : MonoBehaviour
     {
         public Camera MainCamera;
+
+        private CameraManager _cameraManager = new();
 
         private Board Board;
 
@@ -27,7 +30,8 @@ namespace Assets.Scripts.Scenes
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
 
-            MainCamera.enabled = true;
+            _cameraManager.RegisterCamera(MainCamera);
+            _cameraManager.EnableCamera(MainCamera);
 
             _promotionSelector = new PromotionSelector(PieceManager.CreatePromotionSelector());
 
@@ -39,7 +43,7 @@ namespace Assets.Scripts.Scenes
         {
             if (Board.IsGameInProgress)
             {
-                BoardInteractions.CheckForPlayerInput(Board, MainCamera, _promotionSelector);
+                BoardInteractions.CheckForPlayerInput(Board, _cameraManager, _promotionSelector);
             }
 
             if (!Board.IsGameInProgress && _playingGame)

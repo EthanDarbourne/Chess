@@ -1,5 +1,6 @@
 ﻿using Assets.GameObjects;
 using Assets.Scripts.Enums;
+using Assets.Scripts.GameObjects;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Parts;
 using System;
@@ -33,12 +34,12 @@ namespace Assets.Scripts.Scenes
             return new(Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, pieceManager, pieceGraveyards, boardObj, defaultHighlightSquare, inCheckHighlightSquare, promotionSelector, parent);
         }
 
-        public static void CheckForPlayerInput(Board board, Camera camera, PromotionSelector promotionSelector)
+        public static void CheckForPlayerInput(Board board, CameraManager cameraManager, PromotionSelector promotionSelector)
         {
             if (Input.GetMouseButtonDown(0))
             {
                 Vector3 mousePos = Input.mousePosition;
-                Ray ray = camera.ScreenPointToRay(mousePos);
+                Ray ray = cameraManager.EnabledCamera.ScreenPointToRay(mousePos);
                 //CustomLogger.LogDebug( $"Clicked on {mousePos.x}, {mousePos.y}" );
 
 
@@ -66,10 +67,10 @@ namespace Assets.Scripts.Scenes
 
                 }
             }
-            CheckForKeyPresses(board);
+            CheckForKeyPresses(board, cameraManager);
         }
 
-        private static void CheckForKeyPresses(Board board)
+        private static void CheckForKeyPresses(Board board, CameraManager cameraManager)
         {
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
@@ -90,6 +91,11 @@ namespace Assets.Scripts.Scenes
             {
                 // forward one move
                 board.ExecuteOneMove();
+            }
+            else if (Input.GetKeyDown(KeyCode.C))
+            {
+                // change camera
+                cameraManager.ChangeToNextCamera();
             }
         }
     }

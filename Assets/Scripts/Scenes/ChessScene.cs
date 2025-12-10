@@ -4,12 +4,19 @@ using Assets.Scripts.Parts;
 using System.Collections.Generic;
 using UnityEngine;
 using Assets.Scripts.Enums;
+using Assets.Scripts.GameObjects;
 
 namespace Assets.Scripts.Scenes
 {
     public class ChessScene : MonoBehaviour
     {
-        public Camera MainCamera;
+        public Camera WhiteCamera;
+
+        public Camera SideCamera;
+
+        public Camera BlackCamera;
+
+        private CameraManager _cameraManager = new();
 
         private Board Board;
 
@@ -27,7 +34,11 @@ namespace Assets.Scripts.Scenes
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
 
-            MainCamera.enabled = true;
+            _cameraManager.RegisterCamera(WhiteCamera);
+            _cameraManager.RegisterCamera(SideCamera); // 12,6,0, 30, 270
+            _cameraManager.RegisterCamera(BlackCamera); // 0,9,5 120,0,180
+
+            _cameraManager.EnableCamera(WhiteCamera);
 
             _promotionSelector = new PromotionSelector(PieceManager.CreatePromotionSelector());
 
@@ -39,7 +50,7 @@ namespace Assets.Scripts.Scenes
         {
             if (Board.IsGameInProgress)
             {
-                BoardInteractions.CheckForPlayerInput( Board, MainCamera, _promotionSelector);
+                BoardInteractions.CheckForPlayerInput( Board, _cameraManager, _promotionSelector);
             }
 
             if(!Board.IsGameInProgress && _playingGame)

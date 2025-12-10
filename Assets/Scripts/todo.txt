@@ -20,13 +20,14 @@ Create file system for saving/loading positions and settings
 Handle stalemates, threefold repetitions, fifty-move rule etc
 Look for insufficient material
 Add square highlights for location last piece moved from
-
+Make camera manager into a monobehaviour
 
 Menu todo:
 Add all options
 Buttons can be clicked on to be selected
 Buttons load correct game scenes
 Scenes take you back to menu upon completion
+Better lighting
 
 Each scene should have an object that loads settings like debugging level etc.
 

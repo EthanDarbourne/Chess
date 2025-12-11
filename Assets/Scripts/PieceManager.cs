@@ -1,5 +1,4 @@
 using Assets.Scripts.Enums;
-using Assets.Scripts.Misc;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,6 +27,8 @@ namespace Assets.Scripts
         public GameObject PromotionSelector;
 
         public GameObject PieceGraveyard;
+
+        public GameObject Connect4Piece;
 
         // hold a reference of all gameobjects to delete them later
         public List<GameObject> _gameObjects;
@@ -67,11 +68,18 @@ namespace Assets.Scripts
             return ret;
         }
 
+        public GameObject GenerateConnect4Piece() => InstantiateFromPos( Connect4Piece, Vector3.zero );
+
         public GameObject GeneratePiece(PieceType type, ChessColor color) 
             => InstantiateFromPos( GetPiece( type, color ), Vector3.zero );
 
         private GameObject GetPiece(PieceType type, ChessColor color)
         {
+
+            if(type == PieceType.Connect4)
+            {
+                return Connect4Piece;
+            }
             if ( color == ChessColor.White )
             {
                 return type switch

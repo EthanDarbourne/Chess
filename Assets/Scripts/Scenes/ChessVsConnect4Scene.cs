@@ -8,14 +8,10 @@ using Assets.Scripts.GameObjects;
 
 namespace Assets.Scripts.Scenes
 {
-    public class ChessScene : MonoBehaviour
+    public class ChessVsConnect4Scene : MonoBehaviour
     {
         public Camera WhiteCamera;
         
-        public Camera SideCamera;
-
-        public Camera BlackCamera;
-
         private CameraManager _cameraManager = new();
 
         private Board Board;
@@ -35,8 +31,6 @@ namespace Assets.Scripts.Scenes
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
 
             _cameraManager.RegisterCamera(WhiteCamera);
-            _cameraManager.RegisterCamera(SideCamera);
-            _cameraManager.RegisterCamera(BlackCamera);
 
             _cameraManager.EnableCamera(WhiteCamera);
 
@@ -50,27 +44,27 @@ namespace Assets.Scripts.Scenes
         {
             if (Board.IsGameInProgress)
             {
-                BoardInteractions.CheckForPlayerInput( Board, _cameraManager, _promotionSelector);
+                BoardInteractions.CheckForPlayerInput(Board, _cameraManager, _promotionSelector);
             }
 
-            if(!Board.IsGameInProgress && _playingGame)
+            if (!Board.IsGameInProgress && _playingGame)
             {
                 _playingGame = false;
-                CustomLogger.LogInfo("Chess Game Over");
+                CustomLogger.LogInfo("Chess Vs Connect4 Game Over");
 
                 GameState gameState = Board.GameState;
 
-                if (gameState == GameState.CheckmateWhite)
+                if (gameState == GameState.WhiteWin)
                 {
-                    CustomLogger.LogInfo("Checkmate! White wins!");
+                    CustomLogger.LogInfo("Yay! White survived");
                 }
                 else if (gameState == GameState.CheckmateBlack)
                 {
-                    CustomLogger.LogInfo("Checkmate! Black wins!");
+                    CustomLogger.LogInfo("Wow, Black got Connect4");
                 }
                 else
                 {
-                    CustomLogger.LogInfo("Stalemate!");
+                    CustomLogger.LogInfo("How did this outcome happen? " + gameState);
                 }
             }
 
@@ -78,19 +72,14 @@ namespace Assets.Scripts.Scenes
 
         private void MapPiecesToBoard()
         {
-            Board = BoardInteractions.CreateBoard<ChessBoard>( PieceManager, _promotionSelector, this );
+            Board = BoardInteractions.CreateBoard<ChessVsConnect4Board>(PieceManager, _promotionSelector, this);
 
             Board.SetupForGameStart();
 
             Board.StartGame();
 
-            if (DoMovesAtStartOfGame)
-            {
-                MovesAtStartOfGame.ForEach(Board.MovePiece);
-            }
-
             _playingGame = true;
-            CustomLogger.LogInfo("Starting basic Chess game");
+            CustomLogger.LogInfo("Starting Chess vs Connect4 game");
         }
     }
 }

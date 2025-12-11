@@ -4,6 +4,7 @@ using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Pieces;
+using NUnit.Framework.Constraints;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,42 +14,42 @@ using UnityEngine.Assertions;
 
 namespace Assets.Scripts.Parts
 {
-    public class Board
+    public abstract class Board
     {
         // find a way to make the enum bigger to allow for bigger boards (use more letters)
 
-        private List<List<Square>> _board = new();
-        private readonly List<Move> _moves = new();
+        protected List<List<Square>> _board = new();
+        protected readonly List<Move> _moves = new();
 
-        private int _currentMove = 0;
+        protected int _currentMove = 0;
 
-        private Piece? _selectedPiece = null;
+        protected Piece? _selectedPiece = null;
 
-        private List<Piece> _whitePieces = new();
-        private List<Piece> _blackPieces = new();
+        protected List<Piece> _whitePieces = new();
+        protected List<Piece> _blackPieces = new();
 
-        private GameObject _boardObj;
+        protected GameObject _boardObj;
 
-        private readonly HighlightSquare _defaultHighlightSquare;
-        private readonly HighlightSquare _inCheckHighlightSquare;
-        private readonly PromotionSelector _promotionSelector;
-        private readonly PieceManager _pieceManager;
+        protected readonly HighlightSquare _defaultHighlightSquare;
+        protected readonly HighlightSquare _inCheckHighlightSquare;
+        protected readonly PromotionSelector _promotionSelector;
+        protected readonly PieceManager _pieceManager;
 
-        private readonly PieceGraveyard _whitePieceGraveyard;
-        private readonly PieceGraveyard _blackPieceGraveyard;
+        protected readonly PieceGraveyard _whitePieceGraveyard;
+        protected readonly PieceGraveyard _blackPieceGraveyard;
 
-        private MonoBehaviour _monoBehaviour;
+        protected MonoBehaviour _monoBehaviour;
 
-        private readonly int _width;
-        private readonly int _height;
+        protected readonly int _width;
+        protected readonly int _height;
 
-        private ChessColor _turn = ChessColor.White;
-        private bool _isGameInProgress = false;
-        private bool _isSetupComplete = false;
+        protected ChessColor _turn = ChessColor.White;
+        protected bool _isSetupComplete = false;
 
-        private Coroutine? _movePieceCoroutine = null;
+        protected GameState _gameState = GameState.HasntStarted;
 
-        #region InitialBuild
+        protected Coroutine? _movePieceCoroutine = null;
+
 
         public Board( int width, int height, PieceManager pieceManager, PieceGraveyard[] pieceGraveyards, GameObject boardObject, HighlightSquare defaultHighlightSquare, HighlightSquare inCheckHighlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour)
         {
@@ -63,6 +64,28 @@ namespace Assets.Scripts.Parts
             _whitePieceGraveyard = pieceGraveyards[0];
             _blackPieceGraveyard = pieceGraveyards[1];
         }
+
+        #region Abstract Functions
+        protected abstract void SetupBoard();
+
+        public abstract bool IsValidPositionAfterMove(Move move);
+
+        protected abstract void DoPlayerInput(int rank, int file);
+
+        public void SelectLocation(int rank, int file)
+        {
+            if(!IsGameInProgress)
+            {
+                CustomLogger.LogInfo("No game in progress");
+            }
+            DoPlayerInput(rank, file);
+        }
+
+        protected abstract void OnMoveExecuted();
+
+        #endregion Abstract Functions
+
+        #region InitialBuild
 
         // build the default board
         public void BuildBoard()
@@ -86,26 +109,31 @@ namespace Assets.Scripts.Parts
 
         public void SetupForGameStart()
         {
-            MovePiecesToStartSquares(Constants.DEFAULT_BACKLINE);
-            DeselectPiece();
-            DisableAllHighlights();
-        }
+            BuildBoard();
+            _whitePieces.Clear();
+            _blackPieces.Clear();
+            SetupBoard();
 
-        public void SetupForChess960Start()
-        {
-            List<PieceType> backline = Chess960Randomizer.GetRandomBackLine();
-            MovePiecesToStartSquares(backline);
             DeselectPiece();
             DisableAllHighlights();
+            _isSetupComplete = true;
         }
 
         public void StartGame()
         {
-            _isGameInProgress = true;
+            if(!_isSetupComplete)
+            {
+                throw new Exception("Setup hasn't completed");
+            }
+            if(_gameState != GameState.HasntStarted)
+            {
+                throw new Exception("Game has already started");
+            }
             _turn = ChessColor.White;
             _moves.Clear();
             _currentMove = 0;
             _movePieceCoroutine = null;
+            _gameState = GameState.InProgress;
         }
 
         public void ClaimPiece(Piece piece)
@@ -114,52 +142,22 @@ namespace Assets.Scripts.Parts
             piece.MoveToInitialLocation();
         }
 
-        private void MovePiecesToStartSquares(List<PieceType> backline)
+        protected List<Piece> GeneratePieces(List<PieceType> pieceOrder, ChessColor color, int rank)
         {
-            if ( _pieceManager is null )
-            {
-                return;
-            }
-            BuildBoard();
-            _whitePieces.Clear();
-            _blackPieces.Clear();
-
-            // generate backline pieces
-            for(int file = 1; file <= _width; ++file)
+            List<Piece> generatedPieces = new();
+            for (int file = 1; file <= _width; ++file)
             {
                 // white piece
-                PieceType whitePieceType = backline[file - 1];
-                Piece whitePiece = GeneratePiece( whitePieceType, ChessColor.White );
-                ClaimPiece( whitePiece );
-                SetPiece( Constants.WHITE_BACKLINE_RANK, file, whitePiece );
-                _whitePieces.Add( whitePiece );
-                // black piece
-                PieceType blackPieceType = backline[file - 1];
-                Piece blackPiece = GeneratePiece( blackPieceType, ChessColor.Black );
-                ClaimPiece( blackPiece );
-                SetPiece( Constants.BLACK_BACKLINE_RANK, file, blackPiece );
-                _blackPieces.Add( blackPiece );
+                PieceType pieceType = pieceOrder[file - 1];
+                Piece piece = GeneratePiece(pieceType, color);
+                ClaimPiece(piece);
+                SetPiece(rank, file, piece);
+                generatedPieces.Add(piece);
             }
-
-            // generate pawns
-            for(int file = 1; file <= _width; ++file)
-            {
-                // white pawn
-                Piece whitePawn = GeneratePiece( PieceType.Pawn, ChessColor.White );
-                ClaimPiece( whitePawn );
-                SetPiece( Constants.WHITE_PAWN_STARTING_RANK, file, whitePawn );
-                _whitePieces.Add( whitePawn );
-                // black pawn
-                Piece blackPawn = GeneratePiece( PieceType.Pawn, ChessColor.Black );
-                ClaimPiece( blackPawn );
-                SetPiece( Constants.BLACK_PAWN_STARTING_RANK, file, blackPawn );
-                _blackPieces.Add( blackPawn );
-            }
-
-            _isSetupComplete = true;
+            return generatedPieces;
         }
 
-        private Piece GeneratePiece(PieceType type, ChessColor color)
+        protected Piece GeneratePiece(PieceType type, ChessColor color)
         {
             GameObject pieceObject = _pieceManager.GeneratePiece( type, color );
             return Utilities.CreatePiece( type, color, pieceObject );
@@ -181,8 +179,10 @@ namespace Assets.Scripts.Parts
         public bool CanMoveForward => _currentMove < _moves.Count;
         public bool CanMoveBackward => _currentMove > 0;
 
-        public bool IsGameInProgress => _isGameInProgress;
+        public bool IsGameInProgress => _gameState == GameState.InProgress;
         public bool IsSetupComplete => _isSetupComplete;
+
+        public GameState GameState => _gameState;
 
         public PieceGraveyard GetPieceGraveyard( ChessColor color )
         {
@@ -207,25 +207,6 @@ namespace Assets.Scripts.Parts
             SelectPiece( square );
         }
 
-        public void SelectLocation( int rank, int file )
-        {
-            if (_movePieceCoroutine is not null) // todo: could cancel here
-            {
-                CustomLogger.LogDebug("A movement is already in progress, ignoring input");
-                return;
-            }
-            if ( _selectedPiece is not null )
-            {
-                CustomLogger.LogDebug("We have a selected piece, trying to move it");
-                _movePieceCoroutine = _monoBehaviour.StartCoroutine(TryToMoveSelectedPieceToLocation( rank, file ));
-            }
-            else
-            {
-                CustomLogger.LogDebug("We don't have a piece selected");
-                SelectPiece( rank, file );
-            }
-        }
-
         public void DeselectPiece()
         {
             DisableSelectionHighlights();
@@ -234,7 +215,7 @@ namespace Assets.Scripts.Parts
 
         // if we have already selected a piece, we try and move the selected piece to the selected location
         // otherwise, we deselect the current piece 
-        private IEnumerator TryToMoveSelectedPieceToLocation( int rank, int file )
+        protected IEnumerator TryToMoveSelectedPieceToLocation( int rank, int file )
         {
             IEnumerable<Move> moves = _selectedPiece!.GetValidMoves( this );
 
@@ -280,7 +261,7 @@ namespace Assets.Scripts.Parts
         }
 
         // try to select the piece at the current location
-        private void SelectPiece( int rank, int file )
+        protected void SelectPiece( int rank, int file )
         {
             Piece? piece = _board[ rank ][ file ].Piece;
 
@@ -476,22 +457,6 @@ namespace Assets.Scripts.Parts
             ++_currentMove;
             DeselectPiece();
             SwapTurn();
-            // after the turn, see if opponent king is in check
-            (bool isCheck, bool isCheckmate) = LookForChecks( _turn );
-            HighlightKing(isCheck);
-
-            if(isCheckmate)
-            {
-                _isGameInProgress = false;
-                if (_turn == ChessColor.Black)
-                {
-                    CustomLogger.LogInfo("Checkmate! White wins!");
-                }
-                else if (_turn == ChessColor.White)
-                {
-                    CustomLogger.LogInfo("Checkmate! Black wins!");
-                }
-            }
         }
 
         public void MovePiece( string from, string to )
@@ -514,16 +479,10 @@ namespace Assets.Scripts.Parts
             throw new Exception("Invalid move: " + moveNotation);
         }
 
-        public bool IsValidPositionAfterMove( Move move )
-        {
-            ShallowBoard shallowBoard = GetShallowBoard();
-            move.ExecuteShallowMove( shallowBoard );
-            return shallowBoard.IsValidPosition();
-        }
-
         public void SwapTurn()
         {
             _turn = Utilities.FlipTurn( _turn );
+            OnMoveExecuted();
         }
 
         public void Promote(Square square, PieceType type)
@@ -605,29 +564,6 @@ namespace Assets.Scripts.Parts
             return shallowBoard.LookForChecksOnKing( kingColor );
         }
 
-        public GameState GetGameState()
-        {
-            if(IsGameInProgress)
-            {
-                return GameState.InProgress;
-            }
-            (_, bool isCheckmateWhite) = LookForChecks(ChessColor.White);
-            (_, bool isCheckmateBlack) = LookForChecks(ChessColor.Black);
-
-            if (isCheckmateWhite)
-            {
-                return GameState.CheckmateBlack;
-            }
-            else if (isCheckmateBlack)
-            {
-                return GameState.CheckmateWhite;
-            }
-            else
-            {
-                return GameState.Stalemate;
-            }
-        }
-
         public void DebugLog()
         {
             for ( int rank = 1; rank <= Height; ++rank )
@@ -661,5 +597,13 @@ namespace Assets.Scripts.Parts
             }
             return output;
         }
+
+        protected void GameOver(GameState endState)
+        {
+            _gameState = endState;
+            CustomLogger.LogInfo("GAME OVER");
+            // todo: other classes should call this when the game is over
+        }
+
     }
 }

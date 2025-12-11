@@ -51,7 +51,7 @@ namespace Assets.Scripts.Scenes
                 _playingGame = false;
                 CustomLogger.LogInfo("Chess960 Game Over");
 
-                GameState gameState = Board.GetGameState();
+                GameState gameState = Board.GameState;
 
                 if (gameState == GameState.CheckmateWhite)
                 {
@@ -70,9 +70,9 @@ namespace Assets.Scripts.Scenes
 
         private void MapPiecesToBoard()
         {
-            Board = BoardInteractions.CreateBoard(PieceManager, _promotionSelector, this);
+            Board = BoardInteractions.CreateBoard<Chess960Board>(PieceManager, _promotionSelector, this);
 
-            Board.SetupForChess960Start();
+            Board.SetupForGameStart();
 
             Board.StartGame();
             _playingGame = true;

@@ -1,5 +1,4 @@
 ﻿using Assets.Scripts.Enums;
-using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using Assets.Scripts.ShallowCopy;
@@ -42,10 +41,12 @@ namespace Assets.Scripts.Pieces
 
         public abstract PieceType Type { get; }
 
-        protected abstract List<Move> GetPotentialMoves( Board board );
+        // where a piece is able to move based on its movement abilities, but some moves may be illegal (ex moving into check)
+        public abstract List<Move> GetPotentialMoves( Board board );
 
         public abstract ShallowPiece CreateShallowPiece();
 
+        // where a piece is legally able to move on its turn
         public List<Move> GetValidMoves( Board board )
         {
             List<Move> potentialMoves = GetPotentialMoves( board );

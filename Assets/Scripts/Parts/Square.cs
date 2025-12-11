@@ -21,7 +21,7 @@ namespace Assets.Scripts.Parts
 
         public bool IsCapturable( ChessColor color ) => _piece is not null && _piece.Color != color;
 
-        public bool IsFree => _piece is null; // empty square
+        public bool IsFree => _piece is null || _piece.Type == PieceType.Connect4; // empty square
 
         // The color attempting to move here
         public bool IsFreeOrCapturable( ChessColor color )

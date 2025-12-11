@@ -8,8 +8,8 @@ namespace Assets.Scripts.Moves
         protected Square _from;
         protected Square _to;
 
-        protected bool _isCheck;
-        protected bool _isCheckmate;
+        //protected bool _isCheck;
+        //protected bool _isCheckmate;
 
         private bool _isExecuted = false;
 
@@ -22,14 +22,14 @@ namespace Assets.Scripts.Moves
             _from = from;
             _to = to;
             _boardHash = boardHash;
-            _isCheck = isCheck;
-            _isCheckmate = isCheckmate;
+            //_isCheck = isCheck;
+            //_isCheckmate = isCheckmate;
         }
 
         public Square From => _from;
         public Square To => _to;
-        public bool IsCheck => _isCheck;
-        public bool IsCheckmate => _isCheckmate;
+        //public bool IsCheck => _isCheck;
+        //public bool IsCheckmate => _isCheckmate;
         public string MoveNotation => _moveNotation;
 
         public int GetLength()
@@ -60,8 +60,8 @@ namespace Assets.Scripts.Moves
 
         public void SetChecks(bool isCheck, bool isCheckmate)
         {
-            _isCheck = isCheck;
-            _isCheckmate = isCheckmate;
+            //_isCheck = isCheck;
+            //_isCheckmate = isCheckmate;
         }
 
         public void ExecuteMove( Board board )

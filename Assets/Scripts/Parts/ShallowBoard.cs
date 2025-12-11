@@ -161,9 +161,7 @@ namespace Assets.Scripts.Parts
                     }
                 }
             }
-            // will not be reached
-            Assert.IsFalse( true );
-            return Square.Default;
+            throw new Exception($"Could not find the king with color: {color}");
         }
 
         private List<Square> CheckOnSquare( Square kingSquare, int[] direction, PieceType[] validPieces )

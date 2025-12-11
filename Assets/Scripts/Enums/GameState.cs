@@ -2,6 +2,7 @@
 {
     public enum GameState
     {
+        HasntStarted,
         InProgress,
         CheckmateWhite,
         CheckmateBlack,
@@ -9,6 +10,10 @@
         DrawByAgreement,
         DrawByInsufficientMaterial,
         DrawByFiftyMoveRule,
-        DrawByThreefoldRepetition
+        DrawByThreefoldRepetition,
+
+        // Connect4 Game States
+        WhiteWin,
+        BlackWin
     }
 }

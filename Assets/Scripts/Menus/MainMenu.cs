@@ -1,4 +1,6 @@
-﻿using Assets.Scripts.Misc;
+﻿using Assets.Scripts.GameObjects;
+using Assets.Scripts.Misc;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,27 +13,22 @@ namespace Assets.Scripts.Menus
         public GameObject MainMenuObject;
         public GameObject OptionsMenuObject;
 
-        public Button Chess960Button;
+        public List<Button> Buttons;
 
-        private bool IsChess960Enabled = false;
+        private ButtonManager _buttonManager;
 
         public void Start()
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
             OpenMainMenu();
-            Chess960Button.GetComponent<Image>().color = Colors.Red;
+            _buttonManager = new(Buttons);
+            _buttonManager.ToggleButton(Buttons[0]);
         }
 
         public void PlayGame()
         {
-            if(IsChess960Enabled)
-            {
-                SceneManager.LoadSceneAsync(SceneNames.Chess960Scene);
-            }
-            else 
-            {
-                SceneManager.LoadSceneAsync(SceneNames.NormalChessScene);
-            }
+            string selectedButton = _buttonManager.GetSelectedButtonName;
+            SceneManager.LoadSceneAsync(selectedButton);
         }
 
         public void Quit()
@@ -52,10 +49,9 @@ namespace Assets.Scripts.Menus
             OptionsMenuObject.SetActive(true);
         }
 
-        public void ToggleChess960()
+        public void ToggleButton(Button button)
         {
-            IsChess960Enabled = !IsChess960Enabled; 
-            Chess960Button.GetComponent<Image>().color = IsChess960Enabled ? Colors.Green : Colors.Red;
+            _buttonManager.ToggleButton(button);
         }
 
         private void CloseAllMenus()

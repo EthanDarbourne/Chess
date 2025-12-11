@@ -24,7 +24,7 @@ namespace Assets.Scripts.Pieces
 
         public override PieceType Type => PieceType.Pawn;
 
-        protected override List<Move> GetPotentialMoves( Board board )
+        public override List<Move> GetPotentialMoves( Board board )
         {
             List<Move> res = new();
             Square from = board.GetSquare( Location );

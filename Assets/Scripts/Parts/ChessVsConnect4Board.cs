@@ -11,8 +11,12 @@ namespace Assets.Scripts.Parts
 {
     public class ChessVsConnect4Board : Board
     {
+        private HighlightSquare _fileSelectedHighlightSquare;
+        private int? _selectedFileNum = null;
         public ChessVsConnect4Board(int width, int height, PieceManager pieceManager, PieceGraveyard[] pieceGraveyards, GameObject boardObject, HighlightSquare defaultHighlightSquare, HighlightSquare inCheckHighlightSquare, PromotionSelector selector, MonoBehaviour monoBehaviour) : base(width, height, pieceManager, pieceGraveyards, boardObject, defaultHighlightSquare, inCheckHighlightSquare, selector, monoBehaviour)
         {
+            _fileSelectedHighlightSquare = new HighlightSquare(Creator.CreateFileHighlight(_boardObj), CommonVectors.SecondLayerHeightOffset);
+            _fileSelectedHighlightSquare.Hide();
         }
 
         protected override void SetupBoard()
@@ -50,8 +54,22 @@ namespace Assets.Scripts.Parts
             }
             else
             {
-                PlaceConnect4Piece(file);
+                if(_selectedFileNum is null || file != _selectedFileNum)
+                {
+                    SelectFile(file);
+                }
+                else
+                {
+                    PlaceConnect4Piece(file);
+                }
             }
+        }
+
+        private void SelectFile(int file)
+        {
+            _selectedFileNum = file;
+            _fileSelectedHighlightSquare.TranslateTo(GetSquare(Height, file).Point.Vector);
+            _fileSelectedHighlightSquare.Show();
         }
 
         public override bool IsValidPositionAfterMove(Move move)
@@ -70,11 +88,7 @@ namespace Assets.Scripts.Parts
                 CustomLogger.LogInfo("Cannot place piece in this file");
                 return;
             }
-            int targetRank = Height;
-            while (targetRank > 1 && GetSquare(targetRank - 1, file).Piece is null)
-            {
-                targetRank -= 1;
-            }
+            
             Piece? piece = _blackPieceGraveyard.RevivePiece(PieceType.Connect4);
             if (piece is null)
             {
@@ -85,15 +99,16 @@ namespace Assets.Scripts.Parts
             ClaimPiece(piece);
             _blackPieces.Add(piece);
             CustomLogger.LogDebug("Moving Connect4 piece to location");
-            SetPiece(targetRank, file, piece);
-            SwapTurn();
+            PlaceConnect4Move move = new(piece, null, GetSquare(Height, file), GetBoardHash());
+            MovePiece(move);
         }
 
-        protected override void OnMoveExecuted()
+        protected override void OnMoveExecuted(Move move)
         {
-            // move connect 4 pieces down
-            // check for 4 in a row
+            _selectedFileNum = null;
+            _fileSelectedHighlightSquare.Hide();
 
+            // move connect 4 pieces down
             for(int file = 1; file <= _width; ++file)
             {
                 for(int rank = 1; rank <= 8; ++rank)
@@ -114,6 +129,7 @@ namespace Assets.Scripts.Parts
                 }
             }
 
+            // check for 4 in a row
             if (_blackPieces.Any(piece => CheckForFourInARowAroundLocation(piece.Location.Location.rank, piece.Location.Location.file)))
             {
                 GameOver(GameState.BlackWin);
@@ -121,9 +137,26 @@ namespace Assets.Scripts.Parts
 
         }
 
+        protected override void OnMoveUndone(Move move)
+        {
+
+        }
+
         private bool IsConnect4Piece(int rank, int file)
         {
             return GetSquareOrDefault(rank, file)?.Piece?.Type == PieceType.Connect4;
+        }
+
+        private bool CheckInDirection(int rank, int file, int rankDelta, int fileDelta)
+        {
+            for(int i = 1; i <= 3; ++i)
+            {
+                if(!IsConnect4Piece(rank + i * rankDelta, file + i * fileDelta))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private bool CheckForFourInARowAroundLocation(int rank, int file)
@@ -134,17 +167,14 @@ namespace Assets.Scripts.Parts
                 return false;
             }
 
-            bool posRank = true, negRank = true, posFile = true, negFile = true;
-            for(int i = 1; i <= 3; ++i)
+            for(int i = 0; i < 8; ++i)
             {
-                posRank &= IsConnect4Piece(rank + i, file);
-                negRank &= IsConnect4Piece(rank - i, file);
-                posFile &= IsConnect4Piece(rank, file + i);
-                negFile &= IsConnect4Piece(rank, file - i);
+                if(CheckInDirection(rank, file, Utilities.AdjacentMoves[i], Utilities.AdjacentMoves[i + 1]))
+                {
+                    return true;
+                }
             }
-
-            return posRank || negRank || posFile || negFile;
-
+            return false;
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Assets.Scripts.Scenes
                 {
                     CustomLogger.LogInfo("Yay! White survived");
                 }
-                else if (gameState == GameState.CheckmateBlack)
+                else if (gameState == GameState.BlackWin)
                 {
                     CustomLogger.LogInfo("Wow, Black got Connect4");
                 }

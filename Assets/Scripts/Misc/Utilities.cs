@@ -238,6 +238,10 @@ namespace Assets.Scripts.Misc
 
         public static string GetMoveNotation( Move move, Board board )
         {
+            if (move is PlaceConnect4Move placeMove)
+            {
+                return $"{placeMove.To.File.AsChar()}";
+            }
             if (move is Castling castleMove)
             {
                 return castleMove.IsKingsideCastling ? "O-O" : "O-O-O";

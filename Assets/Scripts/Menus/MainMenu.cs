@@ -9,7 +9,6 @@ namespace Assets.Scripts.Menus
 {
     public class MainMenu : MonoBehaviour
     {
-
         public GameObject MainMenuObject;
         public GameObject OptionsMenuObject;
 

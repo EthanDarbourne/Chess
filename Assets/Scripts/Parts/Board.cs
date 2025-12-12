@@ -81,7 +81,8 @@ namespace Assets.Scripts.Parts
             DoPlayerInput(rank, file);
         }
 
-        protected abstract void OnMoveExecuted();
+        protected abstract void OnMoveExecuted(Move move);
+        protected abstract void OnMoveUndone(Move move);
 
         #endregion Abstract Functions
 
@@ -99,9 +100,8 @@ namespace Assets.Scripts.Parts
                 _board.Add( new() { null } ); // dummy so we can use 1-indexed
                 for ( int j = 1; j < _width + 1; j++ )
                 {
-                    GameObject moveToHighlight = Creator.CreatePlane();
+                    GameObject moveToHighlight = Creator.CreatePlane(_boardObj);
                     moveToHighlight.transform.localScale *= 0.2f;
-                    moveToHighlight.transform.SetParent(_boardObj.transform, false);
                     _board[ i ].Add( new Square( new Point( i, j ), moveToHighlight) );
                 }
             }
@@ -456,6 +456,7 @@ namespace Assets.Scripts.Parts
             _moves.Add( move );
             ++_currentMove;
             DeselectPiece();
+            OnMoveExecuted(move);
             SwapTurn();
         }
 
@@ -482,7 +483,6 @@ namespace Assets.Scripts.Parts
         public void SwapTurn()
         {
             _turn = Utilities.FlipTurn( _turn );
-            OnMoveExecuted();
         }
 
         public void Promote(Square square, PieceType type)

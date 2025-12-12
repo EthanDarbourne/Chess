@@ -27,10 +27,11 @@ Fix promotions
 Better move scheme, IsFree shouldn't return true if connect4 piece is there
 Add a move representing the drop of a connect4 piece
 Going back a move, undoes moves via gravity on that move
-Allow for one click to select a file and highlight where the piece will land, then another click to confirm the landing
+Allow for one click to select a file and highlight where the piece will land, then another click to confirm the landing (done)
 When pieces are captured, they should be removed from _blackPieces and _whitePieces
 Allow for button manager to programmatically create buttons in menu given list
 
+Add Board settings, like can move through moves
 
 Menu todo:
 Add all options

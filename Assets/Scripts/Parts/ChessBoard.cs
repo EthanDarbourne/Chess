@@ -54,7 +54,7 @@ namespace Assets.Scripts.Parts
             _blackPieces.AddRange(GeneratePieces(pawns, ChessColor.Black, Constants.BLACK_PAWN_STARTING_RANK));
         }
 
-        protected override void OnMoveExecuted()
+        protected override void OnMoveExecuted(Move move)
         {
             // after the turn, see if opponent king is in check
             (bool isCheck, bool isCheckmate) = LookForChecks(_turn);
@@ -74,6 +74,11 @@ namespace Assets.Scripts.Parts
                     CustomLogger.LogInfo("Checkmate! Black wins!");
                 }
             }
+        }
+
+        protected override void OnMoveUndone(Move move)
+        {
+
         }
     }
 }

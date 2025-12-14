@@ -1,21 +1,35 @@
-﻿using System;
+﻿using Assets.Scripts.Misc;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.GameObjects
 {
-    public class CameraManager
+    public class CameraManager : MonoBehaviour
     {
-
         private List<Camera> _cameras = new();
         private int _cameraIndex = 0;
 
         public Camera EnabledCamera => _cameras[_cameraIndex];
 
-        public void RegisterCamera(Camera camera)
+        public void Start()
         {
-            _cameras.Add(camera);
-            camera.enabled = false;
+            _cameras = GetComponentsInChildren<Camera>().ToList();
+            if(_cameras.Count == 0)
+            {
+                CustomLogger.LogError("No cameras registered");
+                return;
+            }
+            _cameras.ForEach(camera => camera.enabled = false);
+            _cameras[0].enabled = true;
+        }
+
+        public void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                ChangeToNextCamera();
+            }
         }
 
         public void ChangeToNextCamera() 
@@ -23,19 +37,6 @@ namespace Assets.Scripts.GameObjects
             if (_cameras.Count == 0) return;
             _cameras[_cameraIndex].enabled = false;
             _cameraIndex = (_cameraIndex + 1) % _cameras.Count;
-            _cameras[_cameraIndex].enabled = true;
-        }
-
-        public void EnableCamera(Camera camera)
-        {
-            _cameras[_cameraIndex].enabled = false;
-
-            _cameraIndex = _cameras.IndexOf(camera);
-
-            if(_cameraIndex == -1)
-            {
-                throw new Exception("Camera not registered with CameraManager");
-            }
             _cameras[_cameraIndex].enabled = true;
         }
     }

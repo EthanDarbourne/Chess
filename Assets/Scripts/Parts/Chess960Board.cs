@@ -18,5 +18,11 @@ namespace Assets.Scripts.Parts
             MovePiecesToStartSquares(backline);
         }
 
+        public void Randomize()
+        {
+            List<PieceType> backline = Chess960Randomizer.GetRandomBackLine();
+            MovePiecesToStartSquares(backline);
+        }
+
     }
 }

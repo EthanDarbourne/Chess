@@ -67,10 +67,10 @@ namespace Assets.Scripts.Scenes
 
                 }
             }
-            CheckForKeyPresses(board, cameraManager);
+            CheckForKeyPresses(board);
         }
 
-        private static void CheckForKeyPresses(Board board, CameraManager cameraManager)
+        private static void CheckForKeyPresses(Board board)
         {
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
@@ -91,11 +91,6 @@ namespace Assets.Scripts.Scenes
             {
                 // forward one move
                 board.ExecuteOneMove();
-            }
-            else if (Input.GetKeyDown(KeyCode.C))
-            {
-                // change camera
-                cameraManager.ChangeToNextCamera();
             }
         }
     }

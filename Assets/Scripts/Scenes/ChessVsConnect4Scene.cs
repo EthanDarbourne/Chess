@@ -10,11 +10,9 @@ namespace Assets.Scripts.Scenes
 {
     public class ChessVsConnect4Scene : MonoBehaviour
     {
-        public Camera WhiteCamera;
-        
-        private CameraManager _cameraManager = new();
+        private ChessVsConnect4Board Board;
 
-        private Board Board;
+        public CameraManager CameraManager;
 
         public PieceManager PieceManager;
 
@@ -30,10 +28,6 @@ namespace Assets.Scripts.Scenes
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
 
-            _cameraManager.RegisterCamera(WhiteCamera);
-
-            _cameraManager.EnableCamera(WhiteCamera);
-
             _promotionSelector = new PromotionSelector(PieceManager.CreatePromotionSelector());
 
             MapPiecesToBoard();
@@ -44,7 +38,7 @@ namespace Assets.Scripts.Scenes
         {
             if (Board.IsGameInProgress)
             {
-                BoardInteractions.CheckForPlayerInput(Board, _cameraManager, _promotionSelector);
+                BoardInteractions.CheckForPlayerInput(Board, CameraManager, _promotionSelector);
             }
 
             if (!Board.IsGameInProgress && _playingGame)

@@ -10,15 +10,9 @@ namespace Assets.Scripts.Scenes
 {
     public class ChessScene : MonoBehaviour
     {
-        public Camera WhiteCamera;
-        
-        public Camera SideCamera;
+        private ChessBoard Board;
 
-        public Camera BlackCamera;
-
-        private CameraManager _cameraManager = new();
-
-        private Board Board;
+        public CameraManager CameraManager;
 
         public PieceManager PieceManager;
 
@@ -34,12 +28,6 @@ namespace Assets.Scripts.Scenes
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
 
-            _cameraManager.RegisterCamera(WhiteCamera);
-            _cameraManager.RegisterCamera(SideCamera);
-            _cameraManager.RegisterCamera(BlackCamera);
-
-            _cameraManager.EnableCamera(WhiteCamera);
-
             _promotionSelector = new PromotionSelector(PieceManager.CreatePromotionSelector());
 
             MapPiecesToBoard();
@@ -50,7 +38,7 @@ namespace Assets.Scripts.Scenes
         {
             if (Board.IsGameInProgress)
             {
-                BoardInteractions.CheckForPlayerInput( Board, _cameraManager, _promotionSelector);
+                BoardInteractions.CheckForPlayerInput( Board, CameraManager, _promotionSelector);
             }
 
             if(!Board.IsGameInProgress && _playingGame)

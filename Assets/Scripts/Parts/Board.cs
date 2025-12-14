@@ -4,7 +4,6 @@ using Assets.Scripts.Enums;
 using Assets.Scripts.Misc;
 using Assets.Scripts.Moves;
 using Assets.Scripts.Pieces;
-using NUnit.Framework.Constraints;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -380,14 +379,13 @@ namespace Assets.Scripts.Parts
             _board[ rank ][ file ].HighlightSquare( highlight );
         }
 
-        public void HighlightKing( bool isInCheck )
+        public void HighlightKing( bool isInCheck, ChessColor kingColor )
         {
             if(!isInCheck)
             {
                 _inCheckHighlightSquare.Hide();
                 return;
             }
-            ChessColor kingColor = _turn;
             for ( int rank = 1; rank <= Height; ++rank )
             {
                 for ( int file = 1; file <= Width; ++file )

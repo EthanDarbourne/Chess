@@ -98,5 +98,10 @@ namespace Assets.Scripts.Pieces
         {
             _gamePiece.transform.SetParent(parent.transform);
         }
+
+        public void Destroy()
+        {
+            Object.Destroy(_gamePiece);
+        }
     }
 }

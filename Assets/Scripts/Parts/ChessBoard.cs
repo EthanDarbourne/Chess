@@ -49,8 +49,12 @@ namespace Assets.Scripts.Parts
         {
             MovePiecesToStartSquares(Constants.DEFAULT_BACKLINE);
         }
+
         protected void MovePiecesToStartSquares(List<PieceType> backline)
         {
+            _whitePieces.Concat(_blackPieces).ToList().ForEach(piece => piece.Destroy());
+            _whitePieces.Clear();
+            _blackPieces.Clear();
             _whitePieces.AddRange(GeneratePieces(backline, ChessColor.White, Constants.WHITE_BACKLINE_RANK));
             _blackPieces.AddRange(GeneratePieces(backline, ChessColor.Black, Constants.BLACK_BACKLINE_RANK));
 
@@ -63,7 +67,7 @@ namespace Assets.Scripts.Parts
         {
             Dictionary<PieceType, int> pieceCounts = Utilities.GetPieceTypeCounts(pieces);
 
-            if(pieceCounts.ContainsKey(PieceType.King))
+            if(!pieceCounts.ContainsKey(PieceType.King))
             {
                 throw new System.Exception("No king on the board for one side");
             }
@@ -141,7 +145,7 @@ namespace Assets.Scripts.Parts
 
             // after the turn, see if opponent king is in check
             (bool isCheck, bool isCheckmate) = LookForChecks(nextTurn);
-            HighlightKing(isCheck);
+            HighlightKing(isCheck, nextTurn);
 
             if (isCheckmate)
             {

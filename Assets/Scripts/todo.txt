@@ -7,7 +7,7 @@ Changes to Make:
 Make sure moves that can be made by multiple pieces have that recognized in notation
 Pawns should not be sent to graveyards on promotion
 Piece movement animations
-Add more cameras + ability to change camera
+Add more cameras + ability to change camera (done)
 Menus:
 	- restart game
 	- load position from FEN
@@ -17,21 +17,21 @@ Menus:
 	- settings (sound, graphics, etc)
 Consolidate scene scripts (done)
 Create file system for saving/loading positions and settings
-Handle stalemates, threefold repetitions, fifty-move rule etc
-Look for insufficient material
+Handle stalemates, threefold repetitions, fifty-move rule etc (done)
+Look for insufficient material (done)
 Add square highlights for location last piece moved from
-Make camera manager into a monobehaviour - if camera manager has a public list, we can add all the cameras into it, instead of registering
-Implement correct castling for Chess960
+Make camera manager into a monobehaviour - if camera manager has a public list, we can add all the cameras into it, instead of registering (done)
+Implement correct castling for Chess960 (done)
 Remove isCheck and isCheckmate from Move.cs
 Fix promotions
 Better move scheme, IsFree shouldn't return true if connect4 piece is there
 Add a move representing the drop of a connect4 piece
 Going back a move, undoes moves via gravity on that move
 Allow for one click to select a file and highlight where the piece will land, then another click to confirm the landing (done)
-When pieces are captured, they should be removed from _blackPieces and _whitePieces
+When pieces are captured, they should be removed from _blackPieces and _whitePieces (done)
 Allow for button manager to programmatically create buttons in menu given list
-If clicked on rook after king, try and castle.
-
+If clicked on rook after king, try and castle. (done)
+Add a button on Chess960 to randomize position again, if no moves have been made. (done)
 
 Could have game settings (examples):
 	 - piece.AffectedByGravity

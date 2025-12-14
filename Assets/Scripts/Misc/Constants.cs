@@ -27,6 +27,12 @@ namespace Assets.Scripts.Misc
         public static int WHITE_PAWN_PROMOTION_RANK = 8;
         public static int BLACK_PAWN_PROMOTION_RANK = 1;
 
+        // castling
+        public static int CASTLING_QUEEN_SIDE_ROOK_END = 4;
+        public static int CASTLING_QUEEN_SIDE_KING_END = 3;
+        public static int CASTLING_KING_SIDE_ROOK_END = 6;
+        public static int CASTLING_KING_SIDE_KING_END = 7;
+
         public static List<PieceType> DEFAULT_BACKLINE = new() { PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen, PieceType.King, PieceType.Bishop, PieceType.Knight, PieceType.Rook };
         public static readonly List<string> InitialPiecePositions = new() { "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", "Ra1", "Nb1", "Bc1", "Qd1", "Ke1", "Bf1", "Ng1", "Rh1", "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "Ra8", "Nb8", "Bc8", "Qd8", "Ke8", "Bf8", "Ng8", "Rh8" };
     }

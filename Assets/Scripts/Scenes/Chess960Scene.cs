@@ -10,11 +10,9 @@ namespace Assets.Scripts.Scenes
 {
     public class Chess960Scene : MonoBehaviour
     {
-        public Camera MainCamera;
+        private Chess960Board Board;
 
-        private CameraManager _cameraManager = new();
-
-        private Board Board;
+        public CameraManager CameraManager;
 
         public PieceManager PieceManager;
 
@@ -30,9 +28,6 @@ namespace Assets.Scripts.Scenes
         {
             CustomLogger.CurrentLogLevel = LogLevel.Debug;
 
-            _cameraManager.RegisterCamera(MainCamera);
-            _cameraManager.EnableCamera(MainCamera);
-
             _promotionSelector = new PromotionSelector(PieceManager.CreatePromotionSelector());
 
             MapPiecesToBoard();
@@ -43,7 +38,12 @@ namespace Assets.Scripts.Scenes
         {
             if (Board.IsGameInProgress)
             {
-                BoardInteractions.CheckForPlayerInput(Board, _cameraManager, _promotionSelector);
+                BoardInteractions.CheckForPlayerInput(Board, CameraManager, _promotionSelector);
+
+                if (Board.MoveCount == 0 && Input.GetKeyDown(KeyCode.R))
+                {
+                    Board.Randomize();
+                }
             }
 
             if (!Board.IsGameInProgress && _playingGame)

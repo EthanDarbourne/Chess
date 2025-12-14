@@ -1,11 +1,6 @@
-﻿using Assets.Scripts.Parts;
+﻿using Assets.Scripts.Misc;
+using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Assets.Scripts.Moves
 {
@@ -63,10 +58,14 @@ namespace Assets.Scripts.Moves
         {
             int kingFile = From.File.Num;
             int rookFile = _rookSquare.File.Num;
-            int dir = rookFile < kingFile ? -1 : 1;
-            int kingNewFile = kingFile + dir * 2;
-            int rookNewFile = kingNewFile - dir;
-            return (kingNewFile, rookNewFile);
+            if (rookFile < kingFile) // queenside
+            {
+                return (Constants.CASTLING_QUEEN_SIDE_KING_END, Constants.CASTLING_QUEEN_SIDE_ROOK_END);
+            }
+            else // kingside
+            {
+                return (Constants.CASTLING_KING_SIDE_KING_END, Constants.CASTLING_KING_SIDE_ROOK_END);
+            }
         }
     }
 }

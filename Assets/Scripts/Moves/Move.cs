@@ -8,6 +8,8 @@ namespace Assets.Scripts.Moves
         protected Square _from;
         protected Square _to;
 
+        protected MoveInfo _moveInfo;
+
         //protected bool _isCheck;
         //protected bool _isCheckmate;
 
@@ -22,6 +24,8 @@ namespace Assets.Scripts.Moves
             _from = from;
             _to = to;
             _boardHash = boardHash;
+            bool isCaptureMove = this is CaptureMove || this is EnPassant;
+            _moveInfo = new(from.Piece?.Type == Enums.PieceType.Pawn, isCaptureMove);
             //_isCheck = isCheck;
             //_isCheckmate = isCheckmate;
         }
@@ -31,6 +35,9 @@ namespace Assets.Scripts.Moves
         //public bool IsCheck => _isCheck;
         //public bool IsCheckmate => _isCheckmate;
         public string MoveNotation => _moveNotation;
+
+        public bool IsPawnMove => _moveInfo.IsPawnMove;
+        public bool IsCaptureMove => _moveInfo.IsCaptureMove;
 
         public int GetLength()
         {

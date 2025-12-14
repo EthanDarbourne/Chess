@@ -96,8 +96,7 @@ namespace Assets.Scripts.Parts
                 GameOver(GameState.WhiteWin);
                 return;
             }
-            ClaimPiece(piece);
-            _blackPieces.Add(piece);
+            OnPieceRevived(piece);
             CustomLogger.LogDebug("Moving Connect4 piece to location");
             PlaceConnect4Move move = new(piece, null, GetSquare(Height, file), GetBoardHash());
             MovePiece(move);

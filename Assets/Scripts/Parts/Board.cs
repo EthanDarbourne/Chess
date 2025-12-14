@@ -189,6 +189,12 @@ namespace Assets.Scripts.Parts
             return color == ChessColor.White ? _whitePieceGraveyard : _blackPieceGraveyard;
         }
 
+        public void SendPieceToGraveyard(Piece piece)
+        {
+            PieceGraveyard pieceGraveyard = GetPieceGraveyard(piece.Color);
+            pieceGraveyard.SendPieceToGraveyard(piece);
+        }
+
         public void SelectPiece( CRank rank, CFile file )
         {
             SelectPiece( rank.Num, file.Num );
@@ -485,6 +491,37 @@ namespace Assets.Scripts.Parts
             _turn = Utilities.FlipTurn( _turn );
         }
 
+        public void OnPieceCaptured(Piece piece)
+        {
+            bool success;
+            if (piece.Color == ChessColor.White)
+            {
+                success = _whitePieces.Remove(piece);
+            }
+            else
+            {
+                success = _blackPieces.Remove(piece);
+            }
+            if(!success)
+            {
+                throw new Exception("Couldn't find captured piece");
+            }
+            SendPieceToGraveyard(piece);
+        }
+
+        public void OnPieceRevived(Piece piece)
+        {
+            if(piece.Color == ChessColor.White)
+            {
+                _whitePieces.Add(piece);
+            }
+            else
+            {
+                _blackPieces.Add(piece);
+            }
+            ClaimPiece(piece);
+        }
+
         public void Promote(Square square, PieceType type)
         {
             Assert.IsTrue( square.Rank.Num == 1 || square.Rank.Num == 8 );
@@ -494,7 +531,7 @@ namespace Assets.Scripts.Parts
             ClaimPiece(promotedPiece);
             promotedPiece.SetLocation( square.Point );
             PieceGraveyard pieceGraveyard = GetPieceGraveyard( square.Piece.Color );
-            square.CapturePiece( promotedPiece, pieceGraveyard);
+            square.CapturePiece( promotedPiece, this);
         }
 
         // put a pawn on the square that it promoted at

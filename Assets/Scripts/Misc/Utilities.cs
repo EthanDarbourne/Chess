@@ -5,6 +5,7 @@ using Assets.Scripts.Pieces;
 using Assets.Scripts.ShallowCopy;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.Misc
@@ -271,6 +272,18 @@ namespace Assets.Scripts.Misc
             }
             notation += PrintNotation(move.To.Rank.Num, move.To.File.Num);
             return notation;
+        }
+
+        public static Dictionary<PieceType, int> GetPieceTypeCounts(List<Piece> pieces)
+        {
+            return pieces.Select(x => x.Type)
+                         .GroupBy(x => x)
+                         .ToDictionary(g => g.Key, g => g.Count());
+        }
+
+        public static int GetMoveCounts(List<Piece> pieces, Board board)
+        {
+            return pieces.Select(x => x.GetValidMoves(board).Count).Sum();
         }
     }
 }

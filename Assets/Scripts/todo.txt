@@ -30,13 +30,22 @@ Going back a move, undoes moves via gravity on that move
 Allow for one click to select a file and highlight where the piece will land, then another click to confirm the landing (done)
 When pieces are captured, they should be removed from _blackPieces and _whitePieces
 Allow for button manager to programmatically create buttons in menu given list
+If clicked on rook after king, try and castle.
+
+
+Could have game settings (examples):
+	 - piece.AffectedByGravity
+	 - piece.CanMoveThroughPieces
+	 - piece.CanBeMovedThrough
+And all these rules are checked in OnMoveExecuted or GetPotentialMoves
 
 Add Board settings, like can move through moves
+Make connect4
 
 Menu todo:
 Add all options
-Buttons can be clicked on to be selected
-Buttons load correct game scenes
+Buttons can be clicked on to be selected (done)
+Buttons load correct game scenes (done)
 Scenes take you back to menu upon completion
 Better lighting
 

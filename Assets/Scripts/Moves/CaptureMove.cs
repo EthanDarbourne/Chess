@@ -16,11 +16,10 @@ namespace Assets.Scripts.Moves
 
         protected override void DoExecuteMove( Board board )
         {
-            // todo: move to side of board
             Piece movingPiece = From.RemovePiece();
             PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( Utilities.FlipTurn( movingPiece.Color ));
             _capturedPieceType = To.Piece.Type;
-            To.CapturePiece( movingPiece, pieceGraveyard);
+            To.CapturePiece( movingPiece, board);
         }
 
         protected override void DoUndoMove( Board board )
@@ -30,7 +29,7 @@ namespace Assets.Scripts.Moves
 
             PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( Utilities.FlipTurn( movingPiece.Color ));
             Piece revivedPiece = pieceGraveyard.RevivePiece(_capturedPieceType);
-            board.ClaimPiece(revivedPiece);
+            board.OnPieceRevived(revivedPiece);
 
             To.MovePieceTo(revivedPiece);
         }

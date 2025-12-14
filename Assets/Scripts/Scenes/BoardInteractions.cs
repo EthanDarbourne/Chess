@@ -10,7 +10,7 @@ namespace Assets.Scripts.Scenes
 {
     public static class BoardInteractions
     {
-        public static Board CreateBoard(PieceManager pieceManager, PromotionSelector promotionSelector, MonoBehaviour parent)
+        public static T CreateBoard<T>(PieceManager pieceManager, PromotionSelector promotionSelector, MonoBehaviour parent) where T : Board
         {
             GameObject boardObj = pieceManager.CreateBoard(new Vector3(-4f, 0, 4f));
 
@@ -31,7 +31,7 @@ namespace Assets.Scripts.Scenes
             HighlightSquare defaultHighlightSquare = new(Creator.CreateHighlightSquare(boardObj), CommonVectors.FirstLayerHeightOffset);
             HighlightSquare inCheckHighlightSquare = new(Creator.CreateInCheckHighlightSquare(boardObj), CommonVectors.SecondLayerHeightOffset);
 
-            return new(Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, pieceManager, pieceGraveyards, boardObj, defaultHighlightSquare, inCheckHighlightSquare, promotionSelector, parent);
+            return (T)Activator.CreateInstance(typeof(T), Constants.BOARD_WIDTH, Constants.BOARD_HEIGHT, pieceManager, pieceGraveyards, boardObj, defaultHighlightSquare, inCheckHighlightSquare, promotionSelector, parent);
         }
 
         public static void CheckForPlayerInput(Board board, CameraManager cameraManager, PromotionSelector promotionSelector)

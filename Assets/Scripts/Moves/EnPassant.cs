@@ -20,8 +20,7 @@ namespace Assets.Scripts.Moves
         protected override void DoExecuteMove( Board board )
         {
             // en passant moves the current pawn one square behind the adjacent pawn
-            PieceGraveyard pieceGraveyard = board.GetPieceGraveyard( _captureOn.Piece.Color );
-            _captureOn.CapturePiece(pieceGraveyard);
+            _captureOn.CapturePiece(board);
 
             Piece movingPiece = From.RemovePiece();
             To.MovePieceTo( movingPiece );
@@ -34,7 +33,7 @@ namespace Assets.Scripts.Moves
 
             PieceGraveyard pieceGraveyard = board.GetPieceGraveyard(Utilities.FlipTurn(movingPiece.Color));
             Piece revivedPiece = pieceGraveyard.RevivePiece(PieceType.Pawn);
-            board.ClaimPiece(revivedPiece);
+            board.OnPieceRevived(revivedPiece);
 
             _captureOn.MovePieceTo(revivedPiece);
         }

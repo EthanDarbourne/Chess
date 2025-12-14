@@ -91,9 +91,9 @@ namespace Assets.Scripts.Moves
         {
             // need to simulate move on board to look for checks, need to pass move object in
 
-            ShallowBoard shallowBoard = board.GetShallowBoard();
+            //ShallowBoard shallowBoard = board.GetShallowBoard();
 
-            shallowBoard.AddChecksToMove( move );
+            //shallowBoard.AddChecksToMove( move );
         }
 
         private static void AddChecksToMove( this ShallowBoard board, Move move )

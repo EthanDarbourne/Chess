@@ -3,13 +3,10 @@ using Assets.Scripts.Moves;
 using Assets.Scripts.Parts;
 using Assets.Scripts.Pieces;
 using Assets.Scripts.ShallowCopy;
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.Scripts.Misc
 {
@@ -152,6 +149,7 @@ namespace Assets.Scripts.Misc
                 PieceType.Rook => new Rook( gameObject, color ),
                 PieceType.Queen => new Queen( gameObject, color ),
                 PieceType.King => new King( gameObject, color ),
+                PieceType.Connect4 => new Connect4( gameObject, color),
                 _ => throw new InvalidOperationException( $"Cannot create a piece of type {type}" ),
             };
         }
@@ -169,27 +167,27 @@ namespace Assets.Scripts.Misc
 
             if ( move is BasicMove )
             {
-                return new ShallowBasicMove( from, to, move.IsCheck, move.IsCheckmate );
+                return new ShallowBasicMove( from, to);
             }
             else if ( move is CaptureMove )
             {
-                return new ShallowCaptureMove( from, to, move.IsCheck, move.IsCheckmate );
+                return new ShallowCaptureMove( from, to);
             }
             else if ( move is EnPassant enPassant )
             {
-                return new ShallowEnPassant( from, to, new( enPassant.CaptureOn ), move.IsCheck, move.IsCheckmate );
+                return new ShallowEnPassant( from, to, new( enPassant.CaptureOn ));
             }
             else if(move is Castling castling)
             {
-                return new ShallowCastling( from, to, new( castling.RookSquare ), move.IsCheck, move.IsCheckmate );
+                return new ShallowCastling( from, to, new( castling.RookSquare ));
             }
             else if(move is PromotionBasicMove promotionBasic)
             {
-                return new ShallowPromotionBasicMove( from, to, promotionBasic.PromoteTo, move.IsCheck, move.IsCheckmate );
+                return new ShallowPromotionBasicMove( from, to, promotionBasic.PromoteTo);
             }
             else if ( move is PromotionCaptureMove promotionCapture )
             {
-                return new ShallowPromotionCaptureMove( from, to, promotionCapture.PromoteTo, move.IsCheck, move.IsCheckmate );
+                return new ShallowPromotionCaptureMove( from, to, promotionCapture.PromoteTo);
             }
 
             throw new Exception( "no equivalent move" );
@@ -241,6 +239,10 @@ namespace Assets.Scripts.Misc
 
         public static string GetMoveNotation( Move move, Board board )
         {
+            if (move is PlaceConnect4Move placeMove)
+            {
+                return $"{placeMove.To.File.AsChar()}";
+            }
             if (move is Castling castleMove)
             {
                 return castleMove.IsKingsideCastling ? "O-O" : "O-O-O";
@@ -270,6 +272,18 @@ namespace Assets.Scripts.Misc
             }
             notation += PrintNotation(move.To.Rank.Num, move.To.File.Num);
             return notation;
+        }
+
+        public static Dictionary<PieceType, int> GetPieceTypeCounts(List<Piece> pieces)
+        {
+            return pieces.Select(x => x.Type)
+                         .GroupBy(x => x)
+                         .ToDictionary(g => g.Key, g => g.Count());
+        }
+
+        public static int GetMoveCounts(List<Piece> pieces, Board board)
+        {
+            return pieces.Select(x => x.GetValidMoves(board).Count).Sum();
         }
     }
 }

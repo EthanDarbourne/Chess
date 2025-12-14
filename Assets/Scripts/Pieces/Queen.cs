@@ -24,7 +24,7 @@ namespace Assets.Scripts.Pieces
 
         public override PieceType Type => PieceType.Queen;
 
-        protected override List<Move> GetPotentialMoves( Board board )
+        public override List<Move> GetPotentialMoves( Board board )
         {
             int rank = _location.Rank.Num;
             int file = _location.File.Num;

@@ -8,6 +8,7 @@
         Rook,
         Queen,
         King,
+        Connect4,
         Empty
     }
 
@@ -22,7 +23,8 @@
             PieceType.Rook => 'R',
             PieceType.Queen => 'Q',
             PieceType.King => 'K',
-            _ => ' ',
+            PieceType.Connect4 => 'C',
+                _ => ' ',
             };
         }
     }

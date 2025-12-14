@@ -20,12 +20,32 @@ Create file system for saving/loading positions and settings
 Handle stalemates, threefold repetitions, fifty-move rule etc
 Look for insufficient material
 Add square highlights for location last piece moved from
-Make camera manager into a monobehaviour
+Make camera manager into a monobehaviour - if camera manager has a public list, we can add all the cameras into it, instead of registering
+Implement correct castling for Chess960
+Remove isCheck and isCheckmate from Move.cs
+Fix promotions
+Better move scheme, IsFree shouldn't return true if connect4 piece is there
+Add a move representing the drop of a connect4 piece
+Going back a move, undoes moves via gravity on that move
+Allow for one click to select a file and highlight where the piece will land, then another click to confirm the landing (done)
+When pieces are captured, they should be removed from _blackPieces and _whitePieces
+Allow for button manager to programmatically create buttons in menu given list
+If clicked on rook after king, try and castle.
+
+
+Could have game settings (examples):
+	 - piece.AffectedByGravity
+	 - piece.CanMoveThroughPieces
+	 - piece.CanBeMovedThrough
+And all these rules are checked in OnMoveExecuted or GetPotentialMoves
+
+Add Board settings, like can move through moves
+Make connect4
 
 Menu todo:
 Add all options
-Buttons can be clicked on to be selected
-Buttons load correct game scenes
+Buttons can be clicked on to be selected (done)
+Buttons load correct game scenes (done)
 Scenes take you back to menu upon completion
 Better lighting
 
@@ -41,7 +61,7 @@ Optimizations:
 	- Interpret moves better -> e4 must be pawn, Nf3 must come from certain squares etc
 	- Look for checks from pieces instead of squares
 
-More ideas: greenlemongamestudio on instagram
+More ideas: greenlemongamestudio or viper_chess on instagram
 
 Completed:
 Move pieces to captured location (done)
@@ -57,3 +77,20 @@ Rotate Knights???? (done)
 Better handle board positions relative to the world. Place game objects inside a parent object??? (done)
 Make sure moves can only be executed for a certain board position (add board hash) (done)
 Change ShallowBoard.Square to struct (done)
+
+
+
+How to split up board class:
+Base functionality:
+	- ExecuteMoves
+	- MovePiece
+
+
+
+Inherited functionality:
+	- Setup for start function
+	- Select location (function that is called to interact with board and manage game state)
+	- Function for checking if game is over
+	- Each board should define how pieces move, the set of moves, characteristics that are allowed/not allowed from pieces
+	- chessvsconnect4 allows pieces to move past other connect4 pieces but not land on them
+	- IsValidPositionAfterMove

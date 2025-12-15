@@ -40,18 +40,21 @@ namespace Assets.Scripts.Scenes
             {
                 Vector3 mousePos = Input.mousePosition;
                 Ray ray = cameraManager.EnabledCamera.ScreenPointToRay(mousePos);
-                //CustomLogger.LogDebug( $"Clicked on {mousePos.x}, {mousePos.y}" );
-
-
                 ray.direction = ray.direction * 100;
 
                 if (Physics.Raycast(ray, out RaycastHit raycastHit, 1000000f))
                 {
-                    CustomLogger.LogDebug($"Hit {raycastHit.transform.name}");
+                    string name = raycastHit.transform.name;
                     if (promotionSelector.IsSelectorOpen)
                     {
-                        CustomLogger.LogDebug($"Hit promotion selector at {raycastHit.point}");
-                        promotionSelector.Trigger(raycastHit.point.x, raycastHit.point.z);
+                        if (name.StartsWith("Promotion"))
+                        {
+                            promotionSelector.Trigger(raycastHit.point.x, raycastHit.point.z);
+                        }
+                        else
+                        {
+                            promotionSelector.Hide();
+                        }
                     }
                     else if (raycastHit.transform is not null) // .name.StartsWith(_pieceManager.Board.name )
                     {
@@ -62,9 +65,18 @@ namespace Assets.Scripts.Scenes
                     }
                     else
                     {
+                        CustomLogger.LogDebug("Deselecting piece");
                         board.DeselectPiece();
                     }
 
+                }
+                else
+                {
+                    if (promotionSelector.IsSelectorOpen)
+                    {
+                        promotionSelector.Hide();
+                    }
+                    board.DeselectPiece();
                 }
             }
             CheckForKeyPresses(board);

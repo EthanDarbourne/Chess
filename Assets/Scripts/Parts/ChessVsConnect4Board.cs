@@ -21,10 +21,10 @@ namespace Assets.Scripts.Parts
 
         protected override void SetupBoard()
         {
-            _whitePieces.AddRange(GeneratePieces(Constants.DEFAULT_BACKLINE, ChessColor.White, Constants.WHITE_BACKLINE_RANK));
+            GeneratePieces(Constants.DEFAULT_BACKLINE, ChessColor.White, Constants.WHITE_BACKLINE_RANK);
 
             List<PieceType> pawns = Enumerable.Repeat(PieceType.Pawn, 8).ToList();
-            _whitePieces.AddRange(GeneratePieces(pawns, ChessColor.White, Constants.WHITE_PAWN_STARTING_RANK));
+            GeneratePieces(pawns, ChessColor.White, Constants.WHITE_PAWN_STARTING_RANK);
 
             for (int i = 0; i < 16; ++i)
             {

@@ -1,5 +1,4 @@
 ﻿using Assets.Scripts.Enums;
-using Assets.Scripts.Misc;
 using System.Collections;
 using UnityEngine;
 
@@ -19,6 +18,7 @@ namespace Assets.GameObjects
         public PromotionSelector(GameObject selector)
         {
             _selector = selector;
+            _selector.transform.position = Vector3.zero;
             _lastSelectedPiece = PieceType.Empty;
             Hide();
         }
@@ -33,55 +33,53 @@ namespace Assets.GameObjects
             {
                 yield return null;
             }
-            Hide();
             yield return LastSelectedPiece;
+        }
+
+        private bool Between(double val, double low, double hi, double variance)
+        {
+            return val >= low - variance && val <= hi + variance;
         }
 
         public void Trigger(float x, float z)
         {
-            double row = (x - _selector.transform.position.x);
-            double col = (z - _selector.transform.position.z);
+            double row = 4 - z - _selector.transform.localPosition.y;
+            double col = x - _selector.transform.localPosition.x + 4;
 
-            double left = -0.83d;
-            double right = 1.28d;
-            double top = 0.98d;
-            double bottom = -1.16d;
+            double start = 0d, middle = 1d, end = 2d, variance = 0.05d;
 
-            if(row < left || row > right || row < bottom || row > top)
+            PieceType selectedPiece = PieceType.Empty;
+            if(Between(col, start, middle, variance))
             {
-                _lastSelectedPiece = PieceType.Empty;
-            }
-            else if(row - left < right - row)
-            {
-                if(top - col < col - bottom)
+                if(Between(row, start, middle, variance))
                 {
-                    _lastSelectedPiece = PieceType.Queen;
+                    selectedPiece = PieceType.Queen;
                 }
-                else
+                else if(Between(row, middle, end, variance))
                 {
-                    _lastSelectedPiece = PieceType.Knight;
+                    selectedPiece = PieceType.Knight;
                 }
             }
-            else
+            else if(Between(col, middle, end, variance))
             {
-                if ( top - col < col - bottom )
+                if (Between(row, start, middle, variance))
                 {
-                    _lastSelectedPiece = PieceType.Rook;
+                    selectedPiece = PieceType.Rook;
                 }
-                else
+                else if (Between(row, middle, end, variance))
                 {
-                    _lastSelectedPiece = PieceType.Bishop;
+                    selectedPiece = PieceType.Bishop;
                 }
             }
-            CustomLogger.LogInfo( $"Selected {_lastSelectedPiece}" );
+            _lastSelectedPiece = selectedPiece;
             Hide();
         }
 
         public void Display(Vector3 position)
         {
-            position.y = 3;
+            position.z = 3;
             _isSelectorOpen = true;
-            _selector.transform.position = position;
+            _selector.transform.localPosition = position;
             _selector.SetActive(true);
         }
 
@@ -89,6 +87,11 @@ namespace Assets.GameObjects
         {
             _isSelectorOpen = false;
             _selector.SetActive( false );
+        }
+
+        public void Claim(GameObject parent)
+        {
+            _selector.transform.parent = parent.transform;
         }
     }
 }

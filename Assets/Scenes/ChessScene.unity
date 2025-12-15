@@ -148,10 +148,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 027009e13247baa44a598c121331245c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.Scripts.GameObjects.CameraManager
-  Cameras:
-  - {fileID: 706029191}
-  - {fileID: 1534754293}
-  - {fileID: 459215482}
 --- !u!4 &26588146
 Transform:
   m_ObjectHideFlags: 0
@@ -222,6 +218,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8345061840160585174, guid: a0ac1ea9d8cc89b4d8c70a2acb85bf3a, type: 3}
+      propertyPath: PromotionSelector
+      value: 
+      objectReference: {fileID: 7797027040789783752, guid: b1f81abc86290dd4580ff34a8a6f43b0, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -739,14 +739,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CameraManager: {fileID: 26588145}
   PieceManager: {fileID: 154288648}
-  DoMovesAtStartOfGame: 0
+  DoMovesAtStartOfGame: 1
   MovesAtStartOfGame:
   - e4
-  - e5
-  - nf3
+  - d5
+  - exd5
+  - c6
+  - dxc6
   - nf6
-  - d4
-  - d6
+  - cxb7
+  - a6
 --- !u!4 &1885315205
 Transform:
   m_ObjectHideFlags: 0

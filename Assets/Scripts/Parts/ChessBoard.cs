@@ -52,15 +52,13 @@ namespace Assets.Scripts.Parts
 
         protected void MovePiecesToStartSquares(List<PieceType> backline)
         {
-            _whitePieces.Concat(_blackPieces).ToList().ForEach(piece => piece.Destroy());
-            _whitePieces.Clear();
-            _blackPieces.Clear();
-            _whitePieces.AddRange(GeneratePieces(backline, ChessColor.White, Constants.WHITE_BACKLINE_RANK));
-            _blackPieces.AddRange(GeneratePieces(backline, ChessColor.Black, Constants.BLACK_BACKLINE_RANK));
+            RemoveAllPieces();
+            GeneratePieces(backline, ChessColor.White, Constants.WHITE_BACKLINE_RANK);
+            GeneratePieces(backline, ChessColor.Black, Constants.BLACK_BACKLINE_RANK);
 
             List<PieceType> pawns = Enumerable.Repeat(PieceType.Pawn, 8).ToList();
-            _whitePieces.AddRange(GeneratePieces(pawns, ChessColor.White, Constants.WHITE_PAWN_STARTING_RANK));
-            _blackPieces.AddRange(GeneratePieces(pawns, ChessColor.Black, Constants.BLACK_PAWN_STARTING_RANK));
+            GeneratePieces(pawns, ChessColor.White, Constants.WHITE_PAWN_STARTING_RANK);
+            GeneratePieces(pawns, ChessColor.Black, Constants.BLACK_PAWN_STARTING_RANK);
         }
 
         private bool IsInsufficientMaterial(List<Piece> pieces)
@@ -149,7 +147,6 @@ namespace Assets.Scripts.Parts
 
             if (isCheckmate)
             {
-
                 if (_turn == ChessColor.White)
                 {
                     GameOver(GameState.CheckmateWhite);

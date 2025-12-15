@@ -8,8 +8,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.Assertions;
+using static Assets.Scripts.Parts.ShallowBoard;
 
 namespace Assets.Scripts.Parts
 {
@@ -62,9 +64,12 @@ namespace Assets.Scripts.Parts
             _monoBehaviour = monoBehaviour;
             _whitePieceGraveyard = pieceGraveyards[0];
             _blackPieceGraveyard = pieceGraveyards[1];
+
+            _promotionSelector.Claim(_boardObj);
         }
 
         #region Abstract Functions
+
         protected abstract void SetupBoard();
 
         public abstract bool IsValidPositionAfterMove(Move move);
@@ -109,8 +114,7 @@ namespace Assets.Scripts.Parts
         public void SetupForGameStart()
         {
             BuildBoard();
-            _whitePieces.Clear();
-            _blackPieces.Clear();
+            RemoveAllPieces();
             SetupBoard();
 
             DeselectPiece();
@@ -139,11 +143,38 @@ namespace Assets.Scripts.Parts
         {
             piece.SetParent(_boardObj);
             piece.MoveToInitialLocation();
+            if(piece.Color == ChessColor.White)
+            {
+                _whitePieces.Add(piece);
+            }
+            else
+            {
+                _blackPieces.Add(piece);
+            }
+        }
+        
+        protected void RemovePiece(Piece piece)
+        {
+            if (piece.Color == ChessColor.White)
+            {
+                _whitePieces.Remove(piece);
+            }
+            else
+            {
+                _blackPieces.Remove(piece);
+            }
+            piece.Destroy();
         }
 
-        protected List<Piece> GeneratePieces(List<PieceType> pieceOrder, ChessColor color, int rank)
+        protected void RemoveAllPieces()
         {
-            List<Piece> generatedPieces = new();
+            _whitePieces.Concat(_blackPieces).ToList().ForEach(piece => piece.Destroy());
+            _whitePieces.Clear();
+            _blackPieces.Clear();
+        }
+
+        protected void GeneratePieces(List<PieceType> pieceOrder, ChessColor color, int rank)
+        {
             for (int file = 1; file <= _width; ++file)
             {
                 // white piece
@@ -151,9 +182,7 @@ namespace Assets.Scripts.Parts
                 Piece piece = GeneratePiece(pieceType, color);
                 ClaimPiece(piece);
                 SetPiece(rank, file, piece);
-                generatedPieces.Add(piece);
             }
-            return generatedPieces;
         }
 
         protected Piece GeneratePiece(PieceType type, ChessColor color)
@@ -525,11 +554,12 @@ namespace Assets.Scripts.Parts
             Assert.IsTrue( square.Rank.Num == 1 || square.Rank.Num == 8 );
             Assert.AreEqual( square.Piece?.Type, PieceType.Pawn );
 
-            Piece promotedPiece = GeneratePiece( type, square.Piece.Color );
+            Piece promotedPiece = GeneratePiece( type, square.Piece!.Color );
+            RemovePiece(square.Piece);
+            
             ClaimPiece(promotedPiece);
-            promotedPiece.SetLocation( square.Point );
-            PieceGraveyard pieceGraveyard = GetPieceGraveyard( square.Piece.Color );
-            square.CapturePiece( promotedPiece, this);
+            square.Piece.Destroy();
+            square.SetPiece( promotedPiece );
         }
 
         // put a pawn on the square that it promoted at
@@ -537,9 +567,10 @@ namespace Assets.Scripts.Parts
         {
             Assert.IsTrue( square.Rank.Num == 1 || square.Rank.Num == 8 );
             Assert.IsNotNull( square.Piece );
-            Assert.AreNotEqual( square.Piece?.Type, PieceType.Pawn );
+            Assert.AreNotEqual( square.Piece!.Type, PieceType.Pawn );
 
-            Piece pawn = GeneratePiece( PieceType.Pawn, square.Piece.Color );
+            Piece pawn = GeneratePiece(PieceType.Pawn, square.Piece.Color);
+            RemovePiece(square.Piece);
             ClaimPiece(pawn);
             square.SetPiece( pawn );
         }
